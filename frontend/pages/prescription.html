@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAWAZ | Upload Prescription</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/prescription.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <h2>DAWAZ</h2>
+        </div>
+
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="medicines.html">My Medicines</a>
+            <a href="reminders.html">Reminders</a>
+            <a href="scanner.html">Scan Medicine</a>
+            <a href="caregivers.html">Caregivers</a>
+        </nav>
+
+        <div class="profile">
+            <span class="profile-icon">P</span>
+            <span>Patient</span>
+        </div>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="prescription-container">
+
+        <!-- Page Heading -->
+        <section class="prescription-header">
+
+            <p class="page-label">MEDICINE MANAGEMENT</p>
+
+            <h1>Upload Prescription</h1>
+
+            <p>
+                Upload your doctor's prescription to keep
+                your medicine records organised.
+            </p>
+
+        </section>
+
+
+        <!-- Upload Section -->
+        <section class="upload-card">
+
+            <div class="upload-icon">+</div>
+
+            <h2>Upload Your Prescription</h2>
+
+            <p>
+                Select a prescription image or PDF from your device.
+            </p>
+
+            <label for="prescriptionFile" class="upload-button">
+                Choose File
+            </label>
+
+            <input
+                type="file"
+                id="prescriptionFile"
+                accept="image/*,.pdf"
+                hidden
+            >
+
+            <p class="file-info">
+                Supported formats: JPG, PNG and PDF
+            </p>
+
+            <p id="fileName" class="file-name"></p>
+
+            <p id="uploadMessage" class="upload-message"></p>
+
+        </section>
+
+
+        <!-- Review Information -->
+        <section class="review-card">
+
+            <div class="review-icon">!</div>
+
+            <div>
+                <h2>Prescription Review</h2>
+
+                <p>
+                    After uploading, extracted medicine details
+                    must be reviewed and corrected by you.
+                </p>
+
+                <p>
+                    Reminders will only be activated after
+                    you confirm the prescription details.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- Safety Information -->
+        <section class="safety-note">
+
+            <h3>Important Safety Information</h3>
+
+            <p>
+                DAWAZ does not independently decide medicine
+                dosage or frequency. Always follow your
+                doctor's confirmed prescription.
+            </p>
+
+            <p>
+                If any medicine name or instruction is unclear,
+                consult your doctor or pharmacist.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/prescription.js"></script>
+
+</body>
+</html>
