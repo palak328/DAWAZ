@@ -1,147 +1,121 @@
 
 const prescriptionFile = document.getElementById("prescriptionFile");
-
 const fileName = document.getElementById("fileName");
 const uploadMessage = document.getElementById("uploadMessage");
-
 const submitButton = document.getElementById("submitPrescription");
 
 const extractionMessage = document.getElementById("extractionMessage");
+const medicineDetails = document.getElementById("medicineDetails");
 
 const statusUploaded = document.getElementById("statusUploaded");
 const statusProcessing = document.getElementById("statusProcessing");
 const statusReview = document.getElementById("statusReview");
-
 const statusMessage = document.getElementById("statusMessage");
 
 let selectedFile = null;
 
+const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "application/pdf"
+];
 
-// =====================================
-// FILE SELECTION
-// =====================================
+const maxFileSize = 10 * 1024 * 1024;
 
-prescriptionFile.addEventListener("change", function () {
-
-    const file = prescriptionFile.files[0];
-
-    selectedFile = null;
-
-    submitButton.disabled = true;
-
-    // Reset status and extraction display
-    resetReviewPanel();
-
-    if (!file) {
-        fileName.textContent = "";
-        uploadMessage.textContent = "";
-        return;
-    }
-
-    // Allowed formats
-    const allowedTypes = [
-        "image/jpeg",
-        "image/png",
-        "application/pdf"
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-
-        uploadMessage.textContent =
-            "Please select a JPG, PNG, or PDF file.";
-
-        fileName.textContent = "";
-        prescriptionFile.value = "";
-
-        return;
-    }
-
-    // Maximum size: 10 MB
-    const maxSize = 10 * 1024 * 1024;
-
-    if (file.size > maxSize) {
-
-        uploadMessage.textContent =
-            "File size must be less than 10 MB.";
-
-        fileName.textContent = "";
-        prescriptionFile.value = "";
-
-        return;
-    }
-
-    selectedFile = file;
-
-    fileName.textContent = "Selected: " + file.name;
-
-    uploadMessage.textContent =
-        "Your file is ready to submit.";
-
-    submitButton.disabled = false;
-
-});
-
-
-// =====================================
-// RESET REVIEW PANEL
-// =====================================
-
+// Reset status panel
 function resetReviewPanel() {
-
-    extractionMessage.hidden = false;
 
     statusUploaded.classList.remove("active");
     statusProcessing.classList.remove("active");
     statusReview.classList.remove("active");
 
-    statusMessage.textContent = "No prescription submitted";
+    statusMessage.textContent =
+        "Your prescription has not been submitted yet.";
 
+    extractionMessage.hidden = false;
+    extractionMessage.textContent =
+        "Medicine details will appear here after prescription processing.";
+
+    medicineDetails.hidden = true;
 }
 
+// Handle file selection
+prescriptionFile.addEventListener("change", function () {
 
-// =====================================
-// SUBMIT PRESCRIPTION
-// =====================================
+    selectedFile = prescriptionFile.files[0];
 
-submitButton.addEventListener("click", function () {
+    submitButton.disabled = true;
+    fileName.textContent = "";
+    uploadMessage.textContent = "";
+
+    resetReviewPanel();
 
     if (!selectedFile) {
-
-        uploadMessage.textContent =
-            "Please select a prescription first.";
-
         return;
     }
 
-    // Update upload status
+    if (!allowedTypes.includes(selectedFile.type)) {
+
+        uploadMessage.textContent =
+            "Please select a JPG, PNG or PDF file.";
+
+        selectedFile = null;
+        prescriptionFile.value = "";
+        return;
+    }
+
+    if (selectedFile.size > maxFileSize) {
+
+        uploadMessage.textContent =
+            "File size must be less than 10 MB.";
+
+        selectedFile = null;
+        prescriptionFile.value = "";
+        return;
+    }
+
+    fileName.textContent = selectedFile.name;
+
+    uploadMessage.textContent =
+        "File selected successfully.";
+
+    submitButton.disabled = false;
+});
+
+// Submit prescription
+submitButton.addEventListener("click", function () {
+
+    if (!selectedFile) {
+        uploadMessage.textContent =
+            "Please select a prescription first.";
+        return;
+    }
+
+    // Temporary workflow data.
+    // Actual prescription upload will use the backend API.
+
+    const prescriptionWorkflow = {
+        fileName: selectedFile.name,
+        fileType: selectedFile.type,
+        submittedAt: new Date().toISOString(),
+        status: "awaiting_ocr"
+    };
+
+    sessionStorage.setItem(
+        "prescriptionWorkflow",
+        JSON.stringify(prescriptionWorkflow)
+    );
+
     statusUploaded.classList.add("active");
 
     statusMessage.textContent =
-        "Prescription submitted in this browser";
+        "Prescription selected. OCR processing requires backend integration.";
 
     uploadMessage.textContent =
-        "Prescription submitted successfully.";
+        "Opening medicine review...";
 
-    // OCR is not connected yet.
-    // Do not show invented medicine information.
-
-    extractionMessage.innerHTML = `
-        <div class="empty-icon">⌕</div>
-
-        <p>
-            Your document has been submitted.
-            Medicine details are not available yet.
-        </p>
-
-        <span>OCR processing needs to be connected.</span>
-    `;
-
-    extractionMessage.hidden = false;
-
-    statusProcessing.classList.remove("active");
-    statusReview.classList.remove("active");
-
-    submitButton.disabled = true;
+    window.location.href = "medicine-review.html";
 
 });
+
 
