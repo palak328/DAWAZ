@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAWAZ | Patient Dashboard</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+
+    <!-- Top Navigation -->
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <h2>DAWAZ</h2>
+        </div>
+
+        <nav class="nav-links">
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="medicines.html">My Medicines</a>
+            <a href="reminders.html">Reminders</a>
+            <a href="scanner.html">Scan Medicine</a>
+            <a href="caregivers.html">Caregivers</a>
+        </nav>
+
+        <div class="profile">
+            <span class="profile-icon">P</span>
+            <span>Patient</span>
+        </div>
+
+    </header>
+
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-container">
+
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+
+            <div>
+                <p class="greeting">PATIENT DASHBOARD</p>
+
+                <h1>Welcome back!</h1>
+
+                <p>
+                    Manage your medicines and stay on track
+                    with your daily health routine.
+                </p>
+            </div>
+
+            <div class="date-display">
+                <p>Today's Overview</p>
+                <h3 id="currentDate">Loading...</h3>
+            </div>
+
+        </section>
+
+
+        <!-- Overview Cards -->
+        <section class="overview-grid">
+
+            <div class="overview-card">
+                <p>Next Reminder</p>
+                <h2>09:00 AM</h2>
+                <span>Medicine reminder</span>
+            </div>
+
+            <div class="overview-card">
+                <p>Today's Medicines</p>
+                <h2>04</h2>
+                <span>Scheduled doses</span>
+            </div>
+
+            <div class="overview-card">
+                <p>Medicine Stock</p>
+                <h2>12</h2>
+                <span>Units remaining</span>
+            </div>
+
+        </section>
+
+
+        <!-- Dashboard Content -->
+        <section class="dashboard-content">
+
+            <!-- Medicine Schedule -->
+            <div class="dashboard-card">
+
+                <div class="card-heading">
+                    <h2>Today's Medicine Schedule</h2>
+                    <a href="reminders.html">View All</a>
+                </div>
+
+                <div class="medicine-item">
+                    <div>
+                        <h3>Medicine 1</h3>
+                        <p>09:00 AM</p>
+                    </div>
+
+                    <span class="status upcoming">Upcoming</span>
+                </div>
+
+                <div class="medicine-item">
+                    <div>
+                        <h3>Medicine 2</h3>
+                        <p>02:00 PM</p>
+                    </div>
+
+                    <span class="status upcoming">Upcoming</span>
+                </div>
+
+                <div class="medicine-item">
+                    <div>
+                        <h3>Medicine 3</h3>
+                        <p>08:00 PM</p>
+                    </div>
+
+                    <span class="status upcoming">Upcoming</span>
+                </div>
+
+            </div>
+
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+
+                <h2>Quick Actions</h2>
+
+                <a href="scanner.html" class="action-button">
+                    Scan Medicine
+                </a>
+
+                <a href="ask.html" class="action-button secondary">
+                    Ask a Question
+                </a>
+
+                <a href="prescription.html" class="action-button secondary">
+                    Upload Prescription
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="../js/dashboard.js"></script>
+
+</body>
+</html>
