@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine
-
+from app.routers.users import router as users_router
 app = FastAPI(
     title="DAWAZ Backend B",
     description="Platform and voice-processing API for DAWAZ",
@@ -10,7 +10,7 @@ app = FastAPI(
 # Create database tables
 from app.models.user import User
 Base.metadata.create_all(bind=engine)
-
+app.include_router(users_router)
 
 @app.get("/")
 def home():
