@@ -35,3 +35,9 @@ class DoseOccurrenceResponse(BaseModel):
     notes: str | None
 
     model_config = ConfigDict(from_attributes=True)
+from typing import Literal
+
+
+class DoseOccurrenceReportRequest(BaseModel):
+    status: Literal["taken", "skipped"]
+    notes: str | None = None

@@ -12,8 +12,8 @@ from app.models.medication_schedule import (
 from app.schemas.medication_schedule import DoseOccurrenceResponse
 from app.routers.users import get_current_user
 from app.services.dose_occurrences import generate_dose_occurrences
-
-
+from app.schemas.medication_schedule import DoseOccurrenceReportRequest
+from datetime import datetime, timezone
 router = APIRouter(
     prefix="/dose-occurrences",
     tags=["Dose Occurrences"]
@@ -86,3 +86,51 @@ def get_dose_occurrences(
     ).all()
 
     return occurrences
+
+@router.post(
+    "/{occurrence_id}/report",
+    response_model=DoseOccurrenceResponse
+)
+def report_dose(
+    occurrence_id: int,
+    report: DoseOccurrenceReportRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    patient = db.query(Patient).filter(
+        Patient.user_id == current_user.id
+    ).first()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail="Patient profile not found"
+        )
+
+    occurrence = db.query(DoseOccurrence).filter(
+        DoseOccurrence.id == occurrence_id,
+        DoseOccurrence.patient_id == patient.id
+    ).first()
+
+    if not occurrence:
+        raise HTTPException(
+            status_code=404,
+            detail="Dose occurrence not found"
+        )
+
+    if occurrence.status != "pending":
+        raise HTTPException(
+            status_code=409,
+            detail="Dose occurrence has already been reported"
+        )
+
+    occurrence.status = report.status
+    occurrence.notes = report.notes
+    occurrence.reported_at = datetime.now(timezone.utc).replace(
+        tzinfo=None
+    )
+
+    db.commit()
+    db.refresh(occurrence)
+
+    return occurrence
