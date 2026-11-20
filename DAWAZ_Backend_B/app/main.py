@@ -5,7 +5,11 @@ from app.routers.users import router as users_router
 from app.routers.patients import router as patients_router
 from app.models.prescription import Prescription, PrescriptionItem
 from app.routers.prescriptions import router as prescriptions_router
-from app.models.medication_schedule import MedicationSchedule, DoseOccurrence
+from app.models.medication_schedule import (
+    MedicationSchedule,
+    DoseOccurrence,
+    DoseOccurrenceCorrection
+)
 from app.routers.medication_schedules import router as medication_schedules_router
 from app.routers.dose_occurrences import router as dose_occurrences_router
 app = FastAPI(

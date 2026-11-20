@@ -7,9 +7,16 @@ from app.models.patient import Patient
 from app.models.user import User
 from app.models.medication_schedule import (
     MedicationSchedule,
-    DoseOccurrence
+    DoseOccurrence,
+    DoseOccurrenceCorrection
 )
-from app.schemas.medication_schedule import DoseOccurrenceResponse
+
+from app.schemas.medication_schedule import (
+    DoseOccurrenceResponse,
+    DoseOccurrenceReportRequest,
+    DoseOccurrenceCorrectionRequest,
+    DoseOccurrenceCorrectionResponse
+)
 from app.routers.users import get_current_user
 from app.services.dose_occurrences import generate_dose_occurrences
 from app.schemas.medication_schedule import DoseOccurrenceReportRequest
@@ -134,3 +141,102 @@ def report_dose(
     db.refresh(occurrence)
 
     return occurrence
+
+@router.post(
+    "/{occurrence_id}/correct",
+    response_model=DoseOccurrenceResponse
+)
+def correct_dose_report(
+    occurrence_id: int,
+    correction: DoseOccurrenceCorrectionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    patient = db.query(Patient).filter(
+        Patient.user_id == current_user.id
+    ).first()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail="Patient profile not found"
+        )
+
+    occurrence = db.query(DoseOccurrence).filter(
+        DoseOccurrence.id == occurrence_id,
+        DoseOccurrence.patient_id == patient.id
+    ).first()
+
+    if not occurrence:
+        raise HTTPException(
+            status_code=404,
+            detail="Dose occurrence not found"
+        )
+
+    if occurrence.status not in ["taken", "skipped"]:
+        raise HTTPException(
+            status_code=409,
+            detail="Only reported occurrences can be corrected"
+        )
+
+    if occurrence.status == correction.status:
+        raise HTTPException(
+            status_code=400,
+            detail="New status is the same as the existing status"
+        )
+
+    correction_record = DoseOccurrenceCorrection(
+        occurrence_id=occurrence.id,
+        previous_status=occurrence.status,
+        corrected_status=correction.status,
+        previous_notes=occurrence.notes,
+        corrected_notes=correction.notes
+    )
+
+    db.add(correction_record)
+
+    occurrence.status = correction.status
+    occurrence.notes = correction.notes
+
+    db.commit()
+    db.refresh(occurrence)
+
+    return occurrence
+
+@router.get(
+    "/{occurrence_id}/history",
+    response_model=list[DoseOccurrenceCorrectionResponse]
+)
+def get_correction_history(
+    occurrence_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    patient = db.query(Patient).filter(
+        Patient.user_id == current_user.id
+    ).first()
+
+    if not patient:
+        raise HTTPException(
+            status_code=404,
+            detail="Patient profile not found"
+        )
+
+    occurrence = db.query(DoseOccurrence).filter(
+        DoseOccurrence.id == occurrence_id,
+        DoseOccurrence.patient_id == patient.id
+    ).first()
+
+    if not occurrence:
+        raise HTTPException(
+            status_code=404,
+            detail="Dose occurrence not found"
+        )
+
+    history = db.query(DoseOccurrenceCorrection).filter(
+        DoseOccurrenceCorrection.occurrence_id == occurrence_id
+    ).order_by(
+        DoseOccurrenceCorrection.corrected_at.asc()
+    ).all()
+
+    return history
