@@ -17,32 +17,43 @@
 
         <section class="login-card">
 
+            <!-- Brand Section -->
             <div class="brand">
-                <div class="brand-icon">D</div>
+                <div class="brand-logo">D</div>
                 <h2>DAWAZ</h2>
             </div>
 
-            <p class="tagline">DAWA KO DO AWAAZ</p>
+            <p class="tagline">Dawa Ko Do Awaaz</p>
 
-            <h1>Welcome back</h1>
 
-            <p class="description">
-                Your medicine care, all in one place.
-            </p>
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Welcome Back!</h1>
 
+                <p>
+                    Your personal medicine companion.
+                    Stay connected with your health routine.
+                </p>
+            </div>
+
+
+            <!-- Login Form -->
             <form id="loginForm">
 
+                <!-- Username -->
                 <div class="form-group">
-                    <label for="email">Email address</label>
+                    <label for="username">Username</label>
 
                     <input
-                        type="email"
-                        id="email"
-                        placeholder="Enter your email"
+                        type="text"
+                        id="username"
+                        placeholder="Enter your username"
                         required
                     >
                 </div>
 
+
+                <!-- Password -->
                 <div class="form-group">
                     <label for="password">Password</label>
 
@@ -54,8 +65,10 @@
                     >
                 </div>
 
+
+                <!-- Role Selection -->
                 <div class="form-group">
-                    <label for="role">Continue as</label>
+                    <label for="role">Login As</label>
 
                     <select id="role" required>
                         <option value="patient">Patient</option>
@@ -63,18 +76,36 @@
                     </select>
                 </div>
 
-                <button type="submit" class="login-btn">
+
+                <!-- Login Button -->
+                <button type="submit" class="login-button">
                     Login
                 </button>
 
+
+                <!-- Feedback Message -->
+                <p id="message" class="message"></p>
+
             </form>
 
-            <p class="signup-text">
-                Don't have an account?
-                <a href="#" id="signupLink">Sign up</a>
-            </p>
 
-            <p id="message" class="message"></p>
+            <!-- Forgot Password -->
+            <div class="forgot-password">
+                <a href="pages/forgot-password.html">
+                    Forgot Password?
+                </a>
+            </div>
+
+
+            <!-- Signup Section -->
+            <div class="signup-section">
+                <p>
+                    Don't have an account?
+                    <a href="pages/signup.html" id="signupLink">
+                        Sign Up
+                    </a>
+                </p>
+            </div>
 
         </section>
 
