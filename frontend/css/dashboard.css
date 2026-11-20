@@ -4,6 +4,7 @@
 ================================= */
 
 .navbar {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -33,7 +34,12 @@
 }
 
 .nav-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 22px;
 }
 
@@ -41,6 +47,7 @@
     text-decoration: none;
     color: #52635f;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 .nav-links a.active,
@@ -164,6 +171,7 @@
     display: grid;
     grid-template-columns: 2fr 1fr;
     gap: 20px;
+    align-items: start;
 }
 
 .dashboard-card {
@@ -194,6 +202,66 @@
 
 
 /* ==============================
+   TODAY'S MEDICINE PROGRESS
+================================= */
+
+.medicine-progress {
+    background-color: #f3faf9;
+    border: 1px solid #e0efec;
+    padding: 18px;
+    border-radius: 12px;
+    margin: 12px 0 18px;
+}
+
+.progress-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 13px;
+}
+
+.progress-heading h3 {
+    color: #10221f;
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.progress-heading p {
+    color: #82908b;
+    font-size: 12px;
+}
+
+.progress-heading strong {
+    color: #0b6e6e;
+    font-size: 21px;
+}
+
+.progress-track {
+    width: 100%;
+    height: 9px;
+    background-color: #dcebe8;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #0b8278;
+    border-radius: 20px;
+    transition: width 0.3s ease;
+}
+
+.progress-note {
+    color: #82908b;
+    font-size: 11px;
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+
+/* ==============================
    MEDICINE SCHEDULE
 ================================= */
 
@@ -201,7 +269,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 17px 0;
+    gap: 15px;
+    padding: 18px 0;
     border-bottom: 1px solid #edf2f0;
 }
 
@@ -220,15 +289,81 @@
     margin-top: 5px;
 }
 
+.medicine-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.medicine-checkpoint {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+
+/* ==============================
+   MEDICINE STATUS
+================================= */
+
 .status {
+    display: inline-block;
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 12px;
+    white-space: nowrap;
 }
 
-.upcoming {
+.status.upcoming {
     background-color: #fff3df;
     color: #a56b16;
+}
+
+.status.awaiting-confirmation {
+    background-color: #fff0dc;
+    color: #a56b16;
+}
+
+.status.taken {
+    background-color: #dff3e8;
+    color: #23734a;
+}
+
+.status.missed {
+    background-color: #fde8e5;
+    color: #b54737;
+}
+
+
+/* ==============================
+   MEDICINE CHECKPOINT
+================================= */
+
+.taken-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #52635f;
+    font-size: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.taken-checkbox input {
+    width: 17px;
+    height: 17px;
+    accent-color: #0b6e6e;
+    cursor: pointer;
+}
+
+.taken-checkbox input:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.taken-checkbox:has(input:checked) {
+    color: #23734a;
+    font-weight: 600;
 }
 
 
@@ -266,16 +401,19 @@
    RESPONSIVE DESIGN
 ================================= */
 
-@media (max-width: 900px) {
+@media (max-width: 1000px) {
 
     .navbar {
         flex-wrap: wrap;
     }
 
     .nav-links {
+        position: static;
+        transform: none;
         order: 3;
         width: 100%;
         flex-wrap: wrap;
+        justify-content: center;
     }
 
     .dashboard-content {
@@ -285,6 +423,11 @@
 }
 
 @media (max-width: 600px) {
+
+    .navbar {
+        padding: 14px 15px;
+        gap: 15px;
+    }
 
     .dashboard-container {
         padding: 0 15px;
@@ -305,6 +448,22 @@
 
     .nav-links a {
         font-size: 12px;
+    }
+
+    .medicine-item {
+        align-items: flex-start;
+    }
+
+    .medicine-checkpoint {
+        align-items: flex-end;
+    }
+
+    .taken-checkbox {
+        font-size: 11px;
+    }
+
+    .dashboard-card {
+        padding: 18px;
     }
 
 }
