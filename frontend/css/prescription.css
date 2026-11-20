@@ -1,0 +1,251 @@
+
+/* Prescription Page */
+
+body {
+    margin: 0;
+    background: #F7FAF9;
+    color: #10221F;
+    font-family: Arial, sans-serif;
+}
+
+/* Navigation */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 7%;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5EEEB;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #084F4F;
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.brand-logo {
+    background: #D7EFEC;
+    padding: 9px;
+    border-radius: 10px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 28px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #52635F;
+    font-size: 14px;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: #0B6E6E;
+    font-weight: bold;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-icon {
+    background: #D7EFEC;
+    color: #084F4F;
+    padding: 10px;
+    border-radius: 50%;
+}
+
+/* Main Container */
+
+.prescription-container {
+    max-width: 850px;
+    margin: 55px auto;
+    padding: 0 22px;
+}
+
+.prescription-header {
+    margin-bottom: 30px;
+}
+
+.page-label {
+    color: #0B6E6E;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.prescription-header h1 {
+    font-size: 32px;
+    margin: 10px 0;
+}
+
+.prescription-header p {
+    color: #687873;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Upload Card */
+
+.upload-card,
+.review-card {
+    background: #FFFFFF;
+    border: 1px solid #E3ECE9;
+    border-radius: 16px;
+    padding: 35px;
+    margin-bottom: 24px;
+}
+
+.upload-card {
+    text-align: center;
+}
+
+.upload-icon {
+    width: 65px;
+    height: 65px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #D7EFEC;
+    color: #0B6E6E;
+    border-radius: 16px;
+    font-size: 30px;
+}
+
+.upload-card h2 {
+    font-size: 21px;
+    margin-bottom: 10px;
+}
+
+.upload-card p {
+    color: #71817C;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Upload Button */
+
+.upload-button {
+    display: inline-block;
+    margin-top: 18px;
+    padding: 13px 25px;
+    background: #0B6E6E;
+    color: #FFFFFF;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.upload-button:hover {
+    background: #084F4F;
+}
+
+/* File Information */
+
+.file-info {
+    margin-top: 22px;
+}
+
+.file-name {
+    color: #0B6E6E;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.upload-message {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #B4690E;
+}
+
+/* Review Section */
+
+.review-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+}
+
+.review-icon {
+    min-width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #FFF1DC;
+    color: #B4690E;
+    border-radius: 12px;
+    font-size: 20px;
+}
+
+.review-card h3 {
+    margin: 2px 0 9px;
+    font-size: 17px;
+}
+
+.review-card p {
+    margin: 0;
+    color: #687873;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Safety Note */
+
+.safety-note {
+    padding: 17px 20px;
+    background: #EAF5F3;
+    border-left: 4px solid #0B6E6E;
+    border-radius: 8px;
+    color: #31534D;
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* Responsive Design */
+
+@media (max-width: 700px) {
+    .navbar {
+        padding: 16px 5%;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .profile {
+        font-size: 13px;
+    }
+
+    .prescription-container {
+        margin: 35px auto;
+    }
+
+    .prescription-header h1 {
+        font-size: 26px;
+    }
+
+    .upload-card,
+    .review-card {
+        padding: 24px;
+    }
+}
