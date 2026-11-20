@@ -12,6 +12,11 @@ from app.models.medication_schedule import (
 )
 from app.routers.medication_schedules import router as medication_schedules_router
 from app.routers.dose_occurrences import router as dose_occurrences_router
+from app.models.medication_stock import (
+    MedicationStock,
+    StockTransaction
+)
+from app.routers.medication_stock import router as medication_stock_router
 app = FastAPI(
     title="DAWAZ Backend B",
     description="Platform and voice-processing API for DAWAZ",
@@ -26,6 +31,7 @@ app.include_router(patients_router)
 app.include_router(prescriptions_router)
 app.include_router(medication_schedules_router)
 app.include_router(dose_occurrences_router)
+app.include_router(medication_stock_router)
 @app.get("/")
 def home():
     return {
