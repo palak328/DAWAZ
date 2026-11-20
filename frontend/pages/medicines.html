@@ -5,219 +5,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>DAWAZ | My Medicines</title>
-
-    <link rel="stylesheet" href="../css/styles.css">
+    <title>My Medicines | DAWAZ</title>
     <link rel="stylesheet" href="../css/medicines.css">
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <header class="navbar">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">DAWAZ</div>
 
-        <div class="brand">
-            <div class="brand-logo">D</div>
-            <h2>DAWAZ</h2>
-        </div>
-
-        <nav class="nav-links">
+        <div class="nav-links">
             <a href="dashboard.html">Dashboard</a>
             <a href="medicines.html" class="active">My Medicines</a>
             <a href="reminders.html">Reminders</a>
-            <a href="scanner.html">Scan Medicine</a>
+            <a href="medicine-scanner.html">Scan Medicine</a>
             <a href="caregivers.html">Caregivers</a>
-        </nav>
-
-        <div class="profile">
-            <span class="profile-icon">P</span>
-            <span>Patient</span>
         </div>
+    </nav>
 
-    </header>
-
-
-    <!-- Main Content -->
     <main class="medicines-container">
 
         <!-- Page Heading -->
-        <section class="medicines-header">
-
+        <section class="medicines-heading">
             <div>
-                <p class="page-label">MEDICINE MANAGEMENT</p>
-
+                <p class="section-label">PATIENT MEDICINE CABINET</p>
                 <h1>My Medicines</h1>
-
-                <p>
-                    View and manage your saved medicine records
-                    in one place.
-                </p>
+                <p>Manage your medicine records and keep track of available stock.</p>
             </div>
 
-            <a href="prescription.html" class="add-medicine-btn">
+            <button type="button" id="addMedicineBtn" class="primary-btn">
                 + Add Medicine
-            </a>
-
+            </button>
         </section>
 
-
-        <!-- Medicine Summary -->
+        <!-- Summary Cards -->
         <section class="medicine-summary">
 
             <div class="summary-card">
-                <p>Total Medicines</p>
-                <h2>03</h2>
-                <span>Saved records</span>
+                <span>Total Medicines</span>
+                <h2 id="totalMedicines">0</h2>
             </div>
 
             <div class="summary-card">
-                <p>Active Medicines</p>
-                <h2>02</h2>
-                <span>Currently active</span>
+                <span>Low Stock</span>
+                <h2 id="lowStockMedicines">0</h2>
             </div>
 
             <div class="summary-card">
-                <p>Low Stock</p>
-                <h2>01</h2>
-                <span>Needs attention</span>
+                <span>Out of Stock</span>
+                <h2 id="outOfStockMedicines">0</h2>
             </div>
 
         </section>
 
-
-        <!-- Medicine Records -->
-        <section class="medicine-records">
-
-            <div class="records-heading">
-                <div>
-                    <h2>Medicine Records</h2>
-                    <p>Your currently saved medicine information</p>
-                </div>
-
-                <input
-                    type="search"
-                    id="medicineSearch"
-                    placeholder="Search medicines..."
-                >
+        <!-- Search -->
+        <section class="medicine-search-section">
+            <div>
+                <h2>Medicine Records</h2>
+                <p>Your saved medicine information.</p>
             </div>
 
+            <input
+                type="search"
+                id="medicineSearch"
+                placeholder="Search medicines..."
+                aria-label="Search medicines"
+            >
+        </section>
 
-            <!-- Medicine Card 1 -->
-            <article class="medicine-card">
+        <!-- Medicine Cards -->
+        <section id="medicineList" class="medicine-grid">
 
-                <div class="medicine-info">
-
-                    <div class="medicine-icon">M</div>
-
-                    <div>
-                        <h3>Medicine A</h3>
-                        <p>Record ID: MED001</p>
-                    </div>
-
-                </div>
-
-                <div class="medicine-details">
-                    <span class="detail-label">Instructions</span>
-                    <p>As recorded in confirmed prescription</p>
-                </div>
-
-                <div class="medicine-stock">
-                    <span class="detail-label">Available Stock</span>
-                    <h3>12 units</h3>
-                    <span class="stock-status in-stock">In Stock</span>
-                </div>
-
-                <div class="medicine-actions">
-                    <a href="reminders.html">View Reminders</a>
-                </div>
-
-            </article>
-
-
-            <!-- Medicine Card 2 -->
-            <article class="medicine-card">
-
-                <div class="medicine-info">
-
-                    <div class="medicine-icon">M</div>
-
-                    <div>
-                        <h3>Medicine B</h3>
-                        <p>Record ID: MED002</p>
-                    </div>
-
-                </div>
-
-                <div class="medicine-details">
-                    <span class="detail-label">Instructions</span>
-                    <p>As recorded in confirmed prescription</p>
-                </div>
-
-                <div class="medicine-stock">
-                    <span class="detail-label">Available Stock</span>
-                    <h3>3 units</h3>
-                    <span class="stock-status low-stock">Low Stock</span>
-                </div>
-
-                <div class="medicine-actions">
-                    <a href="reminders.html">View Reminders</a>
-                </div>
-
-            </article>
-
-
-            <!-- Medicine Card 3 -->
-            <article class="medicine-card">
-
-                <div class="medicine-info">
-
-                    <div class="medicine-icon">M</div>
-
-                    <div>
-                        <h3>Medicine C</h3>
-                        <p>Record ID: MED003</p>
-                    </div>
-
-                </div>
-
-                <div class="medicine-details">
-                    <span class="detail-label">Instructions</span>
-                    <p>Prescription confirmation pending</p>
-                </div>
-
-                <div class="medicine-stock">
-                    <span class="detail-label">Available Stock</span>
-                    <h3>Not recorded</h3>
-                    <span class="stock-status pending">Pending</span>
-                </div>
-
-                <div class="medicine-actions">
-                    <a href="prescription.html">Review Prescription</a>
-                </div>
-
-            </article>
+            <div class="empty-state" id="emptyState">
+                <h3>No medicines added yet</h3>
+                <p>Your medicine records will appear here.</p>
+                <button type="button" id="emptyAddBtn" class="primary-btn">
+                    Add Your First Medicine
+                </button>
+            </div>
 
         </section>
 
+        <!-- Add/Edit Medicine Modal -->
+        <div class="modal-overlay" id="medicineModal" hidden>
 
-        <!-- Additional Information -->
-        <section class="medicine-note">
+            <div class="modal-card">
 
-            <h3>Important Reminder</h3>
+                <div class="modal-heading">
+                    <div>
+                        <h2 id="modalTitle">Add Medicine</h2>
+                        <p>Enter details from the confirmed prescription.</p>
+                    </div>
 
+                    <button
+                        type="button"
+                        id="closeMedicineModal"
+                        class="close-btn"
+                        aria-label="Close"
+                    >&times;</button>
+                </div>
+
+                <form id="medicineForm">
+
+                    <div class="form-group">
+                        <label for="medicineName">Medicine Name *</label>
+                        <input
+                            type="text"
+                            id="medicineName"
+                            placeholder="Enter medicine name"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineStrength">Strength</label>
+                        <input
+                            type="text"
+                            id="medicineStrength"
+                            placeholder="Enter prescribed strength"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineStock">Available Stock *</label>
+                        <input
+                            type="number"
+                            id="medicineStock"
+                            min="0"
+                            step="1"
+                            placeholder="Number of tablets / units"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineInstructions">
+                            Prescription Instructions
+                        </label>
+                        <textarea
+                            id="medicineInstructions"
+                            rows="3"
+                            placeholder="Enter instructions exactly as prescribed"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="medicineNotes">Additional Notes</label>
+                        <textarea
+                            id="medicineNotes"
+                            rows="2"
+                            placeholder="Optional notes"
+                        ></textarea>
+                    </div>
+
+                    <p id="medicineFormMessage" class="form-message"></p>
+
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            id="cancelMedicineBtn"
+                            class="secondary-btn"
+                        >
+                            Cancel
+                        </button>
+
+                        <button type="submit" class="primary-btn">
+                            Save Medicine
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- Safety Note -->
+        <section class="medicine-safety-note">
+            <h3>Important Health Reminder</h3>
             <p>
+                DAWAZ stores medicine information for tracking purposes.
                 Always follow your confirmed doctor's prescription.
-                If medicine instructions are unclear, consult your
-                doctor or pharmacist.
+                Do not change medicine doses or instructions based on
+                stock information.
             </p>
-
         </section>
 
     </main>
-
 
     <script src="../js/medicines.js"></script>
 
 </body>
 </html>
+
