@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Prescription | DAWAZ</title>
+    <link rel="stylesheet" href="../css/medicine-review.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <a href="dashboard.html" class="brand">
+            <span class="brand-logo">D</span>
+            <span>DAWAZ</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="medicines.html">My Medicines</a>
+            <a href="prescription.html" class="active">Prescription</a>
+        </nav>
+
+        <div class="profile">Patient</div>
+    </header>
+
+    <main class="review-container">
+
+        <section class="page-heading">
+            <p class="eyebrow">PRESCRIPTION MANAGEMENT</p>
+            <h1>Review Your Medicines</h1>
+            <p>
+                Check the information extracted from your prescription.
+                Make corrections before confirming.
+            </p>
+        </section>
+
+        <section class="review-notice">
+            <span class="notice-icon">!</span>
+            <div>
+                <h3>Important: Please verify every detail</h3>
+                <p>
+                    Automatically extracted information may contain errors.
+                    Compare these details with your original prescription.
+                </p>
+            </div>
+        </section>
+
+        <section class="medicine-section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Extracted Medicine Details</h2>
+                    <p>Review each medicine separately.</p>
+                </div>
+
+                <button type="button" id="addMedicineBtn" class="add-btn">
+                    + Add Medicine
+                </button>
+            </div>
+
+            <div id="medicineList">
+
+                <article class="medicine-form-card">
+
+                    <div class="medicine-card-heading">
+                        <h3>Medicine 1</h3>
+                        <button type="button" class="remove-btn">
+                            Remove
+                        </button>
+                    </div>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Medicine Name</label>
+                            <input type="text"
+                                name="medicineName"
+                                placeholder="Enter medicine name"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Strength</label>
+                            <input type="text"
+                                name="strength"
+                                placeholder="As written on prescription">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Dosage</label>
+                            <input type="text"
+                                name="dosage"
+                                placeholder="As prescribed">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Frequency</label>
+                            <input type="text"
+                                name="frequency"
+                                placeholder="As prescribed">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Instructions</label>
+                            <textarea name="instructions"
+                                placeholder="Enter instructions from prescription"></textarea>
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+        <section class="confirmation-card">
+
+            <h2>Patient Confirmation</h2>
+
+            <p>
+                I have checked these medicine details against my original
+                prescription and confirm that the information is correct.
+            </p>
+
+            <label class="confirm-label">
+                <input type="checkbox" id="confirmDetails">
+                <span>I confirm that I have reviewed these details.</span>
+            </label>
+
+            <p id="reviewMessage" class="review-message"></p>
+
+            <button type="button" id="confirmBtn" disabled>
+                Confirm Medicines
+            </button>
+
+            <a href="prescription.html" class="back-link">
+                Back to Prescription Upload
+            </a>
+
+        </section>
+
+    </main>
+
+    <script src="../js/medicine-review.js"></script>
+
+</body>
+</html>
