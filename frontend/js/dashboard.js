@@ -1,47 +1,110 @@
- 
+
 document.addEventListener("DOMContentLoaded", function () {
 
     // =====================================
-    // 1. MEDICINE SCHEDULE
+    // 1. STORAGE
     // =====================================
 
-    const medicines = [
-        {
-            id: "medicine-1",
-            name: "Medicine 1",
-            time: "09:00"
-        },
-        {
-            id: "medicine-2",
-            name: "Medicine 2",
-            time: "14:00"
-        },
-        {
-            id: "medicine-3",
-            name: "Medicine 3",
-            time: "20:00"
+    const MEDICINES_KEY = "dawazMedicines";
+    const REMINDERS_KEY = "dawazReminders";
+    const ALERTS_KEY = "dawazDashboardAlerts";
+
+    const scheduleCard = document.querySelector(".medicine-schedule-card");
+
+    const progressText = document.getElementById("progressText");
+    const progressPercentage = document.getElementById("progressPercentage");
+    const progressBar = document.getElementById("progressBar");
+
+    const nextReminderTime = document.getElementById("nextReminderTime");
+    const nextReminderMedicine = document.getElementById("nextReminderMedicine");
+
+    if (!scheduleCard) {
+        console.error("Medicine schedule section was not found.");
+        return;
+    }
+
+
+    // =====================================
+    // 2. DATE FUNCTIONS
+    // =====================================
+
+    function getToday() {
+        const now = new Date();
+
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    function getCurrentDateTime(time) {
+        const [hours, minutes] = time.split(":").map(Number);
+
+        const date = new Date();
+
+        date.setHours(hours, minutes, 0, 0);
+
+        return date;
+    }
+
+    function formatTime(time) {
+        const date = getCurrentDateTime(time);
+
+        return date.toLocaleTimeString("en-IN", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        });
+    }
+
+
+    // =====================================
+    // 3. LOAD DATA
+    // =====================================
+
+    function loadData(key) {
+        try {
+            const saved = JSON.parse(localStorage.getItem(key));
+
+            return Array.isArray(saved) ? saved : [];
+
+        } catch (error) {
+
+            console.error("Could not load:", key, error);
+
+            return [];
         }
-    ];
+    }
 
-    const STORAGE_KEY = "dawazDailyProgress";
+    function loadAlerts() {
+        try {
+            return JSON.parse(localStorage.getItem(ALERTS_KEY)) || {};
 
-    const today = new Date();
+        } catch (error) {
 
-    const dateKey = [
-        today.getFullYear(),
-        String(today.getMonth() + 1).padStart(2, "0"),
-        String(today.getDate()).padStart(2, "0")
-    ].join("-");
+            return {};
+        }
+    }
+
+    function saveAlerts(alerts) {
+        localStorage.setItem(ALERTS_KEY, JSON.stringify(alerts));
+    }
+
+    let medicines = loadData(MEDICINES_KEY);
+    let reminders = loadData(REMINDERS_KEY);
+    let alerts = loadAlerts();
 
 
     // =====================================
-    // 2. DISPLAY CURRENT DATE
+    // 4. DISPLAY CURRENT DATE
     // =====================================
 
     const currentDate = document.getElementById("currentDate");
 
     if (currentDate) {
-        currentDate.textContent = today.toLocaleDateString("en-IN", {
+
+        currentDate.textContent = new Date().toLocaleDateString("en-IN", {
             weekday: "long",
             day: "numeric",
             month: "long",
@@ -51,142 +114,182 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =====================================
-    // 3. LOAD DAILY PROGRESS
+    // 5. GET REMINDER TIMES
     // =====================================
 
-    function loadProgress() {
+    function getTimes(reminder) {
 
-        try {
-            const savedData = JSON.parse(
-                localStorage.getItem(STORAGE_KEY)
-            ) || {};
+        if (Array.isArray(reminder.times) && reminder.times.length) {
 
-            if (savedData.date !== dateKey) {
-                return {
-                    date: dateKey,
-                    doses: {}
-                };
-            }
-
-            return savedData;
-
-        } catch (error) {
-
-            console.error("Could not load medicine progress:", error);
-
-            return {
-                date: dateKey,
-                doses: {}
-            };
-        }
-    }
-
-    let dailyProgress = loadProgress();
-
-
-    function saveProgress() {
-
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(dailyProgress)
-        );
-    }
-
-
-    // =====================================
-    // 4. GET MEDICINE RECORD
-    // =====================================
-
-    function getDoseRecord(medicineId) {
-
-        if (!dailyProgress.doses[medicineId]) {
-
-            dailyProgress.doses[medicineId] = {
-                reminderSent: false,
-                followUpSent: false,
-                patientReportedTaken: false,
-                confirmedAt: null
-            };
+            return [...new Set(reminder.times)].sort();
         }
 
-        return dailyProgress.doses[medicineId];
+        return reminder.time ? [reminder.time] : [];
     }
 
 
     // =====================================
-    // 5. NOTIFICATION PERMISSION
+    // 6. GET DAILY DOSE HISTORY
     // =====================================
 
-    const notificationButton = document.createElement("button");
-
-    notificationButton.type = "button";
-    notificationButton.id = "enableNotificationsBtn";
-    notificationButton.textContent = "Enable Notifications";
-
-    notificationButton.style.cssText = `
-        padding: 9px 14px;
-        margin-bottom: 14px;
-        border: none;
-        border-radius: 8px;
-        background: #d7efec;
-        color: #084f4f;
-        cursor: pointer;
-        font-size: 12px;
-        font-weight: 600;
-    `;
-
-    const progressCard = document.querySelector(".medicine-progress");
-
-    if (progressCard && "Notification" in window) {
-        progressCard.prepend(notificationButton);
+    function getDoseKey(date, time) {
+        return `${date}_${time}`;
     }
 
-    if (!("Notification" in window)) {
+    function getDoseRecord(reminder, date, time) {
 
-        notificationButton.textContent =
-            "Browser notifications are not supported";
+        const key = getDoseKey(date, time);
 
-        notificationButton.disabled = true;
-
-    } else if (Notification.permission === "granted") {
-
-        notificationButton.textContent = "Notifications Enabled";
-
-    } else if (Notification.permission === "denied") {
-
-        notificationButton.textContent =
-            "Notifications Blocked in Browser";
-
-        notificationButton.disabled = true;
+        return reminder.history?.[key] || {
+            status: "pending",
+            recordedAt: null
+        };
     }
 
 
-    notificationButton.addEventListener("click", async function () {
+    // =====================================
+    // 7. FIND MEDICINE DETAILS
+    // =====================================
 
-        if (!("Notification" in window)) {
-            return;
-        }
+    function findMedicine(reminderName) {
 
-        const permission = await Notification.requestPermission();
+        return medicines.find(function (medicine) {
 
-        if (permission === "granted") {
+            return medicine.name?.trim().toLowerCase() ===
+                reminderName?.trim().toLowerCase();
 
-            notificationButton.textContent = "Notifications Enabled";
+        });
+    }
 
-            new Notification("DAWAZ Notifications Enabled", {
-                body: "You can now receive medicine reminders while the dashboard is open."
+
+    // =====================================
+    // 8. GET TODAY'S SCHEDULE
+    // =====================================
+
+    function getTodaySchedule() {
+
+        const today = getToday();
+
+        const schedule = [];
+
+        reminders.forEach(function (reminder) {
+
+            getTimes(reminder).forEach(function (time) {
+
+                if (!/^\d{2}:\d{2}$/.test(time)) {
+                    return;
+                }
+
+                const medicine = findMedicine(reminder.medicine);
+
+                schedule.push({
+                    reminderId: reminder.id,
+                    reminder: reminder,
+                    medicine: medicine,
+                    medicineName: reminder.medicine,
+                    time: time,
+                    date: today,
+                    status: getDoseRecord(reminder, today, time).status
+                });
+
             });
 
-        } else {
+        });
 
-            notificationButton.textContent =
-                "Notification Permission Not Granted";
-        }
-    });
+        schedule.sort(function (a, b) {
+
+            return a.time.localeCompare(b.time);
+
+        });
+
+        return schedule;
+    }
 
 
     // =====================================
-    // 6. SEND PATIENT NOTIFICATION
+    // 9. NOTIFICATION PERMISSION
+    // =====================================
+
+    function createNotificationButton() {
+
+        let button = document.getElementById("enableNotificationsBtn");
+
+        if (!button) {
+
+            button = document.createElement("button");
+
+            button.id = "enableNotificationsBtn";
+            button.type = "button";
+            button.className = "notification-btn";
+
+            button.style.cssText = `
+                padding: 9px 14px;
+                margin-bottom: 14px;
+                border: none;
+                border-radius: 8px;
+                background: #d7efec;
+                color: #084f4f;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: 600;
+            `;
+
+            const progressCard = document.querySelector(".medicine-progress");
+
+            if (progressCard) {
+                progressCard.prepend(button);
+            }
+        }
+
+        function updateButton() {
+
+            if (!("Notification" in window)) {
+
+                button.textContent = "Notifications not supported";
+                button.disabled = true;
+
+            } else if (Notification.permission === "granted") {
+
+                button.textContent = "Notifications Enabled";
+                button.disabled = true;
+
+            } else if (Notification.permission === "denied") {
+
+                button.textContent = "Notifications Blocked";
+                button.disabled = true;
+
+            } else {
+
+                button.textContent = "Enable Notifications";
+                button.disabled = false;
+            }
+        }
+
+        updateButton();
+
+        button.onclick = async function () {
+
+            if (!("Notification" in window)) {
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+
+            updateButton();
+
+            if (permission === "granted") {
+
+                sendNotification(
+                    "DAWAZ Notifications Enabled",
+                    "You can now receive medicine reminders while this dashboard is open."
+                );
+            }
+        };
+    }
+
+
+    // =====================================
+    // 10. SEND NOTIFICATION
     // =====================================
 
     function sendNotification(title, message) {
@@ -197,8 +300,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             new Notification(title, {
-                body: message,
-                icon: "../assets/dawaz-logo.png"
+                body: message
             });
 
         } else {
@@ -209,295 +311,355 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =====================================
-    // 7. CHECK MEDICINE TIME
+    // 11. SAVE PATIENT CONFIRMATION
     // =====================================
 
-    function getScheduledTime(medicine) {
+    function confirmDose(reminderId, date, time) {
 
-        const [hours, minutes] = medicine.time.split(":").map(Number);
+        const latestReminders = loadData(REMINDERS_KEY);
 
-        const scheduledTime = new Date();
+        const reminder = latestReminders.find(function (item) {
+            return item.id === reminderId;
+        });
 
-        scheduledTime.setHours(hours, minutes, 0, 0);
+        if (!reminder) {
+            alert("This reminder could not be found. Please refresh the page.");
+            return false;
+        }
 
-        return scheduledTime;
+        const scheduledTime = getCurrentDateTime(time);
+
+        if (new Date() < scheduledTime) {
+            alert("This medicine reminder is not due yet.");
+            return false;
+        }
+
+        if (!reminder.history) {
+            reminder.history = {};
+        }
+
+        const key = getDoseKey(date, time);
+
+        const existingRecord = reminder.history[key];
+
+        if (existingRecord?.status === "skipped") {
+            alert("This dose is already marked as skipped. Please review it in Reminders.");
+            return false;
+        }
+
+        reminder.history[key] = {
+            status: "taken",
+            recordedAt: new Date().toISOString()
+        };
+
+        localStorage.setItem(
+            REMINDERS_KEY,
+            JSON.stringify(latestReminders)
+        );
+
+        // Update the local copy.
+        reminders = latestReminders;
+
+        return true;
     }
 
 
-    function checkMedicineReminders() {
+    // =====================================
+    // 12. CREATE MEDICINE SCHEDULE CARD
+    // =====================================
 
-        const now = new Date();
+    function createScheduleCard(item) {
 
-        medicines.forEach(function (medicine) {
+        const card = document.createElement("div");
 
-            const checkbox = document.querySelector(
-                `.dose-checkbox[data-dose-id="${medicine.id}"]`
-            );
+        card.className = "medicine-item";
 
-            const status = document.getElementById(
-                `status-${medicine.id}`
-            );
+        card.dataset.doseId = `${item.reminderId}_${item.date}_${item.time}`;
 
-            if (!checkbox || !status) {
+        const details = document.createElement("div");
+
+        details.className = "medicine-details";
+
+        const name = document.createElement("h3");
+
+        name.textContent = item.medicineName;
+
+        const time = document.createElement("p");
+
+        time.textContent = formatTime(item.time);
+
+        if (item.medicine?.strength) {
+
+            const strength = document.createElement("p");
+
+            strength.textContent = item.medicine.strength;
+
+            details.append(name, strength, time);
+
+        } else {
+
+            details.append(name, time);
+        }
+
+
+        const checkpoint = document.createElement("div");
+
+        checkpoint.className = "medicine-checkpoint";
+
+        const status = document.createElement("span");
+
+        status.className = "status";
+
+
+        const label = document.createElement("label");
+
+        label.className = "taken-checkbox";
+
+        const checkbox = document.createElement("input");
+
+        checkbox.type = "checkbox";
+        checkbox.className = "dose-checkbox";
+
+        const checkboxText = document.createElement("span");
+
+        checkboxText.textContent = "Mark as taken";
+
+        label.append(checkbox, checkboxText);
+
+
+        // Current dose status.
+        if (item.status === "taken") {
+
+            checkbox.checked = true;
+            checkbox.disabled = true;
+
+            status.textContent = "Patient reported taken";
+            status.classList.add("taken");
+
+        } else if (item.status === "skipped") {
+
+            checkbox.disabled = true;
+
+            status.textContent = "Skipped";
+            status.classList.add("missed");
+
+        } else {
+
+            const scheduledTime = getCurrentDateTime(item.time);
+
+            if (new Date() < scheduledTime) {
+
+                checkbox.disabled = true;
+
+                status.textContent = "Upcoming";
+                status.classList.add("upcoming");
+
+            } else {
+
+                status.textContent = "Awaiting confirmation";
+                status.classList.add("awaiting-confirmation");
+            }
+        }
+
+
+        // Patient confirmation.
+        checkbox.addEventListener("change", function () {
+
+            if (!checkbox.checked) {
                 return;
             }
 
-            const record = getDoseRecord(medicine.id);
+            const success = confirmDose(
+                item.reminderId,
+                item.date,
+                item.time
+            );
 
-            const scheduledTime = getScheduledTime(medicine);
+            if (!success) {
+
+                checkbox.checked = false;
+
+                renderAll();
+
+                return;
+            }
+
+            checkbox.disabled = true;
+
+            sendNotification(
+                "DAWAZ Confirmation Recorded",
+                item.medicineName + " has been marked as taken."
+            );
+
+            renderAll();
+        });
+
+
+        checkpoint.append(status, label);
+
+        card.append(details, checkpoint);
+
+        return card;
+    }
+
+
+    // =====================================
+    // 13. RENDER MEDICINE SCHEDULE
+    // =====================================
+
+    function renderSchedule() {
+
+        // Remove old demonstration medicine entries.
+        scheduleCard.querySelectorAll(".medicine-item").forEach(function (item) {
+            item.remove();
+        });
+
+        const schedule = getTodaySchedule();
+
+        if (schedule.length === 0) {
+
+            const empty = document.createElement("p");
+
+            empty.className = "empty-schedule";
+
+            empty.textContent =
+                "No medicine reminders scheduled for today. Add a reminder to get started.";
+
+            scheduleCard.appendChild(empty);
+
+            return;
+        }
+
+        schedule.forEach(function (item) {
+
+            scheduleCard.appendChild(createScheduleCard(item));
+
+        });
+    }
+
+
+    // =====================================
+    // 14. DAILY PROGRESS
+    // =====================================
+
+    function updateProgress() {
+
+        const schedule = getTodaySchedule();
+
+        const total = schedule.length;
+
+        const completed = schedule.filter(function (item) {
+
+            return item.status === "taken";
+
+        }).length;
+
+        const percentage = total > 0
+            ? Math.round((completed / total) * 100)
+            : 0;
+
+        if (progressText) {
+
+            progressText.textContent =
+                `${completed} of ${total} doses confirmed`;
+        }
+
+        if (progressPercentage) {
+
+            progressPercentage.textContent = `${percentage}%`;
+        }
+
+        if (progressBar) {
+
+            progressBar.style.width = `${percentage}%`;
+        }
+    }
+
+
+    // =====================================
+    // 15. SEVEN-MINUTE FOLLOW-UP
+    // =====================================
+
+    function checkFollowUpReminders() {
+
+        const now = new Date();
+
+        const schedule = getTodaySchedule();
+
+        schedule.forEach(function (item) {
+
+            if (item.status !== "pending") {
+                return;
+            }
+
+            const scheduledTime = getCurrentDateTime(item.time);
 
             const followUpTime = new Date(
                 scheduledTime.getTime() + 7 * 60 * 1000
             );
 
-            // ---------------------------------
-            // PATIENT ALREADY CONFIRMED
-            // ---------------------------------
-
-            if (record.patientReportedTaken) {
-
-                checkbox.checked = true;
-                checkbox.disabled = true;
-
-                status.textContent = "Patient reported taken";
-                status.className = "status taken";
-
+            if (now < followUpTime) {
                 return;
             }
 
+            const alertKey =
+                `${item.reminderId}_${item.date}_${item.time}`;
 
-            // ---------------------------------
-            // BEFORE SCHEDULED TIME
-            // ---------------------------------
-
-            if (now < scheduledTime) {
-
-                checkbox.disabled = true;
-
-                status.textContent = "Upcoming";
-                status.className = "status upcoming";
-
+            if (alerts[alertKey]) {
                 return;
             }
 
+            sendNotification(
+                "DAWAZ Follow-up Reminder",
+                "You have not confirmed " +
+                item.medicineName +
+                ". Please check your medicine schedule."
+            );
 
-            // ---------------------------------
-            // REMINDER TIME REACHED
-            // ---------------------------------
+            alerts[alertKey] = {
+                followUpSentAt: new Date().toISOString()
+            };
 
-            checkbox.disabled = false;
+            saveAlerts(alerts);
 
-            if (!record.reminderSent) {
-
-                sendNotification(
-                    "DAWAZ Medicine Reminder",
-                    "It is time for " + medicine.name +
-                    ". Please check your medicine schedule."
-                );
-
-                record.reminderSent = true;
-
-                saveProgress();
-            }
-
-
-            // ---------------------------------
-            // SEVEN-MINUTE FOLLOW-UP
-            // ---------------------------------
-
-            if (now >= followUpTime && !record.followUpSent) {
-
-                sendNotification(
-                    "DAWAZ Follow-up Reminder",
-                    "You have not confirmed " + medicine.name +
-                    ". Please update your medicine status."
-                );
-
-                record.followUpSent = true;
-
-                saveProgress();
-
-                status.textContent = "Follow-up sent";
-                status.className = "status missed";
-
-            } else {
-
-                status.textContent = "Awaiting confirmation";
-                status.className = "status awaiting-confirmation";
-            }
+            console.log(
+                "Seven-minute follow-up sent for:",
+                item.medicineName
+            );
 
         });
-
-        updateProgress();
     }
 
 
     // =====================================
-    // 8. PATIENT CONFIRMATION CHECKBOX
-    // =====================================
-
-    const checkboxes = document.querySelectorAll(".dose-checkbox");
-
-    checkboxes.forEach(function (checkbox) {
-
-        checkbox.addEventListener("change", function () {
-
-            const medicineId = checkbox.dataset.doseId;
-
-            const medicine = medicines.find(function (item) {
-                return item.id === medicineId;
-            });
-
-            if (!medicine) {
-                return;
-            }
-
-            const scheduledTime = getScheduledTime(medicine);
-
-            // Do not allow confirmation before scheduled time.
-            if (new Date() < scheduledTime) {
-
-                checkbox.checked = false;
-
-                return;
-            }
-
-            const record = getDoseRecord(medicineId);
-
-            if (checkbox.checked) {
-
-                record.patientReportedTaken = true;
-
-                record.confirmedAt = new Date().toISOString();
-
-                saveProgress();
-
-                const status = document.getElementById(
-                    `status-${medicineId}`
-                );
-
-                if (status) {
-
-                    status.textContent = "Patient reported taken";
-                    status.className = "status taken";
-                }
-
-                sendNotification(
-                    "DAWAZ Confirmation Recorded",
-                    medicine.name + " has been marked as taken."
-                );
-
-            }
-
-            updateProgress();
-
-            checkMedicineReminders();
-        });
-
-    });
-
-
-    // =====================================
-    // 9. UPDATE DAILY PROGRESS
-    // =====================================
-
-    function updateProgress() {
-
-        const totalDoses = medicines.length;
-
-        const completedDoses = medicines.filter(function (medicine) {
-
-            const record = getDoseRecord(medicine.id);
-
-            return record.patientReportedTaken;
-
-        }).length;
-
-        const percentage = totalDoses === 0
-            ? 0
-            : Math.round((completedDoses / totalDoses) * 100);
-
-
-        const progressText = document.getElementById("progressText");
-
-        const progressPercentage = document.getElementById(
-            "progressPercentage"
-        );
-
-        const progressBar = document.getElementById("progressBar");
-
-
-        if (progressText) {
-
-            progressText.textContent =
-                completedDoses + " of " + totalDoses +
-                " doses confirmed";
-        }
-
-        if (progressPercentage) {
-
-            progressPercentage.textContent = percentage + "%";
-        }
-
-        if (progressBar) {
-
-            progressBar.style.width = percentage + "%";
-        }
-
-    }
-
-
-    // =====================================
-    // 10. NEXT REMINDER
+    // 16. NEXT REMINDER
     // =====================================
 
     function updateNextReminder() {
 
         const now = new Date();
 
-        const upcomingMedicines = medicines.filter(function (medicine) {
+        const schedule = getTodaySchedule();
 
-            const record = getDoseRecord(medicine.id);
+        const upcoming = schedule.filter(function (item) {
 
             return (
-                !record.patientReportedTaken &&
-                getScheduledTime(medicine) > now
+                item.status === "pending" &&
+                getCurrentDateTime(item.time) > now
             );
 
         });
 
-        upcomingMedicines.sort(function (a, b) {
+        if (upcoming.length > 0) {
 
-            return getScheduledTime(a) - getScheduledTime(b);
-
-        });
-
-        const nextReminderTime = document.getElementById(
-            "nextReminderTime"
-        );
-
-        const nextReminderMedicine = document.getElementById(
-            "nextReminderMedicine"
-        );
-
-        if (upcomingMedicines.length > 0) {
-
-            const nextMedicine = upcomingMedicines[0];
-
-            const formattedTime = getScheduledTime(
-                nextMedicine
-            ).toLocaleTimeString("en-IN", {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true
-            });
+            const next = upcoming[0];
 
             if (nextReminderTime) {
-                nextReminderTime.textContent = formattedTime;
+                nextReminderTime.textContent = formatTime(next.time);
             }
 
             if (nextReminderMedicine) {
-                nextReminderMedicine.textContent = nextMedicine.name;
+                nextReminderMedicine.textContent = next.medicineName;
             }
 
         } else {
@@ -514,35 +676,78 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =====================================
-    // 11. INITIALIZE DASHBOARD
+    // 17. REFRESH DATA FROM STORAGE
     // =====================================
 
-    checkMedicineReminders();
+    function refreshData() {
 
-    updateProgress();
+        medicines = loadData(MEDICINES_KEY);
 
-    updateNextReminder();
+        reminders = loadData(REMINDERS_KEY);
+
+        alerts = loadAlerts();
+    }
 
 
-    // Check every 10 seconds while dashboard is open.
-    setInterval(function () {
+    // =====================================
+    // 18. RENDER EVERYTHING
+    // =====================================
 
-        checkMedicineReminders();
+    function renderAll() {
+
+        refreshData();
+
+        renderSchedule();
+
+        updateProgress();
 
         updateNextReminder();
+
+        checkFollowUpReminders();
+    }
+
+
+    // =====================================
+    // 19. NOTIFICATION SETUP
+    // =====================================
+
+    createNotificationButton();
+
+
+    // =====================================
+    // 20. INITIAL LOAD
+    // =====================================
+
+    renderAll();
+
+
+    // Refresh dashboard every 10 seconds.
+    setInterval(function () {
+
+        renderAll();
 
     }, 10000);
 
 
-    // Recheck when the user returns to the dashboard.
+    // Refresh when the patient returns to the tab.
     document.addEventListener("visibilitychange", function () {
 
         if (!document.hidden) {
+            renderAll();
+        }
+    });
 
-            checkMedicineReminders();
 
-            updateNextReminder();
+    // Refresh when another DAWAZ page changes localStorage.
+    window.addEventListener("storage", function (event) {
+
+        if (
+            event.key === REMINDERS_KEY ||
+            event.key === MEDICINES_KEY
+        ) {
+            renderAll();
         }
     });
 
 });
+
