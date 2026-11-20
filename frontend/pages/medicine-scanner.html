@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Medicine Scanner | DAWAZ</title>
+
+    <link rel="stylesheet" href="../css/medicine-scanner.css">
+</head>
+
+<body>
+
+    <header class="navbar">
+
+        <a href="dashboard.html" class="brand">
+            <span class="brand-logo">D</span>
+            <span>DAWAZ</span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="medicines.html">My Medicines</a>
+            <a href="prescription.html">Prescription</a>
+            <a href="medicine-scanner.html" class="active">Scanner</a>
+        </nav>
+
+        <div class="profile">Patient</div>
+
+    </header>
+
+
+    <main class="scanner-container">
+
+        <section class="page-heading">
+
+            <p class="eyebrow">SMART MEDICINE IDENTIFICATION</p>
+
+            <h1>Medicine Scanner</h1>
+
+            <p>
+                Scan your medicine packaging to identify it and
+                check whether it matches your confirmed prescription.
+            </p>
+
+        </section>
+
+
+        <!-- SCANNER CARD -->
+
+        <section class="scanner-card">
+
+            <div class="scanner-header">
+
+                <div>
+                    <h2>Scan Medicine</h2>
+
+                    <p>
+                        Position your medicine packaging clearly
+                        inside the camera frame.
+                    </p>
+                </div>
+
+                <span class="scanner-icon">📷</span>
+
+            </div>
+
+
+            <!-- CAMERA AREA -->
+
+            <div class="camera-area" id="cameraArea">
+
+                <div id="cameraPlaceholder">
+
+                    <div class="camera-symbol">📷</div>
+
+                    <h3>Camera Preview</h3>
+
+                    <p>
+                        Your camera preview will appear here
+                        after you allow camera access.
+                    </p>
+
+                </div>
+
+                <video id="cameraPreview" autoplay playsinline hidden></video>
+
+                <canvas id="captureCanvas" hidden></canvas>
+
+                <div class="scan-frame" hidden id="scanFrame"></div>
+
+            </div>
+
+
+            <!-- CAMERA CONTROLS -->
+
+            <div class="camera-controls">
+
+                <button type="button" id="startCameraBtn" class="primary-btn">
+                    Start Camera
+                </button>
+
+                <button type="button" id="captureBtn" class="secondary-btn" disabled>
+                    Capture Image
+                </button>
+
+            </div>
+
+
+            <div class="or-divider">
+                <span>OR</span>
+            </div>
+
+
+            <!-- IMAGE UPLOAD -->
+
+            <div class="upload-area">
+
+                <label for="medicineImage" class="upload-label">
+
+                    <span class="upload-icon">📁</span>
+
+                    <strong>Upload Medicine Image</strong>
+
+                    <span>
+                        Choose a clear photo of your medicine packet
+                    </span>
+
+                </label>
+
+                <input
+                    type="file"
+                    id="medicineImage"
+                    accept="image/jpeg,image/png,image/webp"
+                    hidden
+                >
+
+                <p id="fileName"></p>
+
+            </div>
+
+
+            <!-- IMAGE PREVIEW -->
+
+            <div class="image-preview-container" id="imagePreviewContainer" hidden>
+
+                <h3>Selected Image</h3>
+
+                <img id="imagePreview" alt="Selected medicine image">
+
+                <button type="button" id="removeImageBtn" class="remove-image-btn">
+                    Remove Image
+                </button>
+
+            </div>
+
+
+            <!-- SCAN BUTTON -->
+
+            <button type="button" id="scanMedicineBtn" class="scan-btn" disabled>
+                Identify Medicine
+            </button>
+
+            <p id="scanMessage" class="scan-message"></p>
+
+        </section>
+
+
+        <!-- SMART SCAN GUIDANCE -->
+
+        <section class="guidance-card">
+
+            <h2>Smart Scan Guidance</h2>
+
+            <p>Follow these steps for a clearer medicine image.</p>
+
+            <div class="guidance-grid">
+
+                <div class="guidance-item">
+                    <span>01</span>
+                    <h3>Good Lighting</h3>
+                    <p>Make sure the medicine name is clearly visible.</p>
+                </div>
+
+                <div class="guidance-item">
+                    <span>02</span>
+                    <h3>Clear Focus</h3>
+                    <p>Keep the camera steady and avoid blurry images.</p>
+                </div>
+
+                <div class="guidance-item">
+                    <span>03</span>
+                    <h3>Show Packaging</h3>
+                    <p>Include the medicine name and strength if visible.</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SCAN RESULT -->
+
+        <section class="result-card" id="resultCard" hidden>
+
+            <h2>Medicine Identification Result</h2>
+
+            <div id="resultContent"></div>
+
+        </section>
+
+
+        <section class="safety-note">
+
+            <strong>Important Safety Information</strong>
+
+            <p>
+                Image recognition does not establish whether a medicine
+                is appropriate for you. Always compare the result with
+                your confirmed prescription. If the medicine cannot be
+                identified confidently, consult a pharmacist or doctor.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/medicine-scanner.js"></script>
+
+</body>
+
+</html>
