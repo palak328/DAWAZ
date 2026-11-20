@@ -1,0 +1,289 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAWAZ | Medicine Reminders</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/reminders.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <h2>DAWAZ</h2>
+        </div>
+
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="medicines.html">My Medicines</a>
+            <a href="reminders.html" class="active">Reminders</a>
+            <a href="medicine-scanner.html">Scan Medicine</a>
+            <a href="caregivers.html">Caregivers</a>
+        </nav>
+
+        <div class="profile">
+            <span class="profile-icon">P</span>
+            <span>Patient</span>
+        </div>
+
+    </header>
+
+
+    <main class="reminders-container">
+
+        <!-- PAGE HEADING -->
+
+        <section class="reminders-heading">
+
+            <div>
+                <p class="eyebrow">MEDICATION MANAGEMENT</p>
+
+                <h1>Medicine Reminders</h1>
+
+                <p>
+                    Keep track of your medicine schedule and
+                    record your daily medication updates.
+                </p>
+            </div>
+
+            <button type="button" id="addReminderBtn" class="add-reminder-btn">
+                + Add Reminder
+            </button>
+
+        </section>
+
+
+        <!-- SUMMARY CARDS -->
+
+        <section class="reminder-summary">
+
+            <div class="summary-card">
+                <p>Today's Reminders</p>
+                <h2 id="totalReminders">0</h2>
+                <span>Scheduled reminders</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Completed</p>
+                <h2 id="completedReminders">0</h2>
+                <span>Patient reported taken</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Upcoming</p>
+                <h2 id="upcomingReminders">0</h2>
+                <span>Remaining reminders</span>
+            </div>
+
+        </section>
+
+
+        <!-- TODAY'S SCHEDULE -->
+
+        <section class="reminders-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Today's Schedule</h2>
+                    <p id="reminderDate">Loading date...</p>
+                </div>
+
+                <span class="schedule-label">Daily Schedule</span>
+
+            </div>
+
+            <div id="reminderList" class="reminder-list">
+
+                <div class="empty-state">
+                    <h3>No reminders added yet</h3>
+                    <p>Your medicine reminders will appear here.</p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- REMINDER HISTORY -->
+
+        <section class="reminders-card">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Reminder History</h2>
+                    <p>Review your previously recorded medicine updates.</p>
+                </div>
+            </div>
+
+            <div id="reminderHistory" class="history-list">
+
+                <p class="empty-history">
+                    Your reminder history will appear here.
+                </p>
+
+            </div>
+
+            <p class="history-note">
+                Taken status records the patient's response.
+                It does not independently verify that medicine was taken.
+            </p>
+
+        </section>
+
+
+        <!-- ADD REMINDER MODAL -->
+
+        <div class="modal-overlay" id="reminderModal" hidden>
+
+            <div class="reminder-modal">
+
+                <div class="modal-heading">
+
+                    <div>
+                        <p class="eyebrow">PERSONAL MEDICATION SCHEDULE</p>
+                        <h2 id="modalTitle">Add Medicine Reminder</h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="closeModalBtn"
+                        class="close-modal-btn"
+                        aria-label="Close">
+
+                        &times;
+
+                    </button>
+
+                </div>
+
+
+                <form id="reminderForm">
+
+                    <div class="form-group">
+
+                        <label for="reminderMedicine">
+                            Medicine Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="reminderMedicine"
+                            placeholder="Enter confirmed medicine name"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="reminderTime">
+                            Reminder Time
+                        </label>
+
+                        <input
+                            type="time"
+                            id="reminderTime"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="reminderFrequency">
+                            Frequency
+                        </label>
+
+                        <select id="reminderFrequency" required>
+
+                            <option value="">Select frequency</option>
+                            <option value="Once daily">Once daily</option>
+                            <option value="Twice daily">Twice daily</option>
+                            <option value="Three times daily">Three times daily</option>
+                            <option value="Custom">Custom</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="reminderInstructions">
+                            Instructions (Optional)
+                        </label>
+
+                        <textarea
+                            id="reminderInstructions"
+                            placeholder="Enter instructions from the confirmed prescription">
+                        </textarea>
+
+                    </div>
+
+
+                    <p class="form-safety-note">
+                        Enter only the timing and instructions confirmed
+                        by your doctor or prescription.
+                    </p>
+
+
+                    <div class="modal-actions">
+
+                        <button
+                            type="button"
+                            id="cancelReminderBtn"
+                            class="cancel-btn">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="save-reminder-btn">
+
+                            Save Reminder
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- SAFETY NOTE -->
+
+        <section class="reminder-safety">
+
+            <strong>Medicine Safety</strong>
+
+            <p>
+                Reminder schedules should follow your confirmed
+                prescription. If a dose is missed or you are unsure
+                what to do, consult your doctor or pharmacist.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/reminders.js"></script>
+
+</body>
+</html>
