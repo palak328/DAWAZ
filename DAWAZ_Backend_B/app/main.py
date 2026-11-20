@@ -3,6 +3,8 @@ from app.database import Base, engine
 from app.models.patient import Patient
 from app.routers.users import router as users_router
 from app.routers.patients import router as patients_router
+from app.models.prescription import Prescription, PrescriptionItem
+from app.routers.prescriptions import router as prescriptions_router
 app = FastAPI(
     title="DAWAZ Backend B",
     description="Platform and voice-processing API for DAWAZ",
@@ -14,7 +16,7 @@ from app.models.user import User
 Base.metadata.create_all(bind=engine)
 app.include_router(users_router)
 app.include_router(patients_router)
-
+app.include_router(prescriptions_router)
 @app.get("/")
 def home():
     return {
