@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>DAWAZ | Upload Prescription</title>
+    <title>Upload Prescription | DAWAZ</title>
 
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/prescription.css">
@@ -15,48 +15,50 @@
 <body>
 
     <!-- Navigation Bar -->
-    <header class="navbar">
+
+    <nav class="navbar">
 
         <div class="brand">
             <div class="brand-logo">D</div>
-            <h2>DAWAZ</h2>
+            <span>DAWAZ</span>
         </div>
 
-        <nav class="nav-links">
+        <div class="nav-links">
             <a href="dashboard.html">Dashboard</a>
             <a href="medicines.html">My Medicines</a>
-            <a href="reminders.html">Reminders</a>
-            <a href="scanner.html">Scan Medicine</a>
-            <a href="caregivers.html">Caregivers</a>
-        </nav>
+            <a href="prescription.html" class="active">Prescription</a>
+        </div>
 
         <div class="profile">
-            <span class="profile-icon">P</span>
+            <div class="profile-icon">P</div>
             <span>Patient</span>
         </div>
 
-    </header>
+    </nav>
 
 
-    <!-- Main Content -->
+    <!-- Main Prescription Container -->
+
     <main class="prescription-container">
 
         <!-- Page Heading -->
-        <section class="prescription-header">
 
-            <p class="page-label">MEDICINE MANAGEMENT</p>
+        <header class="prescription-header">
+
+            <span class="page-label">Medicine Management</span>
 
             <h1>Upload Prescription</h1>
 
             <p>
-                Upload your doctor's prescription to keep
-                your medicine records organised.
+                Upload your doctor's prescription to keep your
+                medicine records organised.
             </p>
 
-        </section>
+        </header>
 
 
         <!-- Upload Section -->
+
         <section class="upload-card">
 
             <div class="upload-icon">+</div>
@@ -67,62 +69,83 @@
                 Select a prescription image or PDF from your device.
             </p>
 
+            <input
+                type="file"
+                id="prescriptionFile"
+                accept=".jpg,.jpeg,.png,.pdf"
+                hidden
+            >
+
             <label for="prescriptionFile" class="upload-button">
                 Choose File
             </label>
 
-            <input
-                type="file"
-                id="prescriptionFile"
-                accept="image/*,.pdf"
-                hidden
+            <div class="file-info">
+
+                <p id="fileName" class="file-name"></p>
+
+                <p
+                    id="uploadMessage"
+                    class="upload-message"
+                    aria-live="polite"
+                ></p>
+
+            </div>
+
+            <button
+                type="button"
+                id="submitPrescription"
+                class="submit-button"
+                disabled
             >
+                Submit Prescription
+            </button>
 
-            <p class="file-info">
+            <p class="supported-formats">
                 Supported formats: JPG, PNG and PDF
+                <br>
+                Maximum file size: 10 MB
             </p>
-
-            <p id="fileName" class="file-name"></p>
-
-            <p id="uploadMessage" class="upload-message"></p>
 
         </section>
 
 
-        <!-- Review Information -->
-        <section class="review-card">
+        <!-- Prescription Review Section -->
+
+        <section class="review-card" id="reviewCard">
 
             <div class="review-icon">!</div>
 
-            <div>
-                <h2>Prescription Review</h2>
+            <div class="review-content">
 
-                <p>
-                    After uploading, extracted medicine details
-                    must be reviewed and corrected by you.
+                <h3>Prescription Review</h3>
+
+                <p id="reviewInstructions">
+                    Your uploaded prescription will appear here
+                    after submission.
                 </p>
 
-                <p>
-                    Reminders will only be activated after
-                    you confirm the prescription details.
-                </p>
+                <div
+                    id="prescriptionPreview"
+                    class="prescription-preview"
+                    hidden
+                ></div>
+
             </div>
 
         </section>
 
 
         <!-- Safety Information -->
+
         <section class="safety-note">
 
-            <h3>Important Safety Information</h3>
+            <strong>Important Safety Information</strong>
 
             <p>
-                DAWAZ does not independently decide medicine
-                dosage or frequency. Always follow your
-                doctor's confirmed prescription.
-            </p>
-
-            <p>
+                DAWAZ does not independently decide medicine dosage
+                or frequency. Always follow your doctor's confirmed
+                prescription.
                 If any medicine name or instruction is unclear,
                 consult your doctor or pharmacist.
             </p>
@@ -132,7 +155,11 @@
     </main>
 
 
+    <!-- JavaScript -->
+
     <script src="../js/prescription.js"></script>
 
 </body>
+
 </html>
+

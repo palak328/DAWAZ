@@ -1,5 +1,11 @@
 
-/* Prescription Page */
+/* =====================================
+   DAWAZ - PRESCRIPTION PAGE
+===================================== */
+
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
@@ -8,7 +14,10 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Navigation */
+
+/* =====================================
+   NAVIGATION BAR
+===================================== */
 
 .navbar {
     display: flex;
@@ -36,6 +45,7 @@ body {
 
 .nav-links {
     display: flex;
+    align-items: center;
     gap: 28px;
 }
 
@@ -43,6 +53,7 @@ body {
     text-decoration: none;
     color: #52635F;
     font-size: 14px;
+    transition: color 0.2s;
 }
 
 .nav-links a:hover,
@@ -64,16 +75,29 @@ body {
     border-radius: 50%;
 }
 
-/* Main Container */
+
+/* =====================================
+   MAIN PAGE LAYOUT
+===================================== */
 
 .prescription-container {
-    max-width: 850px;
-    margin: 55px auto;
-    padding: 0 22px;
+    max-width: 1100px;
+    margin: 45px auto;
+    padding: 0 25px;
+
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 24px;
 }
 
+
+/* =====================================
+   PAGE HEADER
+===================================== */
+
 .prescription-header {
-    margin-bottom: 30px;
+    grid-column: 1 / -1;
+    margin-bottom: 5px;
 }
 
 .page-label {
@@ -95,37 +119,55 @@ body {
     line-height: 1.6;
 }
 
-/* Upload Card */
 
-.upload-card,
-.review-card {
+/* =====================================
+   UPLOAD CARD - LEFT SIDE
+===================================== */
+
+.upload-card {
+    grid-column: 1;
+
+    min-height: 330px;
+    margin: 0;
+    padding: 35px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
     background: #FFFFFF;
     border: 1px solid #E3ECE9;
     border-radius: 16px;
-    padding: 35px;
-    margin-bottom: 24px;
+
+    transition: border-color 0.2s;
 }
 
-.upload-card {
-    text-align: center;
+.upload-card:hover {
+    border-color: #A7D8D1;
 }
 
 .upload-icon {
     width: 65px;
     height: 65px;
-    margin: 0 auto 18px;
+    margin-bottom: 18px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     background: #D7EFEC;
     color: #0B6E6E;
+
     border-radius: 16px;
     font-size: 30px;
 }
 
 .upload-card h2 {
     font-size: 21px;
-    margin-bottom: 10px;
+    margin: 0 0 10px;
 }
 
 .upload-card p {
@@ -134,18 +176,25 @@ body {
     line-height: 1.6;
 }
 
-/* Upload Button */
+
+/* =====================================
+   CHOOSE FILE BUTTON
+===================================== */
 
 .upload-button {
     display: inline-block;
     margin-top: 18px;
     padding: 13px 25px;
+
     background: #0B6E6E;
     color: #FFFFFF;
+
     border-radius: 8px;
     cursor: pointer;
+
     font-size: 14px;
     font-weight: bold;
+
     transition: background 0.2s;
 }
 
@@ -153,10 +202,14 @@ body {
     background: #084F4F;
 }
 
-/* File Information */
+
+/* =====================================
+   FILE INFORMATION
+===================================== */
 
 .file-info {
-    margin-top: 22px;
+    width: 100%;
+    margin-top: 15px;
 }
 
 .file-name {
@@ -166,58 +219,177 @@ body {
 }
 
 .upload-message {
-    margin-top: 12px;
-    font-size: 14px;
+    margin-top: 8px;
+    font-size: 13px;
     color: #B4690E;
 }
 
-/* Review Section */
+
+/* =====================================
+   SUBMIT BUTTON
+===================================== */
+
+.submit-button {
+    width: 100%;
+    max-width: 230px;
+
+    margin-top: 15px;
+    padding: 13px 20px;
+
+    background: #0B6E6E;
+    color: #FFFFFF;
+
+    border: none;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.submit-button:hover:not(:disabled) {
+    background: #084F4F;
+}
+
+.submit-button:disabled {
+    background: #A9C5C0;
+    cursor: not-allowed;
+}
+
+.supported-formats {
+    margin-top: 15px;
+    font-size: 12px !important;
+}
+
+
+/* =====================================
+   REVIEW CARD - RIGHT SIDE
+===================================== */
 
 .review-card {
+    grid-column: 2;
+
+    margin: 0;
+    padding: 30px;
+
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
+    justify-content: center;
     gap: 18px;
+
+    background: #FFFFFF;
+    border: 1px solid #E3ECE9;
+    border-radius: 16px;
+
+    min-width: 0;
 }
 
 .review-icon {
     min-width: 42px;
     height: 42px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     background: #FFF1DC;
     color: #B4690E;
+
     border-radius: 12px;
     font-size: 20px;
 }
 
+.review-content {
+    width: 100%;
+    min-width: 0;
+}
+
 .review-card h3 {
     margin: 2px 0 9px;
-    font-size: 17px;
+    font-size: 19px;
+    color: #10221F;
 }
 
 .review-card p {
     margin: 0;
     color: #687873;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
-/* Safety Note */
+
+/* =====================================
+   PRESCRIPTION PREVIEW
+===================================== */
+
+.prescription-preview {
+    width: 100%;
+    margin-top: 18px;
+}
+
+.prescription-preview img {
+    display: block;
+    width: 100%;
+    max-height: 380px;
+
+    object-fit: contain;
+
+    border: 1px solid #E3ECE9;
+    border-radius: 10px;
+}
+
+.prescription-preview iframe {
+    display: block;
+    width: 100%;
+    height: 380px;
+
+    border: 1px solid #E3ECE9;
+    border-radius: 10px;
+}
+
+.prescription-preview[hidden] {
+    display: none;
+}
+
+
+/* =====================================
+   SAFETY INFORMATION
+===================================== */
 
 .safety-note {
-    padding: 17px 20px;
+    grid-column: 1 / -1;
+
+    margin: 0;
+    padding: 18px 20px;
+
     background: #EAF5F3;
     border-left: 4px solid #0B6E6E;
     border-radius: 8px;
+
     color: #31534D;
     font-size: 13px;
     line-height: 1.7;
 }
 
-/* Responsive Design */
+.safety-note strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.safety-note p {
+    margin: 0;
+}
+
+
+/* =====================================
+   RESPONSIVE DESIGN
+===================================== */
 
 @media (max-width: 700px) {
+
     .navbar {
         padding: 16px 5%;
         flex-wrap: wrap;
@@ -237,15 +409,69 @@ body {
     }
 
     .prescription-container {
-        margin: 35px auto;
+        grid-template-columns: 1fr;
+        margin: 30px auto;
+        padding: 0 18px;
+        gap: 18px;
+    }
+
+    .prescription-header,
+    .upload-card,
+    .review-card,
+    .safety-note {
+        grid-column: 1;
     }
 
     .prescription-header h1 {
         font-size: 26px;
     }
 
-    .upload-card,
+    .upload-card {
+        min-height: 270px;
+        padding: 25px;
+    }
+
     .review-card {
-        padding: 24px;
+        min-height: 180px;
+        padding: 25px;
+    }
+
+    .submit-button {
+        max-width: 100%;
+    }
+
+    .prescription-preview iframe {
+        height: 300px;
+    }
+
+    .safety-note {
+        padding: 16px;
     }
 }
+
+
+/* =====================================
+   SMALL MOBILE SCREENS
+===================================== */
+
+@media (max-width: 400px) {
+
+    .brand {
+        font-size: 18px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+    }
+
+    .prescription-header h1 {
+        font-size: 23px;
+    }
+
+    .upload-card,
+    .review-card {
+        padding: 20px;
+    }
+}
+
+
