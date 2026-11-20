@@ -6,11 +6,15 @@ const uploadMessage = document.getElementById("uploadMessage");
 
 const submitButton = document.getElementById("submitPrescription");
 
-const reviewInstructions = document.getElementById("reviewInstructions");
-const prescriptionPreview = document.getElementById("prescriptionPreview");
+const extractionMessage = document.getElementById("extractionMessage");
+
+const statusUploaded = document.getElementById("statusUploaded");
+const statusProcessing = document.getElementById("statusProcessing");
+const statusReview = document.getElementById("statusReview");
+
+const statusMessage = document.getElementById("statusMessage");
 
 let selectedFile = null;
-let previewURL = null;
 
 
 // =====================================
@@ -25,35 +29,21 @@ prescriptionFile.addEventListener("change", function () {
 
     submitButton.disabled = true;
 
-    // Clear previous preview
-    prescriptionPreview.hidden = true;
-    prescriptionPreview.innerHTML = "";
-
-    if (previewURL) {
-        URL.revokeObjectURL(previewURL);
-        previewURL = null;
-    }
-
-    reviewInstructions.textContent =
-        "Your uploaded prescription will appear here after submission.";
+    // Reset status and extraction display
+    resetReviewPanel();
 
     if (!file) {
-
         fileName.textContent = "";
         uploadMessage.textContent = "";
-
         return;
     }
 
-
-    // Allowed file formats
-
+    // Allowed formats
     const allowedTypes = [
         "image/jpeg",
         "image/png",
         "application/pdf"
     ];
-
 
     if (!allowedTypes.includes(file.type)) {
 
@@ -61,15 +51,12 @@ prescriptionFile.addEventListener("change", function () {
             "Please select a JPG, PNG, or PDF file.";
 
         fileName.textContent = "";
-
         prescriptionFile.value = "";
 
         return;
     }
 
-
-    // Maximum file size: 10 MB
-
+    // Maximum size: 10 MB
     const maxSize = 10 * 1024 * 1024;
 
     if (file.size > maxSize) {
@@ -78,19 +65,14 @@ prescriptionFile.addEventListener("change", function () {
             "File size must be less than 10 MB.";
 
         fileName.textContent = "";
-
         prescriptionFile.value = "";
 
         return;
     }
 
-
-    // Store selected file
-
     selectedFile = file;
 
-    fileName.textContent =
-        "Selected file: " + file.name;
+    fileName.textContent = "Selected: " + file.name;
 
     uploadMessage.textContent =
         "Your file is ready to submit.";
@@ -98,6 +80,23 @@ prescriptionFile.addEventListener("change", function () {
     submitButton.disabled = false;
 
 });
+
+
+// =====================================
+// RESET REVIEW PANEL
+// =====================================
+
+function resetReviewPanel() {
+
+    extractionMessage.hidden = false;
+
+    statusUploaded.classList.remove("active");
+    statusProcessing.classList.remove("active");
+    statusReview.classList.remove("active");
+
+    statusMessage.textContent = "No prescription submitted";
+
+}
 
 
 // =====================================
@@ -114,67 +113,35 @@ submitButton.addEventListener("click", function () {
         return;
     }
 
+    // Update upload status
+    statusUploaded.classList.add("active");
 
-    // Create temporary preview URL
-
-    previewURL = URL.createObjectURL(selectedFile);
-
-    prescriptionPreview.innerHTML = "";
-
-
-    // =================================
-    // IMAGE PREVIEW
-    // =================================
-
-    if (selectedFile.type.startsWith("image/")) {
-
-        const image = document.createElement("img");
-
-        image.src = previewURL;
-
-        image.alt = "Uploaded prescription preview";
-
-        prescriptionPreview.appendChild(image);
-
-    }
-
-
-    // =================================
-    // PDF PREVIEW
-    // =================================
-
-    else if (selectedFile.type === "application/pdf") {
-
-        const pdf = document.createElement("iframe");
-
-        pdf.src = previewURL;
-
-        pdf.title = "Prescription PDF preview";
-
-        prescriptionPreview.appendChild(pdf);
-
-    }
-
-
-    // Show preview
-
-    prescriptionPreview.hidden = false;
-
-
-    // Update review message
-
-    reviewInstructions.textContent =
-        "Your prescription has been submitted for review. Please check the uploaded document carefully.";
-
-
-    // Update upload message
+    statusMessage.textContent =
+        "Prescription submitted in this browser";
 
     uploadMessage.textContent =
         "Prescription submitted successfully.";
 
+    // OCR is not connected yet.
+    // Do not show invented medicine information.
 
-    // Prevent duplicate submission
+    extractionMessage.innerHTML = `
+        <div class="empty-icon">⌕</div>
+
+        <p>
+            Your document has been submitted.
+            Medicine details are not available yet.
+        </p>
+
+        <span>OCR processing needs to be connected.</span>
+    `;
+
+    extractionMessage.hidden = false;
+
+    statusProcessing.classList.remove("active");
+    statusReview.classList.remove("active");
 
     submitButton.disabled = true;
 
 });
+

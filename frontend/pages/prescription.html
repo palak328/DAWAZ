@@ -1,4 +1,6 @@
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,11 +39,11 @@
     </nav>
 
 
-    <!-- Main Prescription Container -->
+    <!-- Main Container -->
 
     <main class="prescription-container">
 
-        <!-- Page Heading -->
+        <!-- Heading -->
 
         <header class="prescription-header">
 
@@ -57,7 +59,7 @@
         </header>
 
 
-        <!-- Upload Section -->
+        <!-- Left: Upload Section -->
 
         <section class="upload-card">
 
@@ -110,30 +112,129 @@
         </section>
 
 
-        <!-- Prescription Review Section -->
+        <!-- Right: Review Panel -->
 
-        <section class="review-card" id="reviewCard">
+        <div class="right-panel">
 
-            <div class="review-icon">!</div>
+            <!-- Extracted Medicine Details -->
 
-            <div class="review-content">
+            <section class="details-card">
 
-                <h3>Prescription Review</h3>
+                <div class="section-heading">
 
-                <p id="reviewInstructions">
-                    Your uploaded prescription will appear here
-                    after submission.
-                </p>
+                    <div class="section-icon">✚</div>
 
-                <div
-                    id="prescriptionPreview"
-                    class="prescription-preview"
-                    hidden
-                ></div>
+                    <div>
+                        <h2>Extracted Medicine Details</h2>
+                        <p>Information detected from your prescription</p>
+                    </div>
 
-            </div>
+                </div>
 
-        </section>
+                <div class="extraction-message" id="extractionMessage">
+
+                    <div class="empty-icon">⌕</div>
+
+                    <p>
+                        Medicine details will appear here after
+                        prescription scanning.
+                    </p>
+
+                    <span>OCR processing not connected yet</span>
+
+                </div>
+
+                <div id="medicineDetails" hidden>
+
+                    <div class="detail-item">
+                        <span>Medicine Name</span>
+                        <strong id="medicineName">Not available</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Strength</span>
+                        <strong id="medicineStrength">Not available</strong>
+                    </div>
+
+                    <div class="detail-item">
+                        <span>Doctor's Instructions</span>
+                        <strong id="medicineInstructions">Not available</strong>
+                    </div>
+
+                    <p class="verification-note">
+                        Always verify extracted information against
+                        your original prescription.
+                    </p>
+
+                </div>
+
+            </section>
+
+
+            <!-- Prescription Status -->
+
+            <section class="status-card">
+
+                <div class="section-heading">
+
+                    <div class="section-icon status-icon">✓</div>
+
+                    <div>
+                        <h2>Prescription Status</h2>
+                        <p>Track your prescription progress</p>
+                    </div>
+
+                </div>
+
+                <div class="status-timeline">
+
+                    <div class="status-step" id="statusUploaded">
+
+                        <div class="status-dot">1</div>
+
+                        <div class="status-text">
+                            <strong>Prescription Uploaded</strong>
+                            <span>Waiting for document submission</span>
+                        </div>
+
+                    </div>
+
+                    <div class="status-line"></div>
+
+                    <div class="status-step" id="statusProcessing">
+
+                        <div class="status-dot">2</div>
+
+                        <div class="status-text">
+                            <strong>Medicine Details Extraction</strong>
+                            <span>OCR processing not connected</span>
+                        </div>
+
+                    </div>
+
+                    <div class="status-line"></div>
+
+                    <div class="status-step" id="statusReview">
+
+                        <div class="status-dot">3</div>
+
+                        <div class="status-text">
+                            <strong>Patient Review</strong>
+                            <span>Verify details before confirmation</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="overall-status" id="overallStatus">
+                    <span class="status-indicator"></span>
+                    <span id="statusMessage">No prescription submitted</span>
+                </div>
+
+            </section>
+
+        </div>
 
 
         <!-- Safety Information -->
@@ -145,9 +246,8 @@
             <p>
                 DAWAZ does not independently decide medicine dosage
                 or frequency. Always follow your doctor's confirmed
-                prescription.
-                If any medicine name or instruction is unclear,
-                consult your doctor or pharmacist.
+                prescription. If any medicine name or instruction
+                is unclear, consult your doctor or pharmacist.
             </p>
 
         </section>
@@ -155,11 +255,7 @@
     </main>
 
 
-    <!-- JavaScript -->
-
     <script src="../js/prescription.js"></script>
 
 </body>
-
 </html>
-
