@@ -8,10 +8,13 @@
 
     <title>Medicine Scanner | DAWAZ</title>
 
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/medicine-scanner.css">
 </head>
 
 <body>
+
+    <!-- NAVIGATION BAR -->
 
     <header class="navbar">
 
@@ -23,16 +26,24 @@
         <nav class="nav-links">
             <a href="dashboard.html">Dashboard</a>
             <a href="medicines.html">My Medicines</a>
-            <a href="prescription.html">Prescription</a>
-            <a href="medicine-scanner.html" class="active">Scanner</a>
+            <a href="reminders.html">Reminders</a>
+            <a href="medicine-scanner.html" class="active">Scan Medicine</a>
+            <a href="caregivers.html">Caregivers</a>
         </nav>
 
-        <div class="profile">Patient</div>
+        <div class="profile">
+            Patient
+        </div>
 
     </header>
 
 
+    <!-- MAIN CONTAINER -->
+
     <main class="scanner-container">
+
+
+        <!-- PAGE HEADING -->
 
         <section class="page-heading">
 
@@ -48,6 +59,59 @@
         </section>
 
 
+        <!-- SMART SCAN GUIDANCE - MOVED TO TOP -->
+
+        <section class="guidance-card">
+
+            <h2>Smart Scan Guidance</h2>
+
+            <p>Follow these steps for a clearer medicine image.</p>
+
+            <div class="guidance-grid">
+
+                <div class="guidance-item">
+
+                    <span>01</span>
+
+                    <h3>Good Lighting</h3>
+
+                    <p>
+                        Make sure the medicine name is clearly visible.
+                    </p>
+
+                </div>
+
+
+                <div class="guidance-item">
+
+                    <span>02</span>
+
+                    <h3>Clear Focus</h3>
+
+                    <p>
+                        Keep the camera steady and avoid blurry images.
+                    </p>
+
+                </div>
+
+
+                <div class="guidance-item">
+
+                    <span>03</span>
+
+                    <h3>Show Packaging</h3>
+
+                    <p>
+                        Include the medicine name and strength if visible.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
         <!-- SCANNER CARD -->
 
         <section class="scanner-card">
@@ -55,12 +119,14 @@
             <div class="scanner-header">
 
                 <div>
+
                     <h2>Scan Medicine</h2>
 
                     <p>
                         Position your medicine packaging clearly
                         inside the camera frame.
                     </p>
+
                 </div>
 
                 <span class="scanner-icon">📷</span>
@@ -85,11 +151,20 @@
 
                 </div>
 
-                <video id="cameraPreview" autoplay playsinline hidden></video>
+                <video
+                    id="cameraPreview"
+                    autoplay
+                    playsinline
+                    hidden>
+                </video>
 
                 <canvas id="captureCanvas" hidden></canvas>
 
-                <div class="scan-frame" hidden id="scanFrame"></div>
+                <div
+                    class="scan-frame"
+                    hidden
+                    id="scanFrame">
+                </div>
 
             </div>
 
@@ -98,16 +173,29 @@
 
             <div class="camera-controls">
 
-                <button type="button" id="startCameraBtn" class="primary-btn">
+                <button
+                    type="button"
+                    id="startCameraBtn"
+                    class="primary-btn">
+
                     Start Camera
+
                 </button>
 
-                <button type="button" id="captureBtn" class="secondary-btn" disabled>
+                <button
+                    type="button"
+                    id="captureBtn"
+                    class="secondary-btn"
+                    disabled>
+
                     Capture Image
+
                 </button>
 
             </div>
 
+
+            <!-- DIVIDER -->
 
             <div class="or-divider">
                 <span>OR</span>
@@ -118,7 +206,9 @@
 
             <div class="upload-area">
 
-                <label for="medicineImage" class="upload-label">
+                <label
+                    for="medicineImage"
+                    class="upload-label">
 
                     <span class="upload-icon">📁</span>
 
@@ -134,8 +224,7 @@
                     type="file"
                     id="medicineImage"
                     accept="image/jpeg,image/png,image/webp"
-                    hidden
-                >
+                    hidden>
 
                 <p id="fileName"></p>
 
@@ -144,14 +233,24 @@
 
             <!-- IMAGE PREVIEW -->
 
-            <div class="image-preview-container" id="imagePreviewContainer" hidden>
+            <div
+                class="image-preview-container"
+                id="imagePreviewContainer"
+                hidden>
 
                 <h3>Selected Image</h3>
 
-                <img id="imagePreview" alt="Selected medicine image">
+                <img
+                    id="imagePreview"
+                    alt="Selected medicine image">
 
-                <button type="button" id="removeImageBtn" class="remove-image-btn">
+                <button
+                    type="button"
+                    id="removeImageBtn"
+                    class="remove-image-btn">
+
                     Remove Image
+
                 </button>
 
             </div>
@@ -159,51 +258,32 @@
 
             <!-- SCAN BUTTON -->
 
-            <button type="button" id="scanMedicineBtn" class="scan-btn" disabled>
+            <button
+                type="button"
+                id="scanMedicineBtn"
+                class="scan-btn"
+                disabled>
+
                 Identify Medicine
+
             </button>
 
-            <p id="scanMessage" class="scan-message"></p>
+            <p
+                id="scanMessage"
+                class="scan-message"
+                role="status"
+                aria-live="polite">
+            </p>
 
         </section>
 
 
-        <!-- SMART SCAN GUIDANCE -->
+        <!-- IDENTIFICATION RESULT -->
 
-        <section class="guidance-card">
-
-            <h2>Smart Scan Guidance</h2>
-
-            <p>Follow these steps for a clearer medicine image.</p>
-
-            <div class="guidance-grid">
-
-                <div class="guidance-item">
-                    <span>01</span>
-                    <h3>Good Lighting</h3>
-                    <p>Make sure the medicine name is clearly visible.</p>
-                </div>
-
-                <div class="guidance-item">
-                    <span>02</span>
-                    <h3>Clear Focus</h3>
-                    <p>Keep the camera steady and avoid blurry images.</p>
-                </div>
-
-                <div class="guidance-item">
-                    <span>03</span>
-                    <h3>Show Packaging</h3>
-                    <p>Include the medicine name and strength if visible.</p>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- SCAN RESULT -->
-
-        <section class="result-card" id="resultCard" hidden>
+        <section
+            class="result-card"
+            id="resultCard"
+            hidden>
 
             <h2>Medicine Identification Result</h2>
 
@@ -211,6 +291,8 @@
 
         </section>
 
+
+        <!-- SAFETY NOTE -->
 
         <section class="safety-note">
 
@@ -225,11 +307,15 @@
 
         </section>
 
+
     </main>
 
 
-    <script src="../js/medicine-scanner.js"></script>
+    <!-- JAVASCRIPT -->
+
+    <script src="../js/scanner.js"></script>
 
 </body>
 
 </html>
+
