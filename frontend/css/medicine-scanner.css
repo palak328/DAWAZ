@@ -491,3 +491,45 @@ button:disabled {
         width: 100%;
     }
 }
+
+/* MEDICINE IDENTIFICATION RESULTS */
+
+.result-status {
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+
+.result-status h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.result-status p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.result-status.matched {
+    background: #E6F5EF;
+    border: 1px solid #B9DFCC;
+    color: #176B49;
+}
+
+.result-status.not-found {
+    background: #FFF2E9;
+    border: 1px solid #F0D0B8;
+    color: #985126;
+}
+
+.result-status.uncertain {
+    background: #FFF7E8;
+    border: 1px solid #F1D9A9;
+    color: #80500C;
+}
+
+#resultContent > p {
+    font-size: 14px;
+    margin: 10px 0;
+    color: #344A43;
+}
