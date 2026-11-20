@@ -1,10 +1,14 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     const STORAGE_KEY = "dawazReminders";
     const MAX_CUSTOM_TIMES = 5;
 
+    // ---------- HTML ELEMENTS ----------
+
     const form = document.getElementById("reminderForm");
     const modal = document.getElementById("reminderModal");
     const addButton = document.getElementById("addReminderBtn");
+
     const medicineInput = document.getElementById("reminderMedicine");
     const timeInput = document.getElementById("reminderTime");
     const frequencyInput = document.getElementById("reminderFrequency");
@@ -12,9 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const reminderList = document.getElementById("reminderList");
     const historyList = document.getElementById("reminderHistory");
+
     const totalElement = document.getElementById("totalReminders");
     const completedElement = document.getElementById("completedReminders");
     const upcomingElement = document.getElementById("upcomingReminders");
+
     const dateElement = document.getElementById("reminderDate");
     const modalTitle = document.getElementById("modalTitle");
 
@@ -32,7 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
             return Array.isArray(saved) ? saved : [];
-        } catch {
+        } catch (error) {
+            console.error("Could not load reminders:", error);
             return [];
         }
     }
@@ -42,14 +49,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function createId() {
-        return window.crypto?.randomUUID?.()
-            || `reminder-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        return window.crypto?.randomUUID?.() ||
+            `reminder-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     }
 
     // ---------- DATE AND TIME ----------
 
     function getToday() {
         const now = new Date();
+
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, "0");
         const day = String(now.getDate()).padStart(2, "0");
@@ -62,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const [hours, minutes] = time.split(":");
         const date = new Date();
+
         date.setHours(Number(hours), Number(minutes), 0, 0);
 
         return date.toLocaleTimeString("en-IN", {
@@ -76,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return [...new Set(reminder.times)].sort();
         }
 
-        // Compatibility with reminders saved by the previous version.
+        // Compatibility with older reminders.
         return reminder.time ? [reminder.time] : [];
     }
 
@@ -87,17 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function getDoseStatus(reminder, date, time) {
         const key = getDoseKey(date, time);
         return reminder.history?.[key]?.status || "pending";
-    }
-
-    function getDoseRecord(reminder, date, time) {
-        const key = getDoseKey(date, time);
-
-        return {
-            date,
-            time,
-            status: reminder.history?.[key]?.status || "pending",
-            recordedAt: reminder.history?.[key]?.recordedAt || null
-        };
     }
 
     function setDoseStatus(reminder, date, time, status) {
@@ -132,12 +130,16 @@ document.addEventListener("DOMContentLoaded", () => {
         switch (frequency) {
             case "Once daily":
                 return 1;
+
             case "Twice daily":
                 return 2;
+
             case "Three times daily":
                 return 3;
+
             case "Custom":
                 return null;
+
             default:
                 return 1;
         }
@@ -146,24 +148,18 @@ document.addEventListener("DOMContentLoaded", () => {
     function createAdditionalTimeField(index, value = "") {
         const wrapper = document.createElement("div");
         wrapper.className = "additional-time-field";
-        wrapper.style.marginTop = "10px";
 
         const label = document.createElement("label");
         label.textContent = `Dose ${index + 1} time`;
-        label.style.display = "block";
-        label.style.marginBottom = "6px";
 
         const input = document.createElement("input");
         input.type = "time";
         input.className = "extra-reminder-time";
         input.value = value;
         input.required = true;
-        input.style.width = "100%";
-        input.style.padding = "10px";
-        input.style.border = "1px solid #cbd5d1";
-        input.style.borderRadius = "8px";
 
         wrapper.append(label, input);
+
         return wrapper;
     }
 
@@ -187,15 +183,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (frequency === "Custom") {
             const addTimeButton = document.createElement("button");
+
             addTimeButton.type = "button";
             addTimeButton.textContent = "+ Add another time";
-            addTimeButton.style.marginTop = "10px";
-            addTimeButton.style.padding = "8px 12px";
-            addTimeButton.style.border = "1px solid #0B6E6E";
-            addTimeButton.style.borderRadius = "8px";
-            addTimeButton.style.background = "#ffffff";
-            addTimeButton.style.color = "#0B6E6E";
-            addTimeButton.style.cursor = "pointer";
+            addTimeButton.className = "add-time-btn";
 
             addTimeButton.addEventListener("click", () => {
                 const currentCount =
@@ -247,8 +238,8 @@ document.addEventListener("DOMContentLoaded", () => {
             frequencyInput.value = reminder.frequency || "Once daily";
 
             const times = getTimes(reminder);
-            timeInput.value = times[0] || "";
 
+            timeInput.value = times[0] || "";
             updateTimeFields(times);
 
             const extraInputs =
@@ -260,19 +251,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
             instructionsInput.value = reminder.instructions || "";
 
-            if (modalTitle) modalTitle.textContent = "Edit Reminder";
+            if (modalTitle) {
+                modalTitle.textContent = "Edit Reminder";
+            }
         } else {
             frequencyInput.value = "Once daily";
             updateTimeFields();
 
-            if (modalTitle) modalTitle.textContent = "Add Reminder";
+            if (modalTitle) {
+                modalTitle.textContent = "Add Reminder";
+            }
         }
 
-        if (modal) modal.hidden = false;
+        if (modal) {
+            modal.hidden = false;
+        }
     }
 
     function closeModal() {
-        if (modal) modal.hidden = true;
+        if (modal) {
+            modal.hidden = true;
+        }
 
         form.reset();
         timeFieldsContainer.innerHTML = "";
@@ -288,7 +287,15 @@ document.addEventListener("DOMContentLoaded", () => {
         ?.addEventListener("click", closeModal);
 
     modal?.addEventListener("click", event => {
-        if (event.target === modal) closeModal();
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && modal && !modal.hidden) {
+            closeModal();
+        }
     });
 
     // ---------- ADD AND EDIT ----------
@@ -357,19 +364,24 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!confirmed) return;
 
         reminders = reminders.filter(item => item.id !== id);
+
         saveReminders();
         renderAll();
     }
 
     function createActionButton(label, className, callback) {
         const button = document.createElement("button");
+
         button.type = "button";
         button.textContent = label;
         button.className = className;
+
         button.addEventListener("click", callback);
 
         return button;
     }
+
+    // ---------- CREATE HORIZONTAL REMINDER CARD ----------
 
     function createDoseCard(reminder, time, date) {
         const status = getDoseStatus(reminder, date, time);
@@ -377,32 +389,37 @@ document.addEventListener("DOMContentLoaded", () => {
         const card = document.createElement("div");
         card.className = "reminder-card";
 
-        const details = document.createElement("div");
-        details.className = "reminder-details";
-
+        // Medicine name
         const medicineName = document.createElement("h3");
+        medicineName.className = "reminder-medicine-name";
         medicineName.textContent = reminder.medicine;
 
-        const doseTime = document.createElement("p");
+        // Reminder time
+        const doseTime = document.createElement("span");
+        doseTime.className = "reminder-info";
         doseTime.textContent = formatTime(time);
 
-        const frequency = document.createElement("p");
+        // Frequency
+        const frequency = document.createElement("span");
+        frequency.className = "reminder-info";
         frequency.textContent = reminder.frequency || "Once daily";
 
-        details.append(medicineName, doseTime, frequency);
+        // Instructions
+        const instructions = document.createElement("span");
+        instructions.className = "reminder-info reminder-instructions";
+        instructions.textContent =
+            reminder.instructions || "No instructions added";
 
-        if (reminder.instructions) {
-            const instructions = document.createElement("p");
-            instructions.textContent = reminder.instructions;
-            details.appendChild(instructions);
-        }
-
+        // Status
         const statusElement = document.createElement("span");
         statusElement.className = `reminder-status ${status}`;
+
         statusElement.textContent =
             status === "taken" ? "Patient reported taken" :
-            status === "skipped" ? "Skipped" : "Pending";
+            status === "skipped" ? "Skipped" :
+            "Pending";
 
+        // Action buttons
         const actions = document.createElement("div");
         actions.className = "reminder-actions";
 
@@ -411,6 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 createActionButton("Taken", "taken-btn", () => {
                     setDoseStatus(reminder, date, time, "taken");
                 }),
+
                 createActionButton("Skipped", "skipped-btn", () => {
                     setDoseStatus(reminder, date, time, "skipped");
                 })
@@ -424,11 +442,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         actions.append(
-            createActionButton("Edit", "edit-btn", () => openModal(reminder)),
-            createActionButton("Delete", "delete-btn", () => deleteReminder(reminder.id))
+            createActionButton("Edit", "edit-btn", () => {
+                openModal(reminder);
+            }),
+
+            createActionButton("Delete", "delete-btn", () => {
+                deleteReminder(reminder.id);
+            })
         );
 
-        card.append(details, statusElement, actions);
+        card.append(
+            medicineName,
+            doseTime,
+            frequency,
+            instructions,
+            statusElement,
+            actions
+        );
+
         return card;
     }
 
@@ -438,8 +469,6 @@ document.addEventListener("DOMContentLoaded", () => {
         reminderList.innerHTML = "";
 
         const today = getToday();
-        let doseCount = 0;
-
         const schedule = [];
 
         reminders.forEach(reminder => {
@@ -451,13 +480,16 @@ document.addEventListener("DOMContentLoaded", () => {
         schedule.sort((a, b) => a.time.localeCompare(b.time));
 
         schedule.forEach(({ reminder, time }) => {
-            reminderList.appendChild(createDoseCard(reminder, time, today));
-            doseCount++;
+            reminderList.appendChild(
+                createDoseCard(reminder, time, today)
+            );
         });
 
-        if (doseCount === 0) {
+        if (schedule.length === 0) {
             const empty = document.createElement("p");
+            empty.className = "empty-reminders";
             empty.textContent = "No reminders added yet.";
+
             reminderList.appendChild(empty);
         }
     }
@@ -473,8 +505,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         reminders.forEach(reminder => {
             Object.entries(reminder.history || {}).forEach(([key, record]) => {
+                const separatorIndex = key.lastIndexOf("_");
+
+                const date = key.substring(0, separatorIndex);
+                const time = key.substring(separatorIndex + 1);
+
                 records.push({
                     medicine: reminder.medicine,
+                    date,
+                    time,
                     ...record
                 });
             });
@@ -484,9 +523,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return (b.recordedAt || "").localeCompare(a.recordedAt || "");
         });
 
-        if (!records.length) {
+        if (records.length === 0) {
             const empty = document.createElement("p");
+            empty.className = "empty-history";
             empty.textContent = "No reminder history yet.";
+
             historyList.appendChild(empty);
             return;
         }
@@ -499,6 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
             medicine.textContent = record.medicine;
 
             const details = document.createElement("p");
+
             details.textContent =
                 `${record.date} • ${formatTime(record.time)} • ` +
                 (record.status === "taken"
@@ -514,6 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function renderSummary() {
         const today = getToday();
+
         let total = 0;
         let completed = 0;
         let upcoming = 0;
@@ -524,8 +567,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const status = getDoseStatus(reminder, today, time);
 
-                if (status === "taken") completed++;
-                if (status === "pending") upcoming++;
+                if (status === "taken") {
+                    completed++;
+                }
+
+                if (status === "pending") {
+                    upcoming++;
+                }
             });
         });
 
@@ -533,6 +581,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (completedElement) completedElement.textContent = completed;
         if (upcomingElement) upcomingElement.textContent = upcoming;
     }
+
+    // ---------- RENDER ALL ----------
 
     function renderAll() {
         if (dateElement) {
@@ -551,10 +601,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---------- BROWSER NOTIFICATIONS ----------
 
-    let notificationButton = document.getElementById("notificationPermissionBtn");
+    let notificationButton =
+        document.getElementById("notificationPermissionBtn");
 
     if (!notificationButton) {
         notificationButton = document.createElement("button");
+
         notificationButton.id = "notificationPermissionBtn";
         notificationButton.type = "button";
         notificationButton.textContent = "Enable Browser Notifications";
@@ -581,8 +633,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const notified = new Set();
 
     function checkNotifications() {
-        if (!("Notification" in window) ||
-            Notification.permission !== "granted") {
+        if (
+            !("Notification" in window) ||
+            Notification.permission !== "granted"
+        ) {
             return;
         }
 
