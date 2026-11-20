@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAWAZ | My Medicines</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/medicines.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <h2>DAWAZ</h2>
+        </div>
+
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="medicines.html" class="active">My Medicines</a>
+            <a href="reminders.html">Reminders</a>
+            <a href="scanner.html">Scan Medicine</a>
+            <a href="caregivers.html">Caregivers</a>
+        </nav>
+
+        <div class="profile">
+            <span class="profile-icon">P</span>
+            <span>Patient</span>
+        </div>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="medicines-container">
+
+        <!-- Page Heading -->
+        <section class="medicines-header">
+
+            <div>
+                <p class="page-label">MEDICINE MANAGEMENT</p>
+
+                <h1>My Medicines</h1>
+
+                <p>
+                    View and manage your saved medicine records
+                    in one place.
+                </p>
+            </div>
+
+            <a href="prescription.html" class="add-medicine-btn">
+                + Add Medicine
+            </a>
+
+        </section>
+
+
+        <!-- Medicine Summary -->
+        <section class="medicine-summary">
+
+            <div class="summary-card">
+                <p>Total Medicines</p>
+                <h2>03</h2>
+                <span>Saved records</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Active Medicines</p>
+                <h2>02</h2>
+                <span>Currently active</span>
+            </div>
+
+            <div class="summary-card">
+                <p>Low Stock</p>
+                <h2>01</h2>
+                <span>Needs attention</span>
+            </div>
+
+        </section>
+
+
+        <!-- Medicine Records -->
+        <section class="medicine-records">
+
+            <div class="records-heading">
+                <div>
+                    <h2>Medicine Records</h2>
+                    <p>Your currently saved medicine information</p>
+                </div>
+
+                <input
+                    type="search"
+                    id="medicineSearch"
+                    placeholder="Search medicines..."
+                >
+            </div>
+
+
+            <!-- Medicine Card 1 -->
+            <article class="medicine-card">
+
+                <div class="medicine-info">
+
+                    <div class="medicine-icon">M</div>
+
+                    <div>
+                        <h3>Medicine A</h3>
+                        <p>Record ID: MED001</p>
+                    </div>
+
+                </div>
+
+                <div class="medicine-details">
+                    <span class="detail-label">Instructions</span>
+                    <p>As recorded in confirmed prescription</p>
+                </div>
+
+                <div class="medicine-stock">
+                    <span class="detail-label">Available Stock</span>
+                    <h3>12 units</h3>
+                    <span class="stock-status in-stock">In Stock</span>
+                </div>
+
+                <div class="medicine-actions">
+                    <a href="reminders.html">View Reminders</a>
+                </div>
+
+            </article>
+
+
+            <!-- Medicine Card 2 -->
+            <article class="medicine-card">
+
+                <div class="medicine-info">
+
+                    <div class="medicine-icon">M</div>
+
+                    <div>
+                        <h3>Medicine B</h3>
+                        <p>Record ID: MED002</p>
+                    </div>
+
+                </div>
+
+                <div class="medicine-details">
+                    <span class="detail-label">Instructions</span>
+                    <p>As recorded in confirmed prescription</p>
+                </div>
+
+                <div class="medicine-stock">
+                    <span class="detail-label">Available Stock</span>
+                    <h3>3 units</h3>
+                    <span class="stock-status low-stock">Low Stock</span>
+                </div>
+
+                <div class="medicine-actions">
+                    <a href="reminders.html">View Reminders</a>
+                </div>
+
+            </article>
+
+
+            <!-- Medicine Card 3 -->
+            <article class="medicine-card">
+
+                <div class="medicine-info">
+
+                    <div class="medicine-icon">M</div>
+
+                    <div>
+                        <h3>Medicine C</h3>
+                        <p>Record ID: MED003</p>
+                    </div>
+
+                </div>
+
+                <div class="medicine-details">
+                    <span class="detail-label">Instructions</span>
+                    <p>Prescription confirmation pending</p>
+                </div>
+
+                <div class="medicine-stock">
+                    <span class="detail-label">Available Stock</span>
+                    <h3>Not recorded</h3>
+                    <span class="stock-status pending">Pending</span>
+                </div>
+
+                <div class="medicine-actions">
+                    <a href="prescription.html">Review Prescription</a>
+                </div>
+
+            </article>
+
+        </section>
+
+
+        <!-- Additional Information -->
+        <section class="medicine-note">
+
+            <h3>Important Reminder</h3>
+
+            <p>
+                Always follow your confirmed doctor's prescription.
+                If medicine instructions are unclear, consult your
+                doctor or pharmacist.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/medicines.js"></script>
+
+</body>
+</html>
