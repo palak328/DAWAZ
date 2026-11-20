@@ -68,8 +68,8 @@
 
             <div class="overview-card">
                 <p>Next Reminder</p>
-                <h2>09:00 AM</h2>
-                <span>Medicine reminder</span>
+                <h2 id="nextReminderTime">09:00 AM</h2>
+                <span id="nextReminderMedicine">Medicine reminder</span>
             </div>
 
             <div class="overview-card">
@@ -91,38 +91,127 @@
         <section class="dashboard-content">
 
             <!-- Medicine Schedule -->
-            <div class="dashboard-card">
+            <div class="dashboard-card medicine-schedule-card">
 
                 <div class="card-heading">
                     <h2>Today's Medicine Schedule</h2>
                     <a href="reminders.html">View All</a>
                 </div>
 
-                <div class="medicine-item">
-                    <div>
+                <!-- Today's Progress -->
+                <div class="medicine-progress">
+
+                    <div class="progress-heading">
+                        <div>
+                            <h3>Today's Progress</h3>
+                            <p id="progressText">0 of 3 doses confirmed</p>
+                        </div>
+
+                        <strong id="progressPercentage">0%</strong>
+                    </div>
+
+                    <div class="progress-track">
+                        <div
+                            class="progress-fill"
+                            id="progressBar"
+                            style="width: 0%;">
+                        </div>
+                    </div>
+
+                    <p class="progress-note">
+                        Progress is based on doses reported as taken by the patient.
+                    </p>
+
+                </div>
+
+
+                <!-- Medicine 1 -->
+                <div class="medicine-item" data-dose-id="medicine-1">
+
+                    <div class="medicine-details">
                         <h3>Medicine 1</h3>
                         <p>09:00 AM</p>
                     </div>
 
-                    <span class="status upcoming">Upcoming</span>
+                    <div class="medicine-checkpoint">
+
+                        <span class="status upcoming" id="status-medicine-1">
+                            Upcoming
+                        </span>
+
+                        <label class="taken-checkbox">
+                            <input
+                                type="checkbox"
+                                class="dose-checkbox"
+                                data-dose-id="medicine-1"
+                                data-reminder-time="09:00"
+                                disabled>
+
+                            <span>Mark as taken</span>
+                        </label>
+
+                    </div>
+
                 </div>
 
-                <div class="medicine-item">
-                    <div>
+
+                <!-- Medicine 2 -->
+                <div class="medicine-item" data-dose-id="medicine-2">
+
+                    <div class="medicine-details">
                         <h3>Medicine 2</h3>
                         <p>02:00 PM</p>
                     </div>
 
-                    <span class="status upcoming">Upcoming</span>
+                    <div class="medicine-checkpoint">
+
+                        <span class="status upcoming" id="status-medicine-2">
+                            Upcoming
+                        </span>
+
+                        <label class="taken-checkbox">
+                            <input
+                                type="checkbox"
+                                class="dose-checkbox"
+                                data-dose-id="medicine-2"
+                                data-reminder-time="14:00"
+                                disabled>
+
+                            <span>Mark as taken</span>
+                        </label>
+
+                    </div>
+
                 </div>
 
-                <div class="medicine-item">
-                    <div>
+
+                <!-- Medicine 3 -->
+                <div class="medicine-item" data-dose-id="medicine-3">
+
+                    <div class="medicine-details">
                         <h3>Medicine 3</h3>
                         <p>08:00 PM</p>
                     </div>
 
-                    <span class="status upcoming">Upcoming</span>
+                    <div class="medicine-checkpoint">
+
+                        <span class="status upcoming" id="status-medicine-3">
+                            Upcoming
+                        </span>
+
+                        <label class="taken-checkbox">
+                            <input
+                                type="checkbox"
+                                class="dose-checkbox"
+                                data-dose-id="medicine-3"
+                                data-reminder-time="20:00"
+                                disabled>
+
+                            <span>Mark as taken</span>
+                        </label>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -156,3 +245,4 @@
 
 </body>
 </html>
+
