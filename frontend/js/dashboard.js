@@ -226,19 +226,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
+            const savedLang = localStorage.getItem("dawazLanguage") || sessionStorage.getItem("dawazLanguage") || "en";
+            const language = (savedLang === "hi" || savedLang === "hi-IN") ? "hi-IN" : "en-IN";
+
             const response = await DawazAPI.request("/questions", {
                 method: "POST",
                 body: JSON.stringify({
                     question: question,
-                    language:
-                        sessionStorage.getItem("dawazLanguage") === "hi"
-                            ? "hi-IN"
-                            : "en-IN"
+                    language: language
                 })
             });
 
             const answer =
                 response.answer ||
+                (response.data && response.data.answer) ||
                 response.reply ||
                 response.response ||
                 response.message;

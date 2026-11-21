@@ -25,6 +25,7 @@ def utc_now():
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+@router.post("", response_model=CareLinkResponse, status_code=201)
 @router.post("/", response_model=CareLinkResponse, status_code=201)
 def create_care_invitation(
     request: CareInvitationCreate,

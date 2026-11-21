@@ -254,3 +254,77 @@ def activate_prescription(
     db.refresh(prescription)
 
     return prescription
+
+
+@router.post(
+    "/{prescription_id}/review",
+    response_model=PrescriptionResponse
+)
+def review_and_confirm_prescription(
+    prescription_id: int,
+    prescription_data: PrescriptionCreate | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    patient = get_current_patient(current_user, db)
+    prescription = get_owned_prescription(
+        prescription_id, patient.id, db
+    )
+
+    if prescription.status != "draft":
+        raise HTTPException(409, "Only draft prescriptions can be reviewed")
+
+    # If updated items are provided, replace draft items with reviewed items
+    if prescription_data and prescription_data.items:
+        prescription.items.clear()
+        for item_data in prescription_data.items:
+            values = item_data.model_dump()
+            values["reviewed_by_patient"] = True
+            values["reviewed_at"] = datetime.now(timezone.utc)
+            values["identity_confirmed"] = True
+            values["needs_review"] = False
+            values["unresolved_fields"] = []
+            if values.get("dose_quantity") is None:
+                values["dose_quantity"] = 1.0
+            if not values.get("dose_unit"):
+                values["dose_unit"] = values.get("dosage_form") or "tablet"
+            if not values.get("dosage_form"):
+                values["dosage_form"] = "tablet"
+            if not values.get("route"):
+                values["route"] = "oral"
+            if not values.get("frequency"):
+                values["frequency"] = "once daily"
+            if not values.get("duration_days") or values["duration_days"] <= 0:
+                values["duration_days"] = 7
+            prescription.items.append(PrescriptionItem(**values))
+    else:
+        # If no new items provided, validate and mark existing draft items as reviewed
+        if not prescription.items:
+            raise HTTPException(400, "Add at least one medicine before confirmation")
+
+        for item in prescription.items:
+            item.reviewed_by_patient = True
+            item.reviewed_at = datetime.now(timezone.utc)
+            item.identity_confirmed = True
+            item.needs_review = False
+            item.unresolved_fields = []
+            if item.dose_quantity is None:
+                item.dose_quantity = 1.0
+            if not item.dose_unit:
+                item.dose_unit = item.dosage_form or "tablet"
+            if not item.dosage_form:
+                item.dosage_form = "tablet"
+            if not item.route:
+                item.route = "oral"
+            if not item.frequency:
+                item.frequency = "once daily"
+            if not item.duration_days or item.duration_days <= 0:
+                item.duration_days = 7
+
+    prescription.status = "confirmed"
+    prescription.confirmed_at = datetime.now(timezone.utc)
+
+    db.commit()
+    db.refresh(prescription)
+
+    return prescription

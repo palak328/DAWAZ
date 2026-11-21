@@ -22,18 +22,21 @@ document.addEventListener("DOMContentLoaded", () => {
         input.value = "";
 
         try {
+            const savedLang = localStorage.getItem("dawazLanguage") || sessionStorage.getItem("dawazLanguage") || "en";
+            const language = (savedLang === "hi" || savedLang === "hi-IN") ? "hi-IN" : "en-IN";
+
             const result = await DawazAPI.request("/questions", {
                 method: "POST",
                 body: JSON.stringify({
                     question,
-                    language: sessionStorage.getItem("dawazLanguage") || "en-IN"
+                    language
                 })
             });
 
             const answer = document.createElement("p");
             answer.textContent =
                 "DAWAZ: " +
-                (result.answer || result.response || result.message ||
+                (result.answer || (result.data && result.data.answer) || result.response || result.message ||
                  "No answer was returned.");
             output.appendChild(answer);
 

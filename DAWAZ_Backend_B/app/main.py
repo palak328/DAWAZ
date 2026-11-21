@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.models.patient import Patient
 from app.routers.users import router as users_router
@@ -80,6 +81,14 @@ app = FastAPI(
     description="Platform and voice-processing API for DAWAZ",
     version="1.0.0",
     lifespan= lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Create database tables

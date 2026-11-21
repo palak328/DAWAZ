@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.user import User
 from app.models.patient import Patient
-from app.models.prescription import Prescription
+from app.models.prescription import Prescription, PrescriptionItem
 from app.routers.users import get_current_user
 from app.services.prescription_extraction_service import extract_prescription
 
@@ -61,6 +61,37 @@ async def upload_prescription_for_extraction(
             extraction_warnings=extraction.get("warnings", []),
             extraction_payload=extraction
         )
+
+        for med in extraction_data.get("medicines", []):
+            med_name = med.get("medicine_name") or "Extracted Medicine"
+            strengths = med.get("strengths_found") or []
+            strength_str = strengths[0] if strengths else med.get("strength")
+            form_str = med.get("form") or med.get("dosage_form") or "tablet"
+            dose_str = med.get("dose") or "1 tablet"
+            route_str = med.get("route") or "oral"
+            freq_str = med.get("frequency") or "once daily"
+            timing_str = med.get("timing")
+            unresolved = med.get("unresolved_fields") or []
+
+            prescription.items.append(PrescriptionItem(
+                medicine_name=med_name,
+                strength=strength_str,
+                dosage_form=form_str,
+                dose=dose_str,
+                dose_quantity=1.0,
+                dose_unit=form_str,
+                route=route_str,
+                frequency=freq_str,
+                timing=timing_str,
+                duration_days=7,
+                raw_line=med.get("raw_line"),
+                raw_instruction_text=med.get("raw_instruction_text"),
+                strengths_found=strengths,
+                unresolved_fields=unresolved,
+                identity_confirmed=False,
+                needs_review=True,
+                reviewed_by_patient=False
+            ))
 
         db.add(prescription)
         db.commit()

@@ -196,7 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
             resultArea.appendChild(candidateHeading);
 
             candidates.forEach((candidate, index) => {
-                const item = document.createElement("p");
+                const item = document.createElement("div");
+                item.className = "candidate-card";
+                item.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:8px;margin-bottom:6px;background:#f0f7f5;border-radius:6px;";
 
                 const name = typeof candidate === "string"
                     ? candidate
@@ -205,7 +207,31 @@ document.addEventListener("DOMContentLoaded", () => {
                       candidate.display_name ||
                       "Candidate details unavailable";
 
-                item.textContent = `${index + 1}. ${name}`;
+                const label = document.createElement("span");
+                label.textContent = `${index + 1}. ${name}`;
+                item.appendChild(label);
+
+                const selectBtn = document.createElement("button");
+                selectBtn.type = "button";
+                selectBtn.textContent = "Select for Comparison";
+                selectBtn.style.cssText = "padding:4px 10px;font-size:12px;background:#0B6E6E;color:#fff;border:none;border-radius:4px;cursor:pointer;";
+                selectBtn.addEventListener("click", () => {
+                    scan.identity_status = "CONFIRMED_FOR_DEMO";
+                    scan.matched_medicine = typeof candidate === "object" ? candidate : { name: candidate };
+                    if (result.scan_result && result.scan_result.data) {
+                        result.scan_result.data.identity_status = "CONFIRMED_FOR_DEMO";
+                        result.scan_result.data.matched_medicine = scan.matched_medicine;
+                    }
+                    if (result.data) {
+                        result.data.identity_status = "CONFIRMED_FOR_DEMO";
+                        result.data.matched_medicine = scan.matched_medicine;
+                    }
+                    sessionStorage.setItem("dawazLatestScan", JSON.stringify(result));
+                    renderScanResult(result);
+                    showMessage(reconciliationMessage, `Selected "${name}" for prescription comparison.`);
+                });
+                item.appendChild(selectBtn);
+
                 resultArea.appendChild(item);
             });
         }
@@ -496,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            if (scanData.identity_status !== "CONFIRMED_FOR_DEMO") {
+            if (scanData.identity_status !== "CONFIRMED_FOR_DEMO" && scanData.identity_status !== "CANDIDATE_FOUND") {
                 showMessage(
                     reconciliationMessage,
                     "Medicine identity is not confirmed. Comparison is unavailable."
@@ -568,6 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // CHAT LANGUAGE
     function getChatLanguage() {
         const savedLanguage =
+            localStorage.getItem("dawazLanguage") ||
             sessionStorage.getItem("dawazLanguage") || "en-IN";
 
         return savedLanguage === "hi" ||

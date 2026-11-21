@@ -21,15 +21,18 @@ def reconcile_with_confirmed_plan(scan_result: dict, confirmed_plan=None, plan_i
         }
 
     scanned = scan_result.get("matched_medicine") or {}
+    scanned_name = (scanned.get("name") or scanned.get("medicine_name") or "").strip().lower()
+
     for item in confirmed_plan:
-        same_name = (scanned.get("name") or "").strip().lower() == (item.get("name") or "").strip().lower()
+        plan_name = (item.get("name") or item.get("medicine_name") or "").strip().lower()
+        same_name = (scanned_name == plan_name) or (scanned_name in plan_name) or (plan_name in scanned_name)
         if not same_name:
             continue
 
         scan_strength = (scanned.get("strength") or "").strip().lower()
         plan_strength = (item.get("strength") or "").strip().lower()
-        scan_form = (scanned.get("form") or "").strip().lower()
-        plan_form = (item.get("form") or "").strip().lower()
+        scan_form = (scanned.get("form") or scanned.get("dosage_form") or "").strip().lower()
+        plan_form = (item.get("form") or item.get("dosage_form") or "").strip().lower()
 
         if not scan_strength or not plan_strength or not scan_form or not plan_form:
             return {

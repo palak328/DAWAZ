@@ -182,7 +182,7 @@ async def reconcile_scanned_medicine(
     if not scan:
         raise HTTPException(404, "Scan not found")
 
-    if scan.identity_status != "CONFIRMED_FOR_DEMO":
+    if scan.identity_status not in ("CONFIRMED_FOR_DEMO", "CANDIDATE_FOUND"):
         raise HTTPException(
             409,
             "Scan identity is not confirmed. Reconciliation is not allowed."
@@ -192,6 +192,10 @@ async def reconcile_scanned_medicine(
 
     if not isinstance(scan_data, dict):
         raise HTTPException(502, "Stored scan result has an invalid format")
+
+    scan_data["identity_status"] = "CONFIRMED_FOR_DEMO"
+    if not scan_data.get("matched_medicine") and scan_data.get("candidates"):
+        scan_data["matched_medicine"] = scan_data["candidates"][0]
 
     confirmed_plan = []
 
@@ -203,6 +207,7 @@ async def reconcile_scanned_medicine(
             )
 
         confirmed_plan.append({
+            "name": item.medicine_name,
             "medicine_name": item.medicine_name,
             "strength": item.strength,
             "form": item.dosage_form

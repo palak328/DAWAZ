@@ -20,3 +20,8 @@ class VoiceQuestionResponse(BaseModel):
     data: VoiceQuestionData
     warnings: list[str]
     error: str | None = None
+    answer: str | None = None
+
+    def model_post_init(self, __context):
+        if self.answer is None and self.data:
+            self.answer = self.data.answer
