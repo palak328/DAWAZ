@@ -6,35 +6,49 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!container) return;
 
     try {
-        const data = await DawazAPI.request("/caregiver/dashboard");
+        const result = await DawazAPI.request("/caregiver/patients");
+        const patients = result.patients || [];
 
-        container.innerHTML = "<h2>Caregiver Dashboard</h2>";
-
-        const patients = data.patients || data.linked_patients || [];
+        container.innerHTML = "<h2>Linked Patients</h2>";
 
         if (!patients.length) {
             container.innerHTML +=
-                "<p>No patients have granted caregiver access yet.</p>";
+                "<p>No patients with active consent found.</p>";
             return;
         }
 
-        patients.forEach(patient => {
-            const card = document.createElement("section");
-            card.className = "caregiver-patient-card";
+        for (const patient of patients) {
+            const dashboard = await DawazAPI.request(
+                `/caregiver/patients/${patient.patient_id}/dashboard`
+            );
+
+            const section = document.createElement("section");
+            section.className = "caregiver-patient-card";
 
             const heading = document.createElement("h3");
-            heading.textContent = patient.name || "Patient";
+            heading.textContent = `Patient #${dashboard.patient.id}`;
 
-            const status = document.createElement("p");
-            status.textContent =
-                `Access: ${patient.status || "Active"}`;
+            const prescriptions = document.createElement("p");
+            prescriptions.textContent =
+                `Active prescriptions: ${dashboard.prescriptions.length}`;
 
-            card.append(heading, status);
-            container.appendChild(card);
-        });
+            const doses = document.createElement("p");
+            doses.textContent =
+                `Recent dose records: ${dashboard.recent_dose_occurrences.length}`;
 
+            const stock = document.createElement("p");
+            stock.textContent =
+                `Medicine stock records: ${dashboard.stock.length}`;
+
+            const alerts = document.createElement("p");
+            alerts.textContent =
+                `Unread alerts: ${dashboard.unread_alerts.length}`;
+
+            section.append(heading, prescriptions, doses, stock, alerts);
+            container.appendChild(section);
+        }
     } catch (error) {
         container.textContent =
-            `Caregiver data unavailable: ${error.message}`;
+            `Could not load caregiver dashboard: ${error.message}`;
     }
 });
