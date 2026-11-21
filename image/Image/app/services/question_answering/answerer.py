@@ -5,73 +5,139 @@ from app.services.medicine_matching.catalog import load_catalog
 
 
 DOSE_WORDS = (
-    "what dose",
-    "what dosage",
-    "dosage",
-    "dose",
-    "how much should",
-    "how much do i take",
-    "how many tablets",
-    "how many capsules",
-    "how many times",
-    "how often should",
-    "when should i take",
+    "what dose", "what dosage", "dosage", "dose",
+    "how much should", "how much do i take",
+    "how many tablets", "how many capsules",
+    "how many times", "how often should", "when should i take",
+    "खुराक", "मात्रा", "कितनी गोली", "कितनी गोलियां",
+    "कितनी कैप्सूल", "कितनी बार", "कब लेना चाहिए",
+    "कितना लेना चाहिए", "दवा कैसे लें",
 )
 
 SAFETY_WORDS = (
-    "interaction",
-    "interact",
-    "allergy",
-    "allergic",
-    "safe for me",
-    "side effect",
-    "side effects",
-    "adverse effect",
-    "adverse reaction",
-    "pregnant",
-    "pregnancy",
-    "breastfeeding",
-    "missed dose",
-    "contraindication",
-    "contraindications",
+    "interaction", "interact", "allergy", "allergic",
+    "safe for me", "side effect", "side effects",
+    "adverse effect", "adverse reaction", "pregnant",
+    "pregnancy", "breastfeeding", "missed dose",
+    "contraindication", "contraindications",
+    "दुष्प्रभाव", "साइड इफेक्ट", "एलर्जी",
+    "सुरक्षित है", "सुरक्षित हैं", "गर्भवती",
+    "गर्भावस्था", "स्तनपान", "दवाओं के बीच प्रतिक्रिया",
+    "दवा छूट गई", "खुराक छूट गई",
 )
 
 QUESTION_FIELDS = {
     "strength": (
-        "strength",
-        "strengths",
-        "available strength",
-        "available strengths",
-        "how many mg",
-        "how much mg",
+        "strength", "strengths", "available strength",
+        "available strengths", "how many mg", "how much mg",
+        "ताकत", "कितने एमजी", "कितने mg",
+        "कौन सी स्ट्रेंथ", "उपलब्ध ताकत",
     ),
     "ingredients": (
-        "ingredient",
-        "ingredients",
-        "composition",
-        "composed of",
-        "contains",
+        "ingredient", "ingredients", "composition",
+        "composed of", "contains",
+        "सामग्री", "घटक", "कौन से तत्व",
+        "किससे बनी", "किससे बना", "इसमें क्या है",
     ),
     "form": (
-    "medicine form",
-    "dosage form",
-    "available form",
-    "available forms",
-    "what form",
-    "what is the form",
-    "what is its form",
-    "form of",
-    "which form",
-    "tablet or capsule",
-    "available as",
-),
-    "release_type": (
-        "release type",
-        "release formulation",
-        "extended release",
-        "sustained release",
-        "immediate release",
+        "medicine form", "dosage form", "available form",
+        "available forms", "what form", "what is the form",
+        "what is its form", "form of", "which form",
+        "tablet or capsule", "available as",
+        "दवा का रूप", "किस रूप में", "गोली या कैप्सूल",
+        "टैबलेट या कैप्सूल", "कौन सा रूप",
     ),
+    "release_type": (
+        "release type", "release formulation",
+        "extended release", "sustained release",
+        "immediate release",
+        "रिलीज प्रकार", "धीरे रिलीज", "लंबे समय तक रिलीज",
+    ),
+}
+
+
+MESSAGES = {
+    "en-IN": {
+        "empty": "Please enter a medicine name and your question.",
+        "dose_plan": (
+            "Please follow only the dose written in your confirmed "
+            "prescription. Check the exact medicine and instruction "
+            "on your prescription screen."
+        ),
+        "dose_missing": (
+            "I cannot determine your prescribed dose because no confirmed "
+            "prescription instruction was provided. Please check with "
+            "your doctor or pharmacist."
+        ),
+        "safety": (
+            "I cannot confirm personal interaction, allergy, side-effect "
+            "or safety risks. Please ask your doctor or pharmacist."
+        ),
+        "no_catalog": (
+            "DAWAZ does not currently have reviewed medicine information "
+            "available. Please consult a pharmacist or doctor."
+        ),
+        "not_found": (
+            "I could not find an exact reviewed medicine name in the "
+            "DAWAZ catalog. Please check the spelling or consult a pharmacist."
+        ),
+        "multiple": (
+            "I found multiple possible medicine formulations. "
+            "Please specify the exact medicine."
+        ),
+        "information_missing": (
+            "The DAWAZ catalog does not currently contain reviewed "
+            "information about {field} for {medicine}."
+        ),
+        "labels": {
+            "general_information": "General information",
+            "strength": "Listed strengths",
+            "ingredients": "Ingredients",
+            "form": "Medicine form",
+            "release_type": "Release type",
+        },
+    },
+    "hi-IN": {
+        "empty": "कृपया दवा का नाम और अपना प्रश्न लिखें।",
+        "dose_plan": (
+            "कृपया केवल अपनी पुष्टि की गई प्रिस्क्रिप्शन में लिखी खुराक "
+            "का पालन करें। अपनी प्रिस्क्रिप्शन स्क्रीन पर दवा और निर्देश "
+            "ध्यान से जांचें।"
+        ),
+        "dose_missing": (
+            "आपकी पुष्टि की गई प्रिस्क्रिप्शन का निर्देश उपलब्ध नहीं है, "
+            "इसलिए मैं आपकी निर्धारित खुराक नहीं बता सकता। कृपया अपने "
+            "डॉक्टर या फार्मासिस्ट से पूछें।"
+        ),
+        "safety": (
+            "मैं व्यक्तिगत दवा-परस्पर प्रतिक्रिया, एलर्जी, दुष्प्रभाव "
+            "या सुरक्षा जोखिमों की पुष्टि नहीं कर सकता। कृपया अपने "
+            "डॉक्टर या फार्मासिस्ट से सलाह लें।"
+        ),
+        "no_catalog": (
+            "DAWAZ में अभी सत्यापित दवा की जानकारी उपलब्ध नहीं है। "
+            "कृपया फार्मासिस्ट या डॉक्टर से सलाह लें।"
+        ),
+        "not_found": (
+            "DAWAZ कैटलॉग में इस दवा का सटीक सत्यापित नाम नहीं मिला। "
+            "कृपया वर्तनी जांचें या फार्मासिस्ट से पूछें।"
+        ),
+        "multiple": (
+            "इस नाम से दवा के एक से अधिक संभावित रूप मिले हैं। "
+            "कृपया दवा का सटीक नाम बताएं।"
+        ),
+        "information_missing": (
+            "DAWAZ कैटलॉग में {medicine} के लिए {field} की "
+            "सत्यापित जानकारी अभी उपलब्ध नहीं है।"
+        ),
+        "labels": {
+            "general_information": "सामान्य जानकारी",
+            "strength": "उपलब्ध ताकत",
+            "ingredients": "सामग्री",
+            "form": "दवा का रूप",
+            "release_type": "दवा रिलीज़ प्रकार",
+        },
+    },
 }
 
 
@@ -86,12 +152,7 @@ def is_reviewed(item):
 
 
 def find_medicines(question, items):
-    """
-    Find exact medicine names and aliases.
-
-    Prefer the longest matching name so that a specific formulation
-    such as Oxcarbazepine SR takes precedence over Oxcarbazepine.
-    """
+    """Find exact medicine names and aliases."""
     text = normalize_text(question)
     matches = []
 
@@ -125,18 +186,16 @@ def find_medicines(question, items):
     if not matches:
         return []
 
-    # Keep only the longest medicine-name matches.
     longest_length = max(length for length, item in matches)
 
     return [
-        item
-        for length, item in matches
+        item for length, item in matches
         if length == longest_length
     ]
 
 
 def identify_question_field(question):
-    """Identify which catalog field the user wants."""
+    """Identify the requested catalog field in English or Hindi."""
     text = normalize_text(question)
 
     for field, keywords in QUESTION_FIELDS.items():
@@ -147,7 +206,7 @@ def identify_question_field(question):
 
 
 def format_catalog_value(value):
-    """Convert catalog values into readable text."""
+    """Convert catalog values into readable text without changing them."""
     if isinstance(value, list):
         return ", ".join(str(item) for item in value)
 
@@ -157,17 +216,25 @@ def format_catalog_value(value):
     return str(value).strip()
 
 
-def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
+def answer_question(
+    question: str,
+    confirmed_plan=None,
+    catalog=None,
+    language="en-IN",
+) -> dict:
     """
-    Answer basic medicine questions using reviewed catalog records.
+    Answer medicine questions in English or Hindi.
 
-    Does not diagnose, prescribe doses, confirm drug interactions,
-    or provide individualized medical advice.
+    Medicine facts are taken only from reviewed catalog records.
+    Does not diagnose, prescribe doses or confirm personal drug safety.
     """
+
+    language = language if language in MESSAGES else "en-IN"
+    msg = MESSAGES[language]
 
     if not isinstance(question, str) or not question.strip():
         return {
-            "answer": "Please enter a medicine name and your question.",
+            "answer": msg["empty"],
             "source": None,
             "safe_to_personalize": False,
             "status": "EMPTY_QUESTION",
@@ -175,38 +242,30 @@ def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
 
     text = normalize_text(question)
 
-    # Preserve the existing personalized prescription safety rule.
+    # Never invent or calculate a patient's dose.
     if any(word in text for word in DOSE_WORDS):
         if confirmed_plan:
             return {
-                "answer": (
-                    "Please follow only the dose written in your confirmed "
-                    "prescription. Check the exact medicine and instruction "
-                    "on your prescription screen."
+                "answer": msg["dose_plan"],
+                "source": (
+                    "Patient's confirmed prescription "
+                    "(must be supplied by Member 3)"
                 ),
-                "source": "Patient's confirmed prescription (must be supplied by Member 3)",
                 "safe_to_personalize": True,
                 "status": "CONFIRMED_PLAN_REQUIRED",
             }
 
         return {
-            "answer": (
-                "I cannot determine your prescribed dose because no confirmed "
-                "prescription instruction was provided. Please check with "
-                "your doctor or pharmacist."
-            ),
+            "answer": msg["dose_missing"],
             "source": None,
             "safe_to_personalize": False,
             "status": "DOSE_NOT_AVAILABLE",
         }
 
-    # Preserve restrictions on medical advice.
+    # Personal safety questions require a medical professional.
     if any(word in text for word in SAFETY_WORDS):
         return {
-            "answer": (
-                "I cannot confirm personal interaction, allergy, side-effect "
-                "or safety risks. Please ask your doctor or pharmacist."
-            ),
+            "answer": msg["safety"],
             "source": None,
             "safe_to_personalize": False,
             "status": "PROFESSIONAL_ADVICE_REQUIRED",
@@ -221,14 +280,14 @@ def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
     if not isinstance(items, list):
         items = []
 
-    reviewed_items = [item for item in items if is_reviewed(item)]
+    reviewed_items = [
+        item for item in items
+        if is_reviewed(item)
+    ]
 
     if not reviewed_items:
         return {
-            "answer": (
-                "DAWAZ does not currently have reviewed medicine information "
-                "available. Please consult a pharmacist or doctor."
-            ),
+            "answer": msg["no_catalog"],
             "source": None,
             "safe_to_personalize": False,
             "status": "NO_REVIEWED_MEDICINES",
@@ -238,24 +297,20 @@ def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
 
     if not matches:
         return {
-            "answer": (
-                "I could not find an exact reviewed medicine name in the "
-                "DAWAZ catalog. Please check the spelling or consult "
-                "a pharmacist."
-            ),
+            "answer": msg["not_found"],
             "source": None,
             "safe_to_personalize": False,
             "status": "MEDICINE_NOT_FOUND",
         }
 
     if len(matches) > 1:
-        names = [item.get("name", "Unknown medicine") for item in matches]
+        names = [
+            item.get("name", "Unknown medicine")
+            for item in matches
+        ]
 
         return {
-            "answer": (
-                "I found multiple possible medicine formulations. "
-                "Please specify the exact medicine."
-            ),
+            "answer": msg["multiple"],
             "candidates": names,
             "source": None,
             "safe_to_personalize": False,
@@ -266,7 +321,6 @@ def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
     medicine_name = medicine.get("name", "Unknown medicine")
 
     field = identify_question_field(text)
-
     value = format_catalog_value(medicine.get(field))
 
     if not value or value.lower() in (
@@ -275,11 +329,14 @@ def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
         "unknown",
         "not available",
     ):
+        field_label = msg["labels"].get(
+            field, field.replace("_", " ")
+        )
+
         return {
-            "answer": (
-                f"The DAWAZ catalog does not currently contain reviewed "
-                f"information about {field.replace('_', ' ')} for "
-                f"{medicine_name}."
+            "answer": msg["information_missing"].format(
+                field=field_label,
+                medicine=medicine_name,
             ),
             "medicine": medicine_name,
             "source": None,
@@ -287,16 +344,15 @@ def answer_question(question: str, confirmed_plan=None, catalog=None) -> dict:
             "status": "INFORMATION_NOT_AVAILABLE",
         }
 
-    labels = {
-        "general_information": "General information",
-        "strength": "Listed strengths",
-        "ingredients": "Ingredients",
-        "form": "Medicine form",
-        "release_type": "Release type",
-    }
+    label = msg["labels"][field]
+
+    if language == "hi-IN":
+        answer = f"{medicine_name} — {label}: {value}"
+    else:
+        answer = f"{medicine_name} — {label}: {value}"
 
     return {
-        "answer": f"{medicine_name} — {labels[field]}: {value}",
+        "answer": answer,
         "medicine": medicine_name,
         "question_category": field,
         "source": medicine.get("source_url"),

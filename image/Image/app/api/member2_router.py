@@ -85,5 +85,9 @@ def reconcile(request: ReconcileRequest):
 
 @router.post("/questions")
 def questions(request: MedicineQuestion):
-    result = answer_question(request.question, request.confirmed_plan)
+    result = answer_question(
+        request.question,
+        request.confirmed_plan,
+        language=request.language,
+    )
     return success(result)
