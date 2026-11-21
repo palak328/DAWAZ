@@ -92,3 +92,27 @@ class DoseOccurrence(Base):
         DateTime(timezone=True),
         server_default=func.now()
     )
+
+class DoseOccurrenceCorrection(Base):
+    __tablename__ = "dose_occurrence_corrections"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    occurrence_id = Column(
+        Integer,
+        ForeignKey("dose_occurrences.id"),
+        nullable=False,
+        index=True
+    )
+
+    previous_status = Column(String(20), nullable=False)
+    corrected_status = Column(String(20), nullable=False)
+
+    previous_notes = Column(Text, nullable=True)
+    corrected_notes = Column(Text, nullable=True)
+
+    corrected_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
