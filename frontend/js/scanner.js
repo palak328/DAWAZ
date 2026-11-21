@@ -1,44 +1,112 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const fileInput = document.querySelector('input[type="file"]');
+    const fileInput = document.getElementById("medicineImage");
     const scanButton = document.getElementById("scanMedicineBtn");
     const resultArea = document.getElementById("resultContent");
+    const startCameraBtn = document.getElementById("startCameraBtn");
+    const captureBtn = document.getElementById("captureBtn");
+    const cameraPreview = document.getElementById("cameraPreview");
+    const captureCanvas = document.getElementById("captureCanvas");
+    const fileName = document.getElementById("fileName");
 
     if (!fileInput || !scanButton) return;
+
+    let cameraStream = null;
+    let selectedFile = null;
+
+    fileInput.addEventListener("change", () => {
+        selectedFile = fileInput.files[0] || null;
+
+        if (fileName) {
+            fileName.textContent = selectedFile
+                ? selectedFile.name
+                : "";
+        }
+    });
+
+    if (startCameraBtn && cameraPreview) {
+        startCameraBtn.addEventListener("click", async () => {
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }
+                });
+
+                cameraPreview.srcObject = cameraStream;
+                await cameraPreview.play();
+
+                startCameraBtn.textContent = "Camera Started";
+
+                if (captureBtn) captureBtn.disabled = false;
+
+            } catch (error) {
+                alert("Camera unavailable. Please upload an image instead.");
+            }
+        });
+    }
+
+    if (captureBtn && cameraPreview && captureCanvas) {
+        captureBtn.addEventListener("click", () => {
+            const context = captureCanvas.getContext("2d");
+
+            captureCanvas.width = cameraPreview.videoWidth;
+            captureCanvas.height = cameraPreview.videoHeight;
+
+            context.drawImage(
+                cameraPreview,
+                0,
+                0,
+                captureCanvas.width,
+                captureCanvas.height
+            );
+
+            captureCanvas.toBlob((blob) => {
+                if (!blob) {
+                    alert("Could not capture image.");
+                    return;
+                }
+
+                selectedFile = new File(
+                    [blob],
+                    "medicine-capture.jpg",
+                    { type: "image/jpeg" }
+                );
+
+                if (fileName) {
+                    fileName.textContent = selectedFile.name;
+                }
+            }, "image/jpeg");
+
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+
+            cameraPreview.srcObject = null;
+        });
+    }
 
     scanButton.addEventListener("click", async (event) => {
         event.preventDefault();
 
-        const file = fileInput.files[0];
+        const file = selectedFile || fileInput.files[0];
+
         if (!file) {
-            alert("Select a medicine image first.");
+            alert("Capture or select a medicine image first.");
             return;
         }
 
         scanButton.disabled = true;
         scanButton.textContent = "Scanning...";
 
+        if (resultArea) resultArea.textContent = "Processing image...";
+
         try {
             const body = new FormData();
             body.append("file", file);
 
-            const token = sessionStorage.getItem("dawazToken");
-
-            const response = await fetch(
-                "http://127.0.0.1:8000/scans",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    },
-                    body
-                }
-            );
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.detail || "Scan failed.");
-            }
+            const result = await DawazAPI.request("/scans", {
+                method: "POST",
+                body
+            });
 
             sessionStorage.setItem(
                 "dawazLatestScan",
@@ -46,14 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
             const scan = result.scan_result?.data || {};
-            const message = scan.message ||
-                "Scan completed. Review the identity result before relying on it.";
 
             if (resultArea) {
                 resultArea.textContent =
-                    `Status: ${scan.identity_status || "UNKNOWN"}\n${message}`;
-            } else {
-                alert(message);
+                    `Status: ${scan.identity_status || "UNKNOWN"}\n` +
+                    (scan.message || "Scan completed. Review the result carefully.");
             }
 
         } catch (error) {
@@ -62,6 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert(error.message);
             }
+
         } finally {
             scanButton.disabled = false;
             scanButton.textContent = "Scan Medicine";
