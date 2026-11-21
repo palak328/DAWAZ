@@ -2,12 +2,14 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     // =====================================
-    // 1. STORAGE
+    // 1. STORAGE AND ELEMENTS
     // =====================================
 
     const MEDICINES_KEY = "dawazMedicines";
     const REMINDERS_KEY = "dawazReminders";
     const ALERTS_KEY = "dawazDashboardAlerts";
+
+    const CHAT_API_URL = "/api/medicines/ask";
 
     const scheduleCard = document.querySelector(".medicine-schedule-card");
 
@@ -17,6 +19,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const nextReminderTime = document.getElementById("nextReminderTime");
     const nextReminderMedicine = document.getElementById("nextReminderMedicine");
+
+    // Dashboard chat elements
+
+    const chatForm = document.getElementById("dashboardChatForm");
+    const chatInput = document.getElementById("dashboardChatInput");
+    const chatMessages = document.getElementById("dashboardChatMessages");
+
+    const chatMicBtn = document.getElementById("dashboardChatMicBtn");
+    const chatSendBtn = document.getElementById("dashboardChatSendBtn");
+
+    const chatStatus = document.getElementById("dashboardChatStatus");
+    const chatVoiceStatus = document.getElementById("dashboardChatVoiceStatus");
 
     if (!scheduleCard) {
         console.error("Medicine schedule section was not found.");
@@ -29,6 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // =====================================
 
     function getToday() {
+
         const now = new Date();
 
         const year = now.getFullYear();
@@ -39,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function getCurrentDateTime(time) {
+
         const [hours, minutes] = time.split(":").map(Number);
 
         const date = new Date();
@@ -49,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function formatTime(time) {
+
         const date = getCurrentDateTime(time);
 
         return date.toLocaleTimeString("en-IN", {
@@ -64,7 +81,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // =====================================
 
     function loadData(key) {
+
         try {
+
             const saved = JSON.parse(localStorage.getItem(key));
 
             return Array.isArray(saved) ? saved : [];
@@ -78,7 +97,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function loadAlerts() {
+
         try {
+
             return JSON.parse(localStorage.getItem(ALERTS_KEY)) || {};
 
         } catch (error) {
@@ -88,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function saveAlerts(alerts) {
+
         localStorage.setItem(ALERTS_KEY, JSON.stringify(alerts));
     }
 
@@ -121,7 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (Array.isArray(reminder.times) && reminder.times.length) {
 
-            return [...new Set(reminder.times)].sort();
+            return [...new Set(
+                reminder.times.map(function (item) {
+                    return typeof item === "string" ? item : item.time;
+                }).filter(Boolean)
+            )].sort();
         }
 
         return reminder.time ? [reminder.time] : [];
@@ -133,6 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // =====================================
 
     function getDoseKey(date, time) {
+
         return `${date}_${time}`;
     }
 
@@ -183,6 +210,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const medicine = findMedicine(reminder.medicine);
 
                 schedule.push({
+
                     reminderId: reminder.id,
                     reminder: reminder,
                     medicine: medicine,
@@ -190,6 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     time: time,
                     date: today,
                     status: getDoseRecord(reminder, today, time).status
+
                 });
 
             });
@@ -323,14 +352,18 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         if (!reminder) {
+
             alert("This reminder could not be found. Please refresh the page.");
+
             return false;
         }
 
         const scheduledTime = getCurrentDateTime(time);
 
         if (new Date() < scheduledTime) {
+
             alert("This medicine reminder is not due yet.");
+
             return false;
         }
 
@@ -343,13 +376,18 @@ document.addEventListener("DOMContentLoaded", function () {
         const existingRecord = reminder.history[key];
 
         if (existingRecord?.status === "skipped") {
+
             alert("This dose is already marked as skipped. Please review it in Reminders.");
+
             return false;
         }
 
         reminder.history[key] = {
+
             status: "taken",
+
             recordedAt: new Date().toISOString()
+
         };
 
         localStorage.setItem(
@@ -357,7 +395,6 @@ document.addEventListener("DOMContentLoaded", function () {
             JSON.stringify(latestReminders)
         );
 
-        // Update the local copy.
         reminders = latestReminders;
 
         return true;
@@ -374,7 +411,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         card.className = "medicine-item";
 
-        card.dataset.doseId = `${item.reminderId}_${item.date}_${item.time}`;
+        card.dataset.doseId =
+            `${item.reminderId}_${item.date}_${item.time}`;
 
         const details = document.createElement("div");
 
@@ -401,7 +439,6 @@ document.addEventListener("DOMContentLoaded", function () {
             details.append(name, time);
         }
 
-
         const checkpoint = document.createElement("div");
 
         checkpoint.className = "medicine-checkpoint";
@@ -409,7 +446,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const status = document.createElement("span");
 
         status.className = "status";
-
 
         const label = document.createElement("label");
 
@@ -426,8 +462,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         label.append(checkbox, checkboxText);
 
-
-        // Current dose status.
         if (item.status === "taken") {
 
             checkbox.checked = true;
@@ -461,8 +495,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-
-        // Patient confirmation.
         checkbox.addEventListener("change", function () {
 
             if (!checkbox.checked) {
@@ -494,7 +526,6 @@ document.addEventListener("DOMContentLoaded", function () {
             renderAll();
         });
 
-
         checkpoint.append(status, label);
 
         card.append(details, checkpoint);
@@ -509,12 +540,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function renderSchedule() {
 
-        // Remove old demonstration medicine entries.
         scheduleCard.querySelectorAll(".medicine-item").forEach(function (item) {
             item.remove();
         });
 
         const schedule = getTodaySchedule();
+
+        const oldEmptyMessage =
+            scheduleCard.querySelector(".empty-schedule");
+
+        if (oldEmptyMessage) {
+            oldEmptyMessage.remove();
+        }
 
         if (schedule.length === 0) {
 
@@ -617,15 +654,12 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             alerts[alertKey] = {
+
                 followUpSentAt: new Date().toISOString()
+
             };
 
             saveAlerts(alerts);
-
-            console.log(
-                "Seven-minute follow-up sent for:",
-                item.medicineName
-            );
 
         });
     }
@@ -708,20 +742,446 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =====================================
-    // 19. NOTIFICATION SETUP
+    // 19. DASHBOARD CHAT
+    // =====================================
+
+    let chatHistory = [];
+
+    let isSendingMessage = false;
+
+    let speechRecognition = null;
+
+
+    // -------------------------------------
+    // ADD CHAT MESSAGE
+    // -------------------------------------
+
+    function addChatMessage(message, sender) {
+
+        if (!chatMessages) {
+            return;
+        }
+
+        const messageElement = document.createElement("div");
+
+        messageElement.className =
+            sender === "user"
+                ? "dashboard-chat-message user-message"
+                : "dashboard-chat-message assistant-message";
+
+        const paragraph = document.createElement("p");
+
+        paragraph.textContent = message;
+
+        messageElement.appendChild(paragraph);
+
+        chatMessages.appendChild(messageElement);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+
+    // -------------------------------------
+    // CHAT LOADING INDICATOR
+    // -------------------------------------
+
+    function showChatLoading() {
+
+        if (!chatMessages) {
+            return;
+        }
+
+        hideChatLoading();
+
+        const loading = document.createElement("div");
+
+        loading.id = "dashboardChatLoading";
+
+        loading.className =
+            "dashboard-chat-message assistant-message";
+
+        loading.textContent = "DAWAZ is preparing an answer...";
+
+        chatMessages.appendChild(loading);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+
+    function hideChatLoading() {
+
+        const loading =
+            document.getElementById("dashboardChatLoading");
+
+        if (loading) {
+            loading.remove();
+        }
+    }
+
+
+    // -------------------------------------
+    // UPDATE CHAT STATUS
+    // -------------------------------------
+
+    function updateChatStatus(message) {
+
+        if (chatStatus) {
+            chatStatus.textContent = message;
+        }
+    }
+
+
+    // -------------------------------------
+    // SEND QUESTION TO BACKEND
+    // -------------------------------------
+
+    async function sendQuestionToDAWAZ(question) {
+
+        if (isSendingMessage) {
+            return;
+        }
+
+        isSendingMessage = true;
+
+        chatSendBtn.disabled = true;
+        chatMicBtn.disabled = true;
+
+        updateChatStatus("Connecting to DAWAZ...");
+
+        showChatLoading();
+
+        try {
+
+            refreshData();
+
+            // Send relevant medicine information
+            // so the backend can understand the question.
+
+            const medicineContext = medicines.map(function (medicine) {
+
+                return {
+
+                    name: medicine.name || "",
+                    strength: medicine.strength || "",
+                    instructions: medicine.instructions || ""
+
+                };
+            });
+
+            const reminderContext = reminders.map(function (reminder) {
+
+                return {
+
+                    medicine: reminder.medicine || "",
+                    times: getTimes(reminder)
+
+                };
+            });
+
+            const response = await fetch(CHAT_API_URL, {
+
+                method: "POST",
+
+                headers: {
+
+                    "Content-Type": "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    mode: "dashboard_question",
+
+                    question: question,
+
+                    conversation: chatHistory,
+
+                    medicines: medicineContext,
+
+                    reminders: reminderContext
+
+                })
+
+            });
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Server returned status ${response.status}`
+                );
+            }
+
+            const data = await response.json();
+
+            if (!data.reply || typeof data.reply !== "string") {
+
+                throw new Error(
+                    "The backend returned an invalid response."
+                );
+            }
+
+            hideChatLoading();
+
+            addChatMessage(data.reply, "assistant");
+
+            chatHistory.push({
+
+                role: "assistant",
+
+                content: data.reply
+
+            });
+
+            updateChatStatus("DAWAZ assistant is ready.");
+
+        } catch (error) {
+
+            hideChatLoading();
+
+            console.error("DAWAZ chat error:", error);
+
+            addChatMessage(
+                "I couldn't connect to the DAWAZ assistant. Please check your connection and try again.",
+                "assistant"
+            );
+
+            updateChatStatus(
+                "Chat service is currently unavailable."
+            );
+
+        } finally {
+
+            isSendingMessage = false;
+
+            chatSendBtn.disabled = false;
+
+            chatMicBtn.disabled = false;
+
+            if (chatInput) {
+                chatInput.focus();
+            }
+        }
+    }
+
+
+    // -------------------------------------
+    // PATIENT SENDS A QUESTION
+    // -------------------------------------
+
+    if (chatForm && chatInput && chatMessages && chatSendBtn && chatMicBtn) {
+
+        chatForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            const question = chatInput.value.trim();
+
+            if (!question) {
+
+                updateChatStatus(
+                    "Please type or speak a question first."
+                );
+
+                return;
+            }
+
+            if (isSendingMessage) {
+                return;
+            }
+
+            // Display patient's question immediately.
+
+            addChatMessage(question, "user");
+
+            chatHistory.push({
+
+                role: "user",
+
+                content: question
+
+            });
+
+            chatInput.value = "";
+
+            await sendQuestionToDAWAZ(question);
+        });
+
+    } else {
+
+        console.error(
+            "Dashboard chat elements are missing. Check dashboard.html."
+        );
+    }
+
+
+    // =====================================
+    // 20. SPEECH TO TEXT
+    // =====================================
+
+    function setupSpeechRecognition() {
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+
+            if (chatMicBtn) {
+
+                chatMicBtn.disabled = true;
+
+                chatMicBtn.title =
+                    "Speech recognition is not supported by this browser.";
+            }
+
+            if (chatVoiceStatus) {
+
+                chatVoiceStatus.textContent =
+                    "Voice input is not supported by this browser. Please type your question.";
+            }
+
+            return;
+        }
+
+        if (!chatMicBtn || !chatInput) {
+            return;
+        }
+
+        chatMicBtn.addEventListener("click", function () {
+
+            // Stop recording if microphone is already active.
+
+            if (speechRecognition) {
+
+                speechRecognition.stop();
+
+                return;
+            }
+
+            speechRecognition = new SpeechRecognition();
+
+            speechRecognition.lang = "en-IN";
+
+            speechRecognition.continuous = false;
+
+            speechRecognition.interimResults = true;
+
+            speechRecognition.onstart = function () {
+
+                chatMicBtn.classList.add("recording");
+
+                chatMicBtn.textContent = "⏹";
+
+                chatMicBtn.title = "Stop recording";
+
+                if (chatVoiceStatus) {
+
+                    chatVoiceStatus.textContent =
+                        "Listening... Speak your question.";
+                }
+            };
+
+            speechRecognition.onresult = function (event) {
+
+                let transcript = "";
+
+                for (
+                    let i = event.resultIndex;
+                    i < event.results.length;
+                    i++
+                ) {
+
+                    transcript += event.results[i][0].transcript;
+                }
+
+                chatInput.value = transcript.trim();
+            };
+
+            speechRecognition.onerror = function (event) {
+
+                console.error(
+                    "Speech recognition error:",
+                    event.error
+                );
+
+                if (chatVoiceStatus) {
+
+                    chatVoiceStatus.textContent =
+                        "Unable to recognise speech. You can type your question instead.";
+                }
+            };
+
+            speechRecognition.onend = function () {
+
+                chatMicBtn.classList.remove("recording");
+
+                chatMicBtn.textContent = "🎙️";
+
+                chatMicBtn.title = "Speak your question";
+
+                speechRecognition = null;
+
+                if (
+                    chatVoiceStatus &&
+                    chatInput.value.trim()
+                ) {
+
+                    chatVoiceStatus.textContent =
+                        "Speech converted to text. Review it and press Send.";
+                }
+            };
+
+            try {
+
+                speechRecognition.start();
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to start speech recognition:",
+                    error
+                );
+
+                speechRecognition = null;
+
+                chatMicBtn.classList.remove("recording");
+
+                chatMicBtn.textContent = "🎙️";
+
+                if (chatVoiceStatus) {
+
+                    chatVoiceStatus.textContent =
+                        "Could not start the microphone. Check browser permissions.";
+                }
+            }
+
+        });
+    }
+
+
+    // =====================================
+    // 21. INITIALISE SPEECH RECOGNITION
+    // =====================================
+
+    setupSpeechRecognition();
+
+
+    // =====================================
+    // 22. NOTIFICATION SETUP
     // =====================================
 
     createNotificationButton();
 
 
     // =====================================
-    // 20. INITIAL LOAD
+    // 23. INITIAL LOAD
     // =====================================
 
     renderAll();
 
 
     // Refresh dashboard every 10 seconds.
+
     setInterval(function () {
 
         renderAll();
@@ -730,6 +1190,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // Refresh when the patient returns to the tab.
+
     document.addEventListener("visibilitychange", function () {
 
         if (!document.hidden) {
@@ -739,13 +1200,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // Refresh when another DAWAZ page changes localStorage.
+
     window.addEventListener("storage", function (event) {
 
         if (
             event.key === REMINDERS_KEY ||
             event.key === MEDICINES_KEY
         ) {
+
             renderAll();
+        }
+    });
+
+
+    // Stop microphone if the page is closed.
+
+    window.addEventListener("beforeunload", function () {
+
+        if (speechRecognition) {
+
+            speechRecognition.stop();
+
+            speechRecognition = null;
         }
     });
 

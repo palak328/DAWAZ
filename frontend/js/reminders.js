@@ -32,6 +32,94 @@ document.addEventListener("DOMContentLoaded", () => {
     let reminders = loadReminders();
     let editingId = null;
 
+    // ---------- REMINDER SOUND ----------
+
+    let audioContext = null;
+    let soundEnabled = false;
+    let soundInterval = null;
+    let activeReminderKey = null;
+
+    function enableReminderSound() {
+        const AudioContextClass =
+            window.AudioContext || window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            console.error("Audio is not supported by this browser.");
+            return;
+        }
+
+        if (!audioContext) {
+            audioContext = new AudioContextClass();
+        }
+
+        audioContext.resume()
+            .then(() => {
+                soundEnabled = true;
+            })
+            .catch(error => {
+                console.error("Could not enable reminder sound:", error);
+            });
+    }
+
+    function playReminderTone() {
+        if (!audioContext || !soundEnabled) return;
+
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
+
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.value = 880;
+
+        gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.2,
+            audioContext.currentTime + 0.05
+        );
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            audioContext.currentTime + 0.6
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.6);
+    }
+
+    function startReminderSound(reminderKey) {
+        if (!soundEnabled) return;
+
+        if (activeReminderKey === reminderKey && soundInterval) {
+            return;
+        }
+
+        stopReminderSound();
+
+        activeReminderKey = reminderKey;
+
+        playReminderTone();
+
+        soundInterval = setInterval(() => {
+            playReminderTone();
+        }, 1800);
+    }
+
+    function stopReminderSound() {
+        if (soundInterval) {
+            clearInterval(soundInterval);
+            soundInterval = null;
+        }
+
+        activeReminderKey = null;
+    }
+
     // ---------- STORAGE ----------
 
     function loadReminders() {
@@ -85,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return [...new Set(reminder.times)].sort();
         }
 
-        // Compatibility with older reminders.
         return reminder.time ? [reminder.time] : [];
     }
 
@@ -112,6 +199,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 status,
                 recordedAt: new Date().toISOString()
             };
+        }
+
+        if (
+            activeReminderKey === `${reminder.id}_${date}_${time}` &&
+            status !== "pending"
+        ) {
+            stopReminderSound();
         }
 
         saveReminders();
@@ -278,7 +372,11 @@ document.addEventListener("DOMContentLoaded", () => {
         editingId = null;
     }
 
-    addButton?.addEventListener("click", () => openModal());
+    // Existing Add Reminder button also unlocks browser audio.
+    addButton?.addEventListener("click", () => {
+        enableReminderSound();
+        openModal();
+    });
 
     document.getElementById("closeModalBtn")
         ?.addEventListener("click", closeModal);
@@ -363,6 +461,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!confirmed) return;
 
+        if (activeReminderKey?.startsWith(`${id}_`)) {
+            stopReminderSound();
+        }
+
         reminders = reminders.filter(item => item.id !== id);
 
         saveReminders();
@@ -381,7 +483,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return button;
     }
 
-    // ---------- CREATE HORIZONTAL REMINDER CARD ----------
+    // ---------- CREATE REMINDER CARD ----------
 
     function createDoseCard(reminder, time, date) {
         const status = getDoseStatus(reminder, date, time);
@@ -389,28 +491,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const card = document.createElement("div");
         card.className = "reminder-card";
 
-        // Medicine name
         const medicineName = document.createElement("h3");
         medicineName.className = "reminder-medicine-name";
         medicineName.textContent = reminder.medicine;
 
-        // Reminder time
         const doseTime = document.createElement("span");
         doseTime.className = "reminder-info";
         doseTime.textContent = formatTime(time);
 
-        // Frequency
         const frequency = document.createElement("span");
         frequency.className = "reminder-info";
         frequency.textContent = reminder.frequency || "Once daily";
 
-        // Instructions
         const instructions = document.createElement("span");
         instructions.className = "reminder-info reminder-instructions";
         instructions.textContent =
             reminder.instructions || "No instructions added";
 
-        // Status
         const statusElement = document.createElement("span");
         statusElement.className = `reminder-status ${status}`;
 
@@ -419,7 +516,6 @@ document.addEventListener("DOMContentLoaded", () => {
             status === "skipped" ? "Skipped" :
             "Pending";
 
-        // Action buttons
         const actions = document.createElement("div");
         actions.className = "reminder-actions";
 
@@ -582,23 +678,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (upcomingElement) upcomingElement.textContent = upcoming;
     }
 
-    // ---------- RENDER ALL ----------
-
-    function renderAll() {
-        if (dateElement) {
-            dateElement.textContent = new Date().toLocaleDateString("en-IN", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            });
-        }
-
-        renderSchedule();
-        renderHistory();
-        renderSummary();
-    }
-
     // ---------- BROWSER NOTIFICATIONS ----------
 
     let notificationButton =
@@ -622,24 +701,21 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const permission = await Notification.requestPermission();
+        try {
+            const permission = await Notification.requestPermission();
 
-        notificationButton.textContent =
-            permission === "granted"
-                ? "Notifications Enabled"
-                : "Enable Browser Notifications";
+            notificationButton.textContent =
+                permission === "granted"
+                    ? "Notifications Enabled"
+                    : "Enable Browser Notifications";
+        } catch (error) {
+            console.error("Notification permission error:", error);
+        }
     });
 
     const notified = new Set();
 
     function checkNotifications() {
-        if (
-            !("Notification" in window) ||
-            Notification.permission !== "granted"
-        ) {
-            return;
-        }
-
         const now = new Date();
         const today = getToday();
 
@@ -648,26 +724,44 @@ document.addEventListener("DOMContentLoaded", () => {
                 const [hours, minutes] = time.split(":").map(Number);
 
                 if (
-                    now.getHours() === hours &&
-                    now.getMinutes() === minutes &&
-                    getDoseStatus(reminder, today, time) === "pending"
+                    !Number.isInteger(hours) ||
+                    !Number.isInteger(minutes)
                 ) {
-                    const notificationKey =
-                        `${reminder.id}_${today}_${time}`;
+                    return;
+                }
 
-                    if (notified.has(notificationKey)) return;
+                const isDue =
+                    now.getHours() === hours &&
+                    now.getMinutes() === minutes;
 
+                const status = getDoseStatus(reminder, today, time);
+
+                if (!isDue || status !== "pending") return;
+
+                const notificationKey =
+                    `${reminder.id}_${today}_${time}`;
+
+                if (notified.has(notificationKey)) return;
+
+                notified.add(notificationKey);
+
+                startReminderSound(notificationKey);
+
+                if (
+                    "Notification" in window &&
+                    Notification.permission === "granted"
+                ) {
                     new Notification("DAWAZ Medicine Reminder", {
-                        body: `Reminder time for ${reminder.medicine}.`
+                        body: `Reminder time for ${reminder.medicine}.`,
+                        tag: notificationKey
                     });
-
-                    notified.add(notificationKey);
                 }
             });
         });
     }
 
-    setInterval(checkNotifications, 30000);
+    // Check every 10 seconds while this page is open.
+    setInterval(checkNotifications, 10000);
 
     // ---------- INITIAL LOAD ----------
 

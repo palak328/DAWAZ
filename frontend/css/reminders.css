@@ -993,3 +993,33 @@ textarea:focus-visible {
 }
 
 
+
+
+
+#reminderSoundBtn,
+#stopReminderSoundBtn,
+#notificationPermissionBtn {
+    margin: 8px 5px;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #0B6E6E;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#reminderSoundBtn:hover,
+#stopReminderSoundBtn:hover,
+#notificationPermissionBtn:hover {
+    background: #084F4F;
+}
+
+#reminderSoundBtn:focus-visible,
+#stopReminderSoundBtn:focus-visible,
+#notificationPermissionBtn:focus-visible {
+    outline: 3px solid #D7EFEC;
+    outline-offset: 3px;
+}
+
+

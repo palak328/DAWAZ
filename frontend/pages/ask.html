@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ask a Question | DAWAZ</title>
+    <title>Ask DAWAZ | Medicine Assistant</title>
 
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/ask.css">
@@ -14,57 +14,56 @@
 
 <body>
 
-    <!-- NAVIGATION BAR -->
-    <nav class="navbar">
+    <!-- NAVIGATION -->
+    <header class="navbar">
 
-        <a href="dashboard.html" class="logo">
-            <span class="logo-icon">D</span>
-            DAWAZ
-        </a>
-
-        <div class="nav-links">
-
-            <a href="dashboard.html">Dashboard</a>
-
-            <a href="medicines.html">My Medicines</a>
-
-            <a href="reminders.html">Reminders</a>
-
-            <a href="medicine-scanner.html">Scan Medicine</a>
-
-            <a href="ask.html" class="active">Ask a Question</a>
-
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <h2>DAWAZ</h2>
         </div>
 
-        <div class="user-profile">
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="medicines.html">My Medicines</a>
+            <a href="reminders.html">Reminders</a>
+            <a href="medicine-scanner.html">Scan Medicine</a>
+            <a href="ask.html" class="active">Ask DAWAZ</a>
+        </nav>
+
+        <div class="profile">
             <span class="profile-icon">P</span>
             <span>Patient</span>
         </div>
 
-    </nav>
+    </header>
 
 
-    <!-- MAIN ASK PAGE -->
+    <!-- MAIN PAGE -->
     <main class="ask-container">
 
         <!-- PAGE HEADING -->
         <section class="ask-heading">
 
             <div>
-                <span class="ask-label">DAWAZ HEALTH ASSISTANT</span>
+                <p class="ask-label">YOUR MEDICINE ASSISTANT</p>
 
-                <h1>Ask a Question</h1>
+                <h1>Ask DAWAZ</h1>
 
                 <p>
-                    Get help understanding your medicine information
-                    and managing your medicine records.
+                    Have a question about your medicines?
+                    DAWAZ can help you understand your saved medicine
+                    information and prescription records.
                 </p>
             </div>
+
+            <a href="dashboard.html" class="back-dashboard">
+                ← Back to Dashboard
+            </a>
 
         </section>
 
 
-        <!-- CHAT AREA -->
+        <!-- CHAT WORKSPACE -->
         <section class="chat-section">
 
             <!-- CHAT HEADER -->
@@ -73,59 +72,53 @@
                 <div class="assistant-profile">
 
                     <div class="assistant-avatar">
-                        💊
+                        <span>💊</span>
                     </div>
 
-                    <div>
+                    <div class="assistant-details">
                         <h2>DAWAZ Assistant</h2>
                         <p>Medicine Information Support</p>
                     </div>
 
                 </div>
 
-                <span class="assistant-status">
+                <div class="assistant-status">
                     <span class="status-dot"></span>
-                    Ready
-                </span>
+                    <span id="chatStatus">Ready to help</span>
+                </div>
 
             </div>
 
 
-            <!-- CHAT MESSAGES -->
+            <!-- CHAT BODY -->
             <div
                 class="chat-messages"
                 id="chatMessages"
+                role="log"
                 aria-live="polite"
-                aria-label="Conversation"
-            >
+                aria-label="Conversation with DAWAZ">
 
                 <!-- WELCOME MESSAGE -->
                 <div class="message assistant-message">
 
-                    <div class="message-avatar">
-                        💊
-                    </div>
+                    <div class="message-avatar">💊</div>
 
                     <div class="message-content">
 
                         <div class="message-bubble">
 
-                            <p>
-                                Hello! I'm your DAWAZ medicine assistant.
-                            </p>
+                            <p>Hello! I'm your DAWAZ medicine assistant.</p>
 
                             <p>
-                                You can ask me questions about the
-                                medicine information saved in your account.
+                                I can help you understand information
+                                from your saved medicine records.
                             </p>
 
-                            <p>
-                                What would you like to know?
-                            </p>
+                            <p>What would you like to know?</p>
 
                         </div>
 
-                        <span class="message-time">Assistant</span>
+                        <span class="message-time">DAWAZ Assistant</span>
 
                     </div>
 
@@ -137,32 +130,32 @@
             <!-- SUGGESTED QUESTIONS -->
             <div class="suggested-questions" id="suggestedQuestions">
 
-                <p>Suggested questions</p>
+                <p class="suggestion-heading">You can ask me about</p>
 
                 <div class="suggestion-buttons">
 
                     <button
                         type="button"
                         class="suggestion-btn"
-                        data-question="Show me my saved medicines."
-                    >
-                        My saved medicines
+                        data-question="Show me my saved medicines.">
+                        <span>💊</span>
+                        My medicines
                     </button>
 
                     <button
                         type="button"
                         class="suggestion-btn"
-                        data-question="Where can I find my prescription instructions?"
-                    >
+                        data-question="Where can I find my prescription instructions?">
+                        <span>📄</span>
                         Prescription instructions
                     </button>
 
                     <button
                         type="button"
                         class="suggestion-btn"
-                        data-question="How can I check my medicine stock?"
-                    >
-                        Check medicine stock
+                        data-question="How can I check my medicine stock?">
+                        <span>📦</span>
+                        Medicine stock
                     </button>
 
                 </div>
@@ -170,51 +163,75 @@
             </div>
 
 
-            <!-- MESSAGE INPUT -->
+            <!-- MESSAGE COMPOSER -->
             <form class="chat-input-area" id="chatForm">
 
-                <textarea
-                    id="chatInput"
-                    placeholder="Type your medicine-related question..."
-                    rows="1"
-                    maxlength="1000"
-                    aria-label="Type your question"
-                    required
-                ></textarea>
+                <div class="chat-input-wrapper">
 
-                <button
-                    type="submit"
-                    id="sendMessageBtn"
-                    class="send-message-btn"
-                    aria-label="Send message"
-                >
-                    <span>Send</span>
-                    <span class="send-icon">➤</span>
-                </button>
+                    <label for="chatInput" class="visually-hidden">
+                        Type your medicine-related question
+                    </label>
+
+                    <textarea
+                        id="chatInput"
+                        name="question"
+                        placeholder="Ask DAWAZ something about your medicines..."
+                        rows="1"
+                        maxlength="1000"
+                        required>
+                    </textarea>
+
+                    <!-- MICROPHONE -->
+                    <button
+                        type="button"
+                        id="chatMicBtn"
+                        class="chat-mic-btn"
+                        aria-label="Speak your question"
+                        title="Speak your question">
+                        🎙️
+                    </button>
+
+                    <!-- SEND -->
+                    <button
+                        type="submit"
+                        id="sendMessageBtn"
+                        class="send-message-btn"
+                        aria-label="Send message">
+                        <span>Send</span>
+                        <span class="send-icon">➤</span>
+                    </button>
+
+                </div>
+
+                <p
+                    class="voice-status"
+                    id="voiceStatus"
+                    aria-live="polite">
+                </p>
+
+                <p class="input-hint">
+                    Press Enter to send · Shift + Enter for a new line
+                </p>
 
             </form>
-
-            <p class="input-hint">
-                Press Enter to send. Use Shift + Enter for a new line.
-            </p>
 
         </section>
 
 
-        <!-- SAFETY INFORMATION -->
+        <!-- SAFETY NOTE -->
         <section class="ask-safety-note">
 
             <div class="safety-icon">ⓘ</div>
 
             <div>
-                <h3>Important Medicine Safety Information</h3>
+                <h3>Medicine Safety</h3>
 
                 <p>
-                    DAWAZ provides support for understanding medicine
-                    information. It does not replace a doctor or pharmacist.
-                    Always follow your confirmed prescription. For unclear
-                    instructions, dosage questions, side effects or urgent
-                    health concerns, contact a qualified healthcare professional.
+                    DAWAZ helps you understand medicine information.
+                    It does not replace professional medical advice.
+                    Always follow your confirmed prescription.
+                    Contact your doctor or pharmacist if medicine
+                    instructions are unclear.
                 </p>
             </div>
 

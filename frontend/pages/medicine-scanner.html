@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -14,82 +15,136 @@
 
 <body>
 
-    <!-- NAVIGATION BAR -->
+    <!-- =====================================
+         NAVIGATION BAR
+    ====================================== -->
 
     <header class="navbar">
 
-        <a href="dashboard.html" class="brand">
-            <span class="brand-logo">D</span>
-            <span>DAWAZ</span>
-        </a>
+        <div class="nav-container">
 
-        <nav class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="medicines.html">My Medicines</a>
-            <a href="reminders.html">Reminders</a>
-            <a href="medicine-scanner.html" class="active">Scan Medicine</a>
-        </nav>
+            <!-- BRAND -->
+            <a href="dashboard.html" class="brand">
 
-        <div class="profile">
-            Patient
+                <span class="brand-logo">D</span>
+
+                <span>DAWAZ</span>
+
+            </a>
+
+
+            <!-- NAVIGATION LINKS -->
+            <nav class="nav-links">
+
+                <a href="dashboard.html">
+                    Dashboard
+                </a>
+
+                <a href="medicines.html">
+                    My Medicines
+                </a>
+
+                <a href="reminders.html">
+                    Reminders
+                </a>
+
+                <a href="medicine-scanner.html" class="active" aria-current="page">
+                    Scan Medicine
+                </a>
+
+                <a href="ask.html">
+                    Ask DAWAZ
+                </a>
+
+            </nav>
+
+
+            <!-- PROFILE -->
+            <div class="profile">
+
+                <div class="profile-icon">P</div>
+
+            </div>
+
         </div>
 
     </header>
 
 
-    <!-- MAIN CONTAINER -->
+    <!-- =====================================
+         MAIN CONTAINER
+    ====================================== -->
 
     <main class="scanner-container">
 
 
         <!-- PAGE HEADING -->
-
         <section class="page-heading">
 
-            <p class="eyebrow">SMART MEDICINE IDENTIFICATION</p>
+            <p class="eyebrow">
+                SMART MEDICINE IDENTIFICATION
+            </p>
 
             <h1>Medicine Scanner</h1>
 
             <p>
-                Scan your medicine packaging to identify it and
-                check whether it matches your confirmed prescription.
+                Scan your medicine packaging or prescription to identify
+                the information and compare it with your confirmed prescription.
             </p>
 
         </section>
 
 
-        <!-- SMART SCAN GUIDANCE -->
+        <!-- =====================================
+             SMART SCAN GUIDANCE
+        ====================================== -->
 
         <section class="guidance-card">
 
             <h2>Smart Scan Guidance</h2>
 
-            <p>Follow these steps for a clearer medicine image.</p>
+            <p>
+                Follow these steps for a clearer medicine image.
+            </p>
 
             <div class="guidance-grid">
 
                 <div class="guidance-item">
+
                     <span>01</span>
+
                     <h3>Good Lighting</h3>
+
                     <p>
                         Make sure the medicine name is clearly visible.
                     </p>
+
                 </div>
 
+
                 <div class="guidance-item">
+
                     <span>02</span>
+
                     <h3>Clear Focus</h3>
+
                     <p>
                         Keep the camera steady and avoid blurry images.
                     </p>
+
                 </div>
 
+
                 <div class="guidance-item">
+
                     <span>03</span>
+
                     <h3>Show Packaging</h3>
+
                     <p>
                         Include the medicine name and strength if visible.
                     </p>
+
                 </div>
 
             </div>
@@ -97,19 +152,23 @@
         </section>
 
 
-        <!-- SCANNER CARD -->
+        <!-- =====================================
+             SCANNER CARD
+        ====================================== -->
 
         <section class="scanner-card">
 
             <div class="scanner-header">
 
                 <div>
-                    <h2>Scan Medicine</h2>
+
+                    <h2>Scan Medicine or Prescription</h2>
 
                     <p>
-                        Position your medicine packaging clearly
-                        inside the camera frame.
+                        Position your medicine packaging or prescription
+                        clearly inside the camera frame.
                     </p>
+
                 </div>
 
                 <span class="scanner-icon">📷</span>
@@ -134,6 +193,7 @@
 
                 </div>
 
+
                 <video
                     id="cameraPreview"
                     autoplay
@@ -141,7 +201,12 @@
                     hidden>
                 </video>
 
-                <canvas id="captureCanvas" hidden></canvas>
+
+                <canvas
+                    id="captureCanvas"
+                    hidden>
+                </canvas>
+
 
                 <div
                     class="scan-frame"
@@ -165,6 +230,7 @@
 
                 </button>
 
+
                 <button
                     type="button"
                     id="captureBtn"
@@ -181,7 +247,9 @@
             <!-- DIVIDER -->
 
             <div class="or-divider">
+
                 <span>OR</span>
+
             </div>
 
 
@@ -195,19 +263,21 @@
 
                     <span class="upload-icon">📁</span>
 
-                    <strong>Upload Medicine Image</strong>
+                    <strong>Upload Image</strong>
 
                     <span>
-                        Choose a clear photo of your medicine packet
+                        Choose a clear photo of your medicine or prescription
                     </span>
 
                 </label>
+
 
                 <input
                     type="file"
                     id="medicineImage"
                     accept="image/jpeg,image/png,image/webp"
                     hidden>
+
 
                 <p id="fileName"></p>
 
@@ -223,9 +293,11 @@
 
                 <h3>Selected Image</h3>
 
+
                 <img
                     id="imagePreview"
-                    alt="Selected medicine image">
+                    alt="Selected medicine or prescription image">
+
 
                 <button
                     type="button"
@@ -251,6 +323,7 @@
 
             </button>
 
+
             <p
                 id="scanMessage"
                 class="scan-message"
@@ -261,7 +334,9 @@
         </section>
 
 
-        <!-- IDENTIFICATION RESULT -->
+        <!-- =====================================
+             IDENTIFICATION RESULT
+        ====================================== -->
 
         <section
             class="result-card"
@@ -275,7 +350,9 @@
         </section>
 
 
-        <!-- SMART IDENTIFICATION ASSISTANCE -->
+        <!-- =====================================
+             SMART IDENTIFICATION ASSISTANCE
+        ====================================== -->
 
         <section
             class="clarification-card"
@@ -287,7 +364,10 @@
                 <span class="clarification-icon">💬</span>
 
                 <div>
-                    <p class="eyebrow">SMART IDENTIFICATION ASSISTANCE</p>
+
+                    <p class="eyebrow">
+                        SMART IDENTIFICATION ASSISTANCE
+                    </p>
 
                     <h2>Let's identify your medicine</h2>
 
@@ -295,6 +375,7 @@
                         We couldn't identify the medicine confidently
                         from the image. A few additional details may help.
                     </p>
+
                 </div>
 
             </div>
@@ -305,9 +386,6 @@
             <div
                 class="clarification-questions"
                 id="clarificationQuestions">
-
-                <!-- Questions will be inserted by scanner.js -->
-
             </div>
 
 
@@ -319,12 +397,13 @@
                     Additional information (optional)
                 </label>
 
+
                 <textarea
                     id="additionalMedicineInfo"
                     rows="3"
                     maxlength="500"
-                    placeholder="Type any other visible information about the medicine..."
-                ></textarea>
+                    placeholder="Type any other visible information about the medicine...">
+                </textarea>
 
             </div>
 
@@ -339,6 +418,7 @@
                 Submit Answers
 
             </button>
+
 
             <p
                 id="clarificationMessage"
@@ -359,15 +439,144 @@
 
             </button>
 
+
             <p class="clarification-safety">
+
                 If the medicine still cannot be identified confidently,
                 do not use an assumed identity. Ask a pharmacist or doctor.
+
             </p>
 
         </section>
 
 
-        <!-- SAFETY NOTE -->
+        <!-- =====================================
+             DAWAZ CONVERSATION
+        ====================================== -->
+
+        <section
+            class="medicine-chat-card"
+            id="medicineChatCard"
+            hidden>
+
+            <div class="medicine-chat-header">
+
+                <div class="chat-avatar">D</div>
+
+                <div>
+
+                    <p class="eyebrow">
+                        DAWAZ MEDICINE ASSISTANT
+                    </p>
+
+                    <h2>Let's talk about your medicine</h2>
+
+                    <p>
+                        Ask questions about the scanned medicine
+                        or prescription.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- CHAT STATUS -->
+
+            <div
+                class="chat-status"
+                id="chatStatus"
+                role="status"
+                aria-live="polite">
+
+                DAWAZ will ask relevant follow-up questions after the scan.
+
+            </div>
+
+
+            <!-- CONVERSATION MESSAGES -->
+
+            <div
+                class="chat-messages"
+                id="chatMessages"
+                role="log"
+                aria-live="polite"
+                aria-label="Conversation with DAWAZ">
+
+                <!-- Messages will be added by scanner.js -->
+
+            </div>
+
+
+            <!-- CHAT INPUT -->
+
+            <form
+                id="medicineChatForm"
+                class="medicine-chat-form">
+
+                <div class="chat-input-wrapper">
+
+                    <textarea
+                        id="medicineChatInput"
+                        rows="1"
+                        maxlength="1000"
+                        placeholder="Ask something about your scanned medicine..."
+                        aria-label="Type your medicine question">
+                    </textarea>
+
+
+                    <button
+                        type="button"
+                        id="chatMicBtn"
+                        class="chat-mic-btn"
+                        aria-label="Start voice input"
+                        title="Speak your question">
+
+                        🎤
+
+                    </button>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    id="sendChatBtn"
+                    class="chat-send-btn">
+
+                    Send
+
+                </button>
+
+            </form>
+
+
+            <!-- VOICE STATUS -->
+
+            <p
+                id="chatVoiceStatus"
+                class="chat-voice-status"
+                role="status"
+                aria-live="polite">
+            </p>
+
+
+            <!-- SAFETY INFORMATION -->
+
+            <p class="chat-safety-note">
+
+                DAWAZ provides information based on the scanned content.
+                It does not replace a doctor or pharmacist. Do not change
+                your medicine dose based on an uncertain scan or chat response.
+
+            </p>
+
+        </section>
+
+
+        <!-- =====================================
+             SAFETY NOTE
+        ====================================== -->
 
         <section class="safety-note">
 
@@ -382,16 +591,16 @@
 
         </section>
 
-
     </main>
 
 
-    <!-- JAVASCRIPT -->
+    <!-- =====================================
+         JAVASCRIPT
+    ====================================== -->
 
     <script src="../js/scanner.js"></script>
 
 </body>
 
 </html>
-
 

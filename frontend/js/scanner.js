@@ -4,7 +4,11 @@
 // ============================================
 
 
+// ============================================
 // 1. GET HTML ELEMENTS
+// ============================================
+
+// Camera elements
 
 const cameraArea = document.getElementById("cameraArea");
 const cameraPlaceholder = document.getElementById("cameraPlaceholder");
@@ -15,12 +19,16 @@ const scanFrame = document.getElementById("scanFrame");
 const startCameraBtn = document.getElementById("startCameraBtn");
 const captureBtn = document.getElementById("captureBtn");
 
+// Image elements
+
 const medicineImage = document.getElementById("medicineImage");
 const fileName = document.getElementById("fileName");
 
 const imagePreviewContainer = document.getElementById("imagePreviewContainer");
 const imagePreview = document.getElementById("imagePreview");
 const removeImageBtn = document.getElementById("removeImageBtn");
+
+// Scan elements
 
 const scanMedicineBtn = document.getElementById("scanMedicineBtn");
 const scanMessage = document.getElementById("scanMessage");
@@ -32,23 +40,35 @@ const resultContent = document.getElementById("resultContent");
 
 const clarificationCard = document.getElementById("clarificationCard");
 const clarificationQuestions = document.getElementById("clarificationQuestions");
+
 const additionalMedicineInfo = document.getElementById("additionalMedicineInfo");
+
 const submitClarificationBtn = document.getElementById("submitClarificationBtn");
 const clarificationMessage = document.getElementById("clarificationMessage");
+
 const retakeScanBtn = document.getElementById("retakeScanBtn");
 
+// Chat elements
 
-// 2. VARIABLES
+const medicineChatCard = document.getElementById("medicineChatCard");
+const chatStatus = document.getElementById("chatStatus");
+const chatMessages = document.getElementById("chatMessages");
 
-let cameraStream = null;
-let selectedImage = null;
-let imageObjectURL = null;
+const medicineChatForm = document.getElementById("medicineChatForm");
+const medicineChatInput = document.getElementById("medicineChatInput");
 
-let isScanning = false;
-let isSubmittingClarification = false;
+const chatMicBtn = document.getElementById("chatMicBtn");
+const sendChatBtn = document.getElementById("sendChatBtn");
 
-// Stores the questions received from the backend.
-let currentQuestions = [];
+const chatVoiceStatus = document.getElementById("chatVoiceStatus");
+
+
+// ============================================
+// 2. CONFIGURATION AND VARIABLES
+// ============================================
+
+const API_URL = "/api/medicines/identify";
+const CHAT_API_URL = "/api/medicines/ask";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -58,52 +78,83 @@ const ALLOWED_TYPES = [
     "image/webp"
 ];
 
-// Backend endpoint.
-// Coordinate this URL with your backend teammate.
+let cameraStream = null;
 
-const API_URL = "/api/medicines/identify";
+let selectedImage = null;
+let imageObjectURL = null;
+
+let isScanning = false;
+let isSubmittingClarification = false;
+let isSendingMessage = false;
+
+let currentQuestions = [];
+let currentScanResult = null;
+
+let chatHistory = [];
+
+let speechRecognition = null;
+
+let isChatStarted = false;
 
 
-// 3. DISPLAY MESSAGE
+// ============================================
+// 3. DISPLAY SCAN MESSAGE
+// ============================================
 
 function showMessage(message, type = "info") {
 
     scanMessage.textContent = message;
 
     if (type === "error") {
+
         scanMessage.style.color = "#C34E42";
+
     } else if (type === "success") {
+
         scanMessage.style.color = "#0B6E6E";
+
     } else {
+
         scanMessage.style.color = "#687873";
     }
 }
 
 
+// ============================================
 // 4. DISPLAY CLARIFICATION MESSAGE
+// ============================================
 
 function showClarificationMessage(message, type = "info") {
 
     clarificationMessage.textContent = message;
 
     if (type === "error") {
+
         clarificationMessage.style.color = "#C34E42";
+
     } else if (type === "success") {
+
         clarificationMessage.style.color = "#0B6E6E";
+
     } else {
+
         clarificationMessage.style.color = "#687873";
     }
 }
 
 
+// ============================================
 // 5. STOP CAMERA
+// ============================================
 
 function stopCamera() {
 
     if (cameraStream) {
 
         cameraStream.getTracks().forEach(function (track) {
+
             track.stop();
+
         });
 
         cameraStream = null;
@@ -112,20 +163,28 @@ function stopCamera() {
     cameraPreview.srcObject = null;
 
     captureBtn.disabled = true;
+
     startCameraBtn.disabled = false;
 }
 
 
+// ============================================
 // 6. RESET RESULT
+// ============================================
 
 function resetResult() {
 
     resultCard.hidden = true;
+
     resultContent.replaceChildren();
+
+    currentScanResult = null;
 }
 
 
+// ============================================
 // 7. RESET CLARIFICATION
+// ============================================
 
 function resetClarification() {
 
@@ -138,13 +197,48 @@ function resetClarification() {
     currentQuestions = [];
 
     submitClarificationBtn.disabled = false;
+
     submitClarificationBtn.textContent = "Submit Answers";
 
     showClarificationMessage("");
 }
 
 
-// 8. RESET IMAGE
+// ============================================
+// 8. RESET CHAT
+// ============================================
+
+function resetMedicineChat() {
+
+    medicineChatCard.hidden = true;
+
+    chatMessages.replaceChildren();
+
+    chatHistory = [];
+
+    isChatStarted = false;
+
+    medicineChatInput.value = "";
+
+    chatStatus.textContent =
+        "DAWAZ will ask relevant follow-up questions after the scan.";
+
+    chatVoiceStatus.textContent = "";
+
+    if (speechRecognition) {
+
+        speechRecognition.stop();
+
+        speechRecognition = null;
+    }
+
+    chatMicBtn.classList.remove("recording");
+}
+
+
+// ============================================
+// 9. RESET IMAGE
+// ============================================
 
 function resetImage() {
 
@@ -168,13 +262,18 @@ function resetImage() {
     fileName.textContent = "";
 
     resetResult();
+
     resetClarification();
+
+    resetMedicineChat();
 
     showMessage("Select or capture a medicine image to begin.");
 }
 
 
-// 9. DISPLAY IMAGE PREVIEW
+// ============================================
+// 10. DISPLAY IMAGE PREVIEW
+// ============================================
 
 function displayImage(file) {
 
@@ -217,20 +316,27 @@ function displayImage(file) {
 
     scanMedicineBtn.disabled = false;
 
-    fileName.textContent = file.name || "Captured medicine image";
+    fileName.textContent =
+        file.name || "Captured medicine image";
 
     resetResult();
+
     resetClarification();
+
+    resetMedicineChat();
 
     showMessage("Image selected successfully.", "success");
 }
 
 
-// 10. START CAMERA
+// ============================================
+// 11. START CAMERA
+// ============================================
 
 startCameraBtn.addEventListener("click", async function () {
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
 
         showMessage(
             "Camera access is not supported by this browser.",
@@ -247,10 +353,13 @@ startCameraBtn.addEventListener("click", async function () {
         cameraStream = await navigator.mediaDevices.getUserMedia({
 
             video: {
-                facingMode: { ideal: "environment" }
+                facingMode: {
+                    ideal: "environment"
+                }
             },
 
             audio: false
+
         });
 
         cameraPreview.srcObject = cameraStream;
@@ -267,7 +376,9 @@ startCameraBtn.addEventListener("click", async function () {
 
         startCameraBtn.disabled = true;
 
-        showMessage("Camera is ready. Position the medicine clearly.");
+        showMessage(
+            "Camera is ready. Position the medicine clearly."
+        );
 
     } catch (error) {
 
@@ -281,7 +392,9 @@ startCameraBtn.addEventListener("click", async function () {
 });
 
 
-// 11. CAPTURE IMAGE
+// ============================================
+// 12. CAPTURE IMAGE
+// ============================================
 
 captureBtn.addEventListener("click", function () {
 
@@ -306,25 +419,41 @@ captureBtn.addEventListener("click", function () {
     }
 
     captureCanvas.width = width;
+
     captureCanvas.height = height;
 
     const context = captureCanvas.getContext("2d");
 
-    context.drawImage(cameraPreview, 0, 0, width, height);
+    context.drawImage(
+        cameraPreview,
+        0,
+        0,
+        width,
+        height
+    );
 
     captureCanvas.toBlob(function (blob) {
 
         if (!blob) {
 
-            showMessage("Unable to capture image.", "error");
+            showMessage(
+                "Unable to capture image.",
+                "error"
+            );
 
             return;
         }
 
         const capturedFile = new File(
+
             [blob],
+
             `medicine-scan-${Date.now()}.jpg`,
-            { type: "image/jpeg" }
+
+            {
+                type: "image/jpeg"
+            }
+
         );
 
         displayImage(capturedFile);
@@ -341,7 +470,9 @@ captureBtn.addEventListener("click", function () {
 });
 
 
-// 12. UPLOAD IMAGE
+// ============================================
+// 13. UPLOAD IMAGE
+// ============================================
 
 medicineImage.addEventListener("change", function () {
 
@@ -355,15 +486,20 @@ medicineImage.addEventListener("change", function () {
 });
 
 
-// 13. REMOVE IMAGE
+// ============================================
+// 14. REMOVE IMAGE
+// ============================================
 
 removeImageBtn.addEventListener("click", function () {
 
     resetImage();
+
 });
 
 
-// 14. DISPLAY IDENTIFICATION RESULT
+// ============================================
+// 15. DISPLAY IDENTIFICATION RESULT
+// ============================================
 
 function displayResult(data) {
 
@@ -374,6 +510,8 @@ function displayResult(data) {
     const status = data.status;
 
     const medicine = data.medicine || {};
+
+    currentScanResult = data;
 
     let statusTitle = "";
     let statusDescription = "";
@@ -450,12 +588,16 @@ function displayResult(data) {
         resultContent.appendChild(strength);
     }
 
-    // Show clarification questions only when the backend
-    // returns an uncertain result.
+    // Uncertain result: show clarification only.
 
     if (status === "uncertain") {
 
-        const questions = data.questions || data.clarificationQuestions || [];
+        resetMedicineChat();
+
+        const questions =
+            data.questions ||
+            data.clarificationQuestions ||
+            [];
 
         if (questions.length > 0) {
 
@@ -473,14 +615,28 @@ function displayResult(data) {
             resultContent.appendChild(note);
         }
 
+        return;
+    }
+
+    resetClarification();
+
+    // Start chat only for an identification result
+    // that the backend has classified.
+
+    if (status === "matched" || status === "not_found") {
+
+        startMedicineConversation();
+
     } else {
 
-        resetClarification();
+        resetMedicineChat();
     }
 }
 
 
-// 15. DISPLAY BACKEND-GENERATED QUESTIONS
+// ============================================
+// 16. DISPLAY CLARIFICATION QUESTIONS
+// ============================================
 
 function displayClarificationQuestions(questions) {
 
@@ -490,13 +646,14 @@ function displayClarificationQuestions(questions) {
 
     questions.forEach(function (item, index) {
 
-        // Backend can return either a string or an object.
         const questionText =
             typeof item === "string"
                 ? item
                 : item.question;
 
-        if (!questionText || typeof questionText !== "string") {
+        if (!questionText ||
+            typeof questionText !== "string") {
+
             return;
         }
 
@@ -529,6 +686,7 @@ function displayClarificationQuestions(questions) {
         questionGroup.append(label, answerInput);
 
         clarificationQuestions.appendChild(questionGroup);
+
     });
 
     if (clarificationQuestions.children.length === 0) {
@@ -548,13 +706,18 @@ function displayClarificationQuestions(questions) {
     );
 
     clarificationCard.scrollIntoView({
+
         behavior: "smooth",
+
         block: "start"
+
     });
 }
 
 
-// 16. SUBMIT CLARIFICATION ANSWERS
+// ============================================
+// 17. SUBMIT CLARIFICATION ANSWERS
+// ============================================
 
 submitClarificationBtn.addEventListener("click", async function () {
 
@@ -572,9 +735,10 @@ submitClarificationBtn.addEventListener("click", async function () {
         return;
     }
 
-    const answerInputs = clarificationQuestions.querySelectorAll(
-        ".clarification-answer"
-    );
+    const answerInputs =
+        clarificationQuestions.querySelectorAll(
+            ".clarification-answer"
+        );
 
     const answers = [];
 
@@ -594,11 +758,15 @@ submitClarificationBtn.addEventListener("click", async function () {
             question: questionText,
 
             answer: input.value.trim()
+
         });
+
     });
 
     const hasMissingAnswer = answers.some(function (item) {
+
         return !item.answer;
+
     });
 
     if (hasMissingAnswer) {
@@ -625,13 +793,13 @@ submitClarificationBtn.addEventListener("click", async function () {
 
         const formData = new FormData();
 
-        // Send the original image again.
         formData.append("image", selectedImage);
 
-        // Send patient answers as JSON.
-        formData.append("answers", JSON.stringify(answers));
+        formData.append(
+            "answers",
+            JSON.stringify(answers)
+        );
 
-        // Send optional additional information.
         formData.append(
             "additionalInfo",
             additionalMedicineInfo.value.trim()
@@ -642,6 +810,7 @@ submitClarificationBtn.addEventListener("click", async function () {
             method: "POST",
 
             body: formData
+
         });
 
         if (!response.ok) {
@@ -652,8 +821,6 @@ submitClarificationBtn.addEventListener("click", async function () {
         }
 
         const result = await response.json();
-
-        resetResult();
 
         displayResult(result);
 
@@ -678,7 +845,10 @@ submitClarificationBtn.addEventListener("click", async function () {
 
     } catch (error) {
 
-        console.error("Clarification submission error:", error);
+        console.error(
+            "Clarification submission error:",
+            error
+        );
 
         showClarificationMessage(
             "Unable to recheck the medicine. Check the backend connection and try again.",
@@ -696,24 +866,31 @@ submitClarificationBtn.addEventListener("click", async function () {
 });
 
 
-// 17. RETAKE SCAN
+// ============================================
+// 18. RETAKE SCAN
+// ============================================
 
 retakeScanBtn.addEventListener("click", function () {
 
     resetImage();
 
-    showMessage("Capture or upload a clearer medicine image.");
+    showMessage(
+        "Capture or upload a clearer medicine image."
+    );
 
-    document.getElementById("cameraArea").scrollIntoView({
+    cameraArea.scrollIntoView({
 
         behavior: "smooth",
 
         block: "center"
+
     });
 });
 
 
-// 18. SCAN MEDICINE
+// ============================================
+// 19. SCAN MEDICINE
+// ============================================
 
 scanMedicineBtn.addEventListener("click", async function () {
 
@@ -741,7 +918,11 @@ scanMedicineBtn.addEventListener("click", async function () {
 
     resetClarification();
 
-    showMessage("Sending image for medicine identification...");
+    resetMedicineChat();
+
+    showMessage(
+        "Sending image for medicine identification..."
+    );
 
     try {
 
@@ -754,6 +935,7 @@ scanMedicineBtn.addEventListener("click", async function () {
             method: "POST",
 
             body: formData
+
         });
 
         if (!response.ok) {
@@ -774,7 +956,10 @@ scanMedicineBtn.addEventListener("click", async function () {
 
     } catch (error) {
 
-        console.error("Medicine scanning error:", error);
+        console.error(
+            "Medicine scanning error:",
+            error
+        );
 
         showMessage(
             "Medicine recognition is currently unavailable. Check the backend connection and try again.",
@@ -792,7 +977,358 @@ scanMedicineBtn.addEventListener("click", async function () {
 });
 
 
-// 19. CLEAN UP CAMERA WHEN LEAVING PAGE
+// ============================================
+// 20. ADD CHAT MESSAGE
+// ============================================
+
+function addChatMessage(message, sender) {
+
+    const messageElement = document.createElement("div");
+
+    messageElement.className =
+        sender === "user"
+            ? "chat-message user-message"
+            : "chat-message assistant-message";
+
+    const paragraph = document.createElement("p");
+
+    paragraph.textContent = message;
+
+    messageElement.appendChild(paragraph);
+
+    chatMessages.appendChild(messageElement);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+// ============================================
+// 21. CHAT LOADING INDICATOR
+// ============================================
+
+function showChatLoading() {
+
+    const loading = document.createElement("div");
+
+    loading.id = "chatLoading";
+
+    loading.className = "chat-typing";
+
+    loading.textContent = "DAWAZ is thinking...";
+
+    chatMessages.appendChild(loading);
+
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+function hideChatLoading() {
+
+    const loading = document.getElementById("chatLoading");
+
+    if (loading) {
+
+        loading.remove();
+    }
+}
+
+
+// ============================================
+// 22. SEND MESSAGE TO DAWAZ
+// ============================================
+
+async function sendMessageToDAWAZ(message, mode = "message") {
+
+    if (isSendingMessage) {
+        return;
+    }
+
+    if (!selectedImage || !currentScanResult) {
+
+        chatStatus.textContent =
+            "Please complete a medicine scan before starting the conversation.";
+
+        return;
+    }
+
+    isSendingMessage = true;
+
+    sendChatBtn.disabled = true;
+
+    chatMicBtn.disabled = true;
+
+    showChatLoading();
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("image", selectedImage);
+
+        formData.append("mode", mode);
+
+        formData.append("question", message);
+
+        formData.append(
+            "scanResult",
+            JSON.stringify(currentScanResult)
+        );
+
+        formData.append(
+            "conversation",
+            JSON.stringify(chatHistory)
+        );
+
+        const response = await fetch(CHAT_API_URL, {
+
+            method: "POST",
+
+            body: formData
+
+        });
+
+        if (!response.ok) {
+
+            throw new Error(
+                `Chat server returned status ${response.status}`
+            );
+        }
+
+        const data = await response.json();
+
+        if (!data.reply || typeof data.reply !== "string") {
+
+            throw new Error(
+                "The backend returned an invalid chat response."
+            );
+        }
+
+        hideChatLoading();
+
+        addChatMessage(data.reply, "assistant");
+
+        chatHistory.push({
+
+            role: "assistant",
+
+            content: data.reply
+
+        });
+
+        chatStatus.textContent =
+            "DAWAZ is ready to help.";
+
+    } catch (error) {
+
+        hideChatLoading();
+
+        console.error(
+            "DAWAZ chat error:",
+            error
+        );
+
+        addChatMessage(
+            "I couldn't connect to the medicine assistant. Please try again later.",
+            "assistant"
+        );
+
+        chatStatus.textContent =
+            "Chat service is currently unavailable.";
+
+    } finally {
+
+        isSendingMessage = false;
+
+        sendChatBtn.disabled = false;
+
+        chatMicBtn.disabled = false;
+    }
+}
+
+
+// ============================================
+// 23. START AUTOMATIC DAWAZ CONVERSATION
+// ============================================
+
+async function startMedicineConversation() {
+
+    medicineChatCard.hidden = false;
+
+    chatMessages.replaceChildren();
+
+    chatHistory = [];
+
+    isChatStarted = true;
+
+    chatStatus.textContent =
+        "DAWAZ is preparing a question about your scanned medicine.";
+
+    medicineChatCard.scrollIntoView({
+
+        behavior: "smooth",
+
+        block: "start"
+
+    });
+
+    await sendMessageToDAWAZ("", "start");
+}
+
+
+// ============================================
+// 24. PATIENT TYPES A MESSAGE
+// ============================================
+
+medicineChatForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    const message = medicineChatInput.value.trim();
+
+    if (!message || isSendingMessage) {
+        return;
+    }
+
+    addChatMessage(message, "user");
+
+    chatHistory.push({
+
+        role: "user",
+
+        content: message
+
+    });
+
+    medicineChatInput.value = "";
+
+    await sendMessageToDAWAZ(message, "message");
+});
+
+
+// ============================================
+// 25. SPEECH TO TEXT
+// ============================================
+
+function setupSpeechRecognition() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+        chatMicBtn.disabled = true;
+
+        chatMicBtn.title =
+            "Speech recognition is not supported by this browser.";
+
+        chatVoiceStatus.textContent =
+            "Voice input is not supported. Please type your question.";
+
+        return;
+    }
+
+    chatMicBtn.addEventListener("click", function () {
+
+        if (speechRecognition) {
+
+            speechRecognition.stop();
+
+            speechRecognition = null;
+
+            chatMicBtn.classList.remove("recording");
+
+            chatVoiceStatus.textContent =
+                "Voice input stopped.";
+
+            return;
+        }
+
+        speechRecognition = new SpeechRecognition();
+
+        speechRecognition.lang = "en-IN";
+
+        speechRecognition.continuous = false;
+
+        speechRecognition.interimResults = false;
+
+        speechRecognition.onstart = function () {
+
+            chatMicBtn.classList.add("recording");
+
+            chatVoiceStatus.textContent =
+                "Listening... Speak your question.";
+
+        };
+
+        speechRecognition.onresult = function (event) {
+
+            const transcript =
+                event.results[0][0].transcript;
+
+            medicineChatInput.value =
+                medicineChatInput.value.trim()
+                    ? medicineChatInput.value + " " + transcript
+                    : transcript;
+
+            chatVoiceStatus.textContent =
+                "Speech converted to text. Review it before sending.";
+
+        };
+
+        speechRecognition.onerror = function (event) {
+
+            console.error(
+                "Speech recognition error:",
+                event.error
+            );
+
+            chatVoiceStatus.textContent =
+                "Unable to recognise speech. You can type your question instead.";
+
+        };
+
+        speechRecognition.onend = function () {
+
+            chatMicBtn.classList.remove("recording");
+
+            speechRecognition = null;
+
+        };
+
+        try {
+
+            speechRecognition.start();
+
+        } catch (error) {
+
+            console.error(
+                "Unable to start speech recognition:",
+                error
+            );
+
+            speechRecognition = null;
+
+            chatMicBtn.classList.remove("recording");
+
+            chatVoiceStatus.textContent =
+                "Unable to start the microphone. Check browser permissions.";
+        }
+
+    });
+}
+
+
+// ============================================
+// 26. INITIALISE SPEECH RECOGNITION
+// ============================================
+
+setupSpeechRecognition();
+
+
+// ============================================
+// 27. CLEAN UP WHEN LEAVING PAGE
+// ============================================
 
 window.addEventListener("beforeunload", function () {
 
@@ -802,5 +1338,14 @@ window.addEventListener("beforeunload", function () {
 
         URL.revokeObjectURL(imageObjectURL);
     }
+
+    if (speechRecognition) {
+
+        speechRecognition.stop();
+
+        speechRecognition = null;
+    }
 });
+
+
 
