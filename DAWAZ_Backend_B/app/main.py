@@ -6,6 +6,9 @@ from app.routers.patients import router as patients_router
 from app.models.prescription import Prescription, PrescriptionItem
 from app.routers.prescriptions import router as prescriptions_router
 from app.routers.alerts import router as alerts_router
+from app.models.alert import Alert
+from app.models.care_link import CareLink
+from app.routers.care_links import router as care_links_router
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -84,6 +87,7 @@ app.include_router(medication_schedules_router)
 app.include_router(dose_occurrences_router)
 app.include_router(medication_stock_router)
 app.include_router(alerts_router)
+app.include_router(care_links_router)
 @app.get("/")
 def home():
     return {
