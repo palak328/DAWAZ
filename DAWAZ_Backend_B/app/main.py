@@ -10,6 +10,7 @@ from app.models.alert import Alert
 from app.models.care_link import CareLink
 from app.routers.care_links import router as care_links_router
 from app.routers.dashboard import router as dashboard_router
+from app.routers.voice_questions import router as voice_questions_router
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -90,6 +91,7 @@ app.include_router(medication_stock_router)
 app.include_router(alerts_router)
 app.include_router(care_links_router)
 app.include_router(dashboard_router)
+app.include_router(voice_questions_router)
 @app.get("/")
 def home():
     return {
