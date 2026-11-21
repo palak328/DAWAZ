@@ -363,21 +363,44 @@
 
         <!-- IDENTIFICATION RESULT -->
 
-        <section
-            class="result-card"
-            id="resultCard"
-            hidden>
+                 </section>
 
-            <h2 data-i18n="identificationResult">
-                Medicine Identification Result
-            </h2>
+        <!-- PRESCRIPTION RECONCILIATION -->
 
-            <div id="resultContent"></div>
+        <section class="result-card" id="reconciliationCard" hidden>
+
+            <h2>Compare with Confirmed Prescription</h2>
+
+            <p>
+                Select a confirmed prescription to compare it with the
+                scanned medicine. An uncertain scan cannot be confirmed
+                through this comparison.
+            </p>
+
+            <label for="prescriptionSelect">
+                Select confirmed prescription
+            </label>
+
+            <select id="prescriptionSelect">
+                <option value="">Loading prescriptions...</option>
+            </select>
+
+            <button
+                type="button"
+                id="reconcileBtn"
+                class="scan-btn"
+                disabled>
+                Compare Medicine
+            </button>
+
+            <p id="reconciliationMessage" role="status" aria-live="polite">      </p>
+
+            <div id="reconciliationResult"></div>
 
         </section>
 
 
-        <!-- SMART IDENTIFICATION ASSISTANCE -->
+          <!-- SMART IDENTIFICATION ASSISTANCE -->
 
         <section
             class="clarification-card"
