@@ -196,114 +196,46 @@
                 <form id="reminderForm">
 
                     <div class="form-group">
-
-                        <label for="reminderMedicine" data-i18n="medicineName">
-                            Medicine Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="reminderMedicine"
-                            placeholder="Enter confirmed medicine name"
-                            data-i18n-placeholder="enterConfirmedMedicine"
-                            required>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="reminderTime" data-i18n="reminderTime">
-                            Reminder Time
-                        </label>
-
-                        <input
-                            type="time"
-                            id="reminderTime"
-                            required>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="reminderFrequency" data-i18n="frequency">
-                            Frequency
-                        </label>
-
-                        <select id="reminderFrequency" required>
-
-                            <option value="" data-i18n="selectFrequency">
-                                Select frequency
-                            </option>
-
-                            <option value="Once daily" data-i18n="onceDaily">
-                                Once daily
-                            </option>
-
-                            <option value="Twice daily" data-i18n="twiceDaily">
-                                Twice daily
-                            </option>
-
-                            <option value="Three times daily" data-i18n="threeTimesDaily">
-                                Three times daily
-                            </option>
-
-                            <option value="Custom" data-i18n="custom">
-                                Custom
-                            </option>
-
+                        <label for="reminderMedicine">Active Prescription Medicine</label>
+                        <select id="reminderMedicine" required>
+                            <option value="">Loading medicines...</option>
                         </select>
-
                     </div>
-
 
                     <div class="form-group">
-
-                        <label for="reminderInstructions" data-i18n="instructionsOptional">
-                            Instructions (Optional)
-                        </label>
-
-                        <textarea
-                            id="reminderInstructions"
-                            placeholder="Enter instructions from the confirmed prescription"
-                            data-i18n-placeholder="enterPrescriptionInstructions">
-                        </textarea>
-
+                        <label for="reminderTime">Prescribed Reminder Time</label>
+                        <input type="time" id="reminderTime" required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="reminderStartDate">Start Date</label>
+                        <input type="date" id="reminderStartDate" required>
+                    </div>
 
-                    <p class="form-safety-note" data-i18n="reminderFormSafety">
-                        Enter only the timing and instructions confirmed
-                        by your doctor or prescription.
+                    <div class="form-group">
+                        <label for="reminderEndDate">End Date</label>
+                        <input type="date" id="reminderEndDate" required>
+                    </div>
+
+                    <p class="form-safety-note">
+                        Create reminders only for medicines in an active,
+                        confirmed prescription. Enter the timing specified
+                        by your doctor.
                     </p>
 
+                    <p id="reminderFormMessage" role="status"></p>
 
                     <div class="modal-actions">
-
-                        <button
-                            type="button"
-                            id="cancelReminderBtn"
-                            class="cancel-btn"
-                            data-i18n="cancel">
-
+                        <button type="button" id="cancelReminderBtn" class="cancel-btn">
                             Cancel
-
                         </button>
 
-                        <button
-                            type="submit"
-                            class="save-reminder-btn"
-                            data-i18n="saveReminder">
-
+                        <button type="submit" class="save-reminder-btn">
                             Save Reminder
-
                         </button>
-
                     </div>
 
                 </form>
-
             </div>
 
         </div>
