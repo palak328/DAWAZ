@@ -20,7 +20,14 @@ class PrescriptionItemCreate(BaseModel):
     additional_instructions: str | None = None
     dose_quantity: Decimal | None = Field(default=None, gt=0)
     dose_unit: str | None = Field(default=None, max_length=30)
-
+    
+    raw_line: str | None = None
+    raw_instruction_text: str | None = None
+    identity_confirmed: bool = False
+    needs_review: bool = True
+    strengths_found: list[str] = []
+    unresolved_fields: list[str] = []
+    timing: str | None = None
 class PrescriptionCreate(BaseModel):
     prescription_date: date | None = None
     notes: str | None = None
@@ -43,5 +50,8 @@ class PrescriptionResponse(BaseModel):
     confirmed_at: datetime | None
     activated_at: datetime | None
     items: list[PrescriptionItemResponse]
-
     model_config = ConfigDict(from_attributes=True)
+    raw_ocr_text: str | None = None
+    extraction_status: str | None = None
+    extraction_warnings: list[str] | None = None
+    extraction_payload: dict | None = None

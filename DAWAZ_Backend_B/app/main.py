@@ -12,6 +12,7 @@ from app.routers.care_links import router as care_links_router
 from app.routers.dashboard import router as dashboard_router
 from app.routers.voice_questions import router as voice_questions_router
 from app.routers.caregiver import router as caregiver_router
+from app.routers.prescription_extraction import router as prescription_extraction_router
 import asyncio
 import logging
 from contextlib import asynccontextmanager
@@ -94,6 +95,7 @@ app.include_router(care_links_router)
 app.include_router(dashboard_router)
 app.include_router(voice_questions_router)
 app.include_router(caregiver_router)
+app.include_router(prescription_extraction_router)
 @app.get("/")
 def home():
     return {

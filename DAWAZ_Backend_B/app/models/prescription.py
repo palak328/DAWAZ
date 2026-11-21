@@ -11,13 +11,13 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from sqlalchemy import Numeric
 from app.database import Base
-
+from sqlalchemy import JSON, Boolean
 
 class Prescription(Base):
     __tablename__ = "prescriptions"
 
     id = Column(Integer, primary_key=True, index=True)
-
+    
     patient_id = Column(
         Integer,
         ForeignKey("patients.id"),
@@ -33,7 +33,9 @@ class Prescription(Base):
 
     prescription_date = Column(Date, nullable=True)
     notes = Column(Text, nullable=True)
-
+    raw_ocr_text = Column(Text, nullable=True)
+    extraction_status = Column(String(50), nullable=True)
+    extraction_warnings = Column(JSON, nullable=True)
     created_at = Column(
         DateTime(timezone=True),
         server_default=func.now()
@@ -41,6 +43,8 @@ class Prescription(Base):
 
     confirmed_at = Column(DateTime(timezone=True), nullable=True)
     activated_at = Column(DateTime(timezone=True), nullable=True)
+
+    extraction_payload = Column(JSON, nullable=True)
 
     items = relationship(
         "PrescriptionItem",
@@ -63,6 +67,15 @@ class PrescriptionItem(Base):
     dose_quantity = Column(Numeric(10, 3), nullable=True)
 
     dose_unit = Column(String(30), nullable=True)
+    raw_line = Column(Text, nullable=True)
+    raw_instruction_text = Column(Text, nullable=True)
+
+    identity_confirmed = Column(Boolean, nullable=False, default=False)
+    needs_review = Column(Boolean, nullable=False, default=True)
+
+    strengths_found = Column(JSON, nullable=True)
+    unresolved_fields = Column(JSON, nullable=True)
+    timing = Column(String(150), nullable=True)
     medicine_name = Column(String(150), nullable=False)
     strength = Column(String(100), nullable=True)
     dosage_form = Column(String(50), nullable=True)
