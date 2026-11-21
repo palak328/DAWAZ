@@ -1,226 +1,94 @@
 
-import json
 import re
-from pathlib import Path
-from difflib import SequenceMatcher
+from rapidfuzz import fuzz
+from app.services.medicine_matching.catalog import load_catalog
 
 
-APP_DIR = Path(__file__).resolve().parent.parent
-CATALOG_PATH = APP_DIR / "data" / "medicine_catalog.json"
+def normalize_text(value: str) -> str:
+    return re.sub(
+        r"[^a-z0-9]+",
+        " ",
+        (value or "").lower()
+    ).strip()
 
 
-def normalize(value):
-    if value is None:
-        return ""
+def find_candidates(raw_text: str, catalog=None) -> list:
+    """
+    Finds possible medicine matches using name similarity.
+    A candidate is NOT a confirmed medicine identity.
+    """
 
-    value = str(value).lower()
-    value = re.sub(r"[^a-z0-9.+% ]", " ", value)
-    return " ".join(value.split())
+    if not raw_text or not raw_text.strip():
+        return []
 
+    catalog = catalog if catalog is not None else load_catalog()
 
-def normalize_strength(value):
-    return re.sub(r"\s+", "", normalize(value))
+    source = normalize_text(raw_text)
+    results = []
 
+    for item in catalog:
+        names = [item.get("name", "")]
 
-def load_catalog():
-    if not CATALOG_PATH.exists():
-        raise FileNotFoundError(
-            f"Catalog not found: {CATALOG_PATH}"
-        )
+        aliases = item.get("aliases") or []
+        if isinstance(aliases, list):
+            names.extend(aliases)
 
-    with open(CATALOG_PATH, "r", encoding="utf-8") as file:
-        data = json.load(file)
-
-    medicines = data.get("medicines")
-
-    if not isinstance(medicines, list):
-        raise ValueError("Catalog must contain a medicines list.")
-
-    return medicines
-
-
-def get_names(medicine):
-    names = []
-
-    if medicine.get("name"):
-        names.append(medicine["name"])
-
-    aliases = medicine.get("aliases", [])
-
-    if isinstance(aliases, str):
-        aliases = [aliases]
-
-    names.extend(
-        alias for alias in aliases
-        if isinstance(alias, str) and alias.strip()
-    )
-
-    return names
-
-
-def extract_strengths(text):
-    pattern = (
-        r"\b\d+(?:\.\d+)?\s*"
-        r"(?:mg|mcg|g|ml|iu|%|meq)\b"
-    )
-
-    return {
-        normalize_strength(value)
-        for value in re.findall(pattern, text, re.IGNORECASE)
-    }
-
-
-def calculate_name_similarity(name, ocr_text):
-    name = normalize(name)
-    text = normalize(ocr_text)
-
-    if not name or not text:
-        return 0.0
-
-    if name in text:
-        return 1.0
-
-    words = text.split()
-    best_score = 0.0
-
-    for start in range(len(words)):
-        for size in range(1, min(5, len(words) - start + 1)):
-            phrase = " ".join(words[start:start + size])
-
-            score = SequenceMatcher(
-                None, name, phrase
-            ).ratio()
-
-            best_score = max(best_score, score)
-
-    return best_score
-
-
-def compare_medicine(medicine, ocr_text):
-    names = get_names(medicine)
-
-    best_name = ""
-    best_similarity = 0.0
-
-    for name in names:
-        similarity = calculate_name_similarity(
-            name, ocr_text
-        )
-
-        if similarity > best_similarity:
-            best_similarity = similarity
-            best_name = name
-
-    catalog_strengths = extract_strengths(
-        medicine.get("strength", "")
-    )
-
-    ocr_strengths = extract_strengths(ocr_text)
-
-    strength_match = bool(
-        catalog_strengths.intersection(ocr_strengths)
-    )
-
-    medicine_form = normalize(medicine.get("form", ""))
-    normalized_ocr = normalize(ocr_text)
-
-    form_match = (
-        medicine_form not in ("", "not specified")
-        and medicine_form in normalized_ocr
-    )
-
-    ingredient_names = medicine.get("ingredients", [])
-
-    if isinstance(ingredient_names, str):
-        ingredient_names = [ingredient_names]
-
-    ingredient_match = any(
-        normalize(ingredient) in normalized_ocr
-        for ingredient in ingredient_names
-        if ingredient
-    )
-
-    release_type = normalize(
-        medicine.get("release_type", "")
-    )
-
-    release_match = (
-        release_type not in ("", "not specified")
-        and release_type in normalized_ocr
-    )
-
-    score = (
-        best_similarity * 60
-        + (15 if strength_match else 0)
-        + (10 if form_match else 0)
-        + (10 if ingredient_match else 0)
-        + (5 if release_match else 0)
-    )
-
-    score = round(min(score, 100), 2)
-
-    if best_similarity >= 0.80:
-        status = "CANDIDATE_REQUIRES_CONFIRMATION"
-    elif best_similarity >= 0.55:
-        status = "POSSIBLE_CANDIDATE_REVIEW_REQUIRED"
-    else:
-        status = "LOW_SIMILARITY"
-
-    return {
-        "medicine_id": medicine.get("id"),
-        "name": medicine.get("name"),
-        "matched_name": best_name,
-        "score": score,
-        "status": status,
-        "evidence": {
-            "name_similarity": round(best_similarity, 3),
-            "strength_match": strength_match,
-            "form_match": form_match,
-            "ingredient_match": ingredient_match,
-            "release_type_match": release_match
-        },
-        "requires_human_confirmation": True
-    }
-
-
-def match_medicine(ocr_text, top_k=5):
-    if not isinstance(ocr_text, str) or not ocr_text.strip():
-        return {
-            "success": False,
-            "message": "No OCR text provided.",
-            "candidates": []
-        }
-
-    try:
-        catalog = load_catalog()
-
-        results = [
-            compare_medicine(medicine, ocr_text)
-            for medicine in catalog
+        valid_names = [
+            normalize_text(name)
+            for name in names
+            if isinstance(name, str) and name.strip()
         ]
 
-        results.sort(
-            key=lambda item: item["score"],
-            reverse=True
+        if not valid_names:
+            continue
+
+        best_score = max(
+            fuzz.partial_ratio(name, source)
+            for name in valid_names
         )
 
-        candidates = [
-            result for result in results
-            if result["status"] != "LOW_SIMILARITY"
-        ][:max(1, top_k)]
+        if best_score >= 70:
+            results.append({
+                "medicine_id": item.get("id"),
+                "name": item.get("name"),
+                "strength": item.get("strength"),
+                "form": item.get("form"),
+                "release_type": item.get("release_type"),
+                "name_similarity": int(best_score),
+                "identity_confirmed": False
+            })
 
+    return sorted(
+        results,
+        key=lambda row: row["name_similarity"],
+        reverse=True
+    )[:5]
+
+
+def match_medicine(raw_text: str, catalog=None) -> dict:
+    """Returns medicine candidates without confirming identity."""
+
+    if not raw_text or not raw_text.strip():
         return {
-            "success": True,
-            "catalog_records_checked": len(catalog),
-            "candidate_count": len(candidates),
-            "identity_confirmed": False,
-            "message": "Candidate matching completed. Human confirmation is required.",
-            "candidates": candidates
+            "identity_status": "UNIDENTIFIED",
+            "matched_medicine": None,
+            "candidates": [],
+            "message": "No readable medicine text found. Please upload a clearer image."
         }
 
-    except (FileNotFoundError, ValueError, json.JSONDecodeError) as error:
+    candidates = find_candidates(raw_text, catalog)
+
+    if not candidates:
         return {
-            "success": False,
-            "message": str(error),
-            "candidates": []
+            "identity_status": "UNIDENTIFIED",
+            "matched_medicine": None,
+            "candidates": [],
+            "message": "Medicine not identified in the available catalog. Please consult a pharmacist."
         }
+
+    return {
+        "identity_status": "CANDIDATE_FOUND",
+        "matched_medicine": None,
+        "candidates": candidates,
+        "message": "Possible candidates found. Verify name, strength, ingredients and form."
+    }
