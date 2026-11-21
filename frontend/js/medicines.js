@@ -10,9 +10,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         container.textContent = "Loading medicine cabinet...";
 
         try {
-            const [prescriptions, stockRecords] = await Promise.all([
+            const [prescriptions, stockRecords, schedules] = await Promise.all([
                 DawazAPI.request("/prescriptions"),
-                DawazAPI.request("/stock/")
+                DawazAPI.request("/stock/"),
+                DawazAPI.request("/medication-schedules")
             ]);
 
             const activePrescriptions = (
@@ -22,7 +23,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             const stock = Array.isArray(stockRecords)
                 ? stockRecords
                 : [];
-
+            const scheduleRecords = Array.isArray(schedules)
+                ? schedules
+                : [];
             container.innerHTML = "<h2>Medicine Cabinet</h2>";
 
             const items = activePrescriptions.flatMap(p =>
@@ -143,13 +146,124 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 });
 
-                card.append(
-                    heading,
-                    details,
-                    quantity,
-                    form,
-                    message
+                const scheduleSection = document.createElement("section");
+                scheduleSection.className = "schedule-section";
+
+                const scheduleHeading = document.createElement("h4");
+                scheduleHeading.textContent = "Medication Reminders";
+
+                const existingSchedules = scheduleRecords.filter(
+                    s => Number(s.prescription_item_id) === Number(item.id)
                 );
+
+                const scheduleList = document.createElement("div");
+
+                existingSchedules.forEach(schedule => {
+                    const entry = document.createElement("p");
+
+                    entry.textContent =
+                        `${String(schedule.scheduled_time).slice(0, 5)} | ` +
+                        `${schedule.start_date} to ${schedule.end_date}`;
+
+                    scheduleList.appendChild(entry);
+                });
+
+                if (!existingSchedules.length) {
+                    const empty = document.createElement("p");
+                    empty.textContent = "No reminder schedule created.";
+                    scheduleList.appendChild(empty);
+                }
+
+                const scheduleForm = document.createElement("form");
+                scheduleForm.className = "schedule-form";
+
+                const timeInput = document.createElement("input");
+                timeInput.type = "time";
+                timeInput.required = true;
+                timeInput.setAttribute("aria-label", "Prescribed reminder time");
+
+                const startInput = document.createElement("input");
+                startInput.type = "date";
+                startInput.required = true;
+                startInput.value = item.start_date
+                    ? String(item.start_date).slice(0, 10)
+                    : "";
+                startInput.setAttribute("aria-label", "Schedule start date");
+
+                const endInput = document.createElement("input");
+                endInput.type = "date";
+                endInput.required = true;
+                endInput.value = item.end_date
+                    ? String(item.end_date).slice(0, 10)
+                    : "";
+                endInput.setAttribute("aria-label", "Schedule end date");
+
+                const scheduleButton = document.createElement("button");
+                scheduleButton.type = "submit";
+                scheduleButton.textContent = "Create Reminder";
+
+                const scheduleMessage = document.createElement("p");
+                scheduleMessage.setAttribute("role", "status");
+
+                scheduleForm.append(
+                    timeInput,
+                    startInput,
+                    endInput,
+                    scheduleButton
+                );
+
+                scheduleForm.addEventListener("submit", async event => {
+                    event.preventDefault();
+
+                    if (endInput.value < startInput.value) {
+                        scheduleMessage.textContent =
+                            "End date cannot be before start date.";
+                        return;
+                    }
+
+                    scheduleButton.disabled = true;
+                    scheduleMessage.textContent = "Creating reminder schedule...";
+
+                    try {
+                        await DawazAPI.request("/medication-schedules", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                prescription_item_id: item.id,
+                                scheduled_time: timeInput.value,
+                                start_date: startInput.value,
+                                end_date: endInput.value,
+                                timezone: "Asia/Kolkata"
+                            })
+                        });
+
+                        scheduleMessage.textContent =
+                            "Schedule created successfully.";
+
+                        await loadMedicines();
+
+                    } catch (error) {
+                        scheduleMessage.textContent =
+                            `Could not create schedule: ${error.message}`;
+
+                        scheduleButton.disabled = false;
+                    }
+                });
+
+                scheduleSection.append(
+                    scheduleHeading,
+                    scheduleList,
+                    scheduleForm,
+                    scheduleMessage
+                );
+
+card.append(
+    heading,
+    details,
+    quantity,
+    form,
+    message,
+    scheduleSection
+);
 
                 container.appendChild(card);
             });
