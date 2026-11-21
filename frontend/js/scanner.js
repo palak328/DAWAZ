@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.getElementById("medicineImage");
     const scanButton = document.getElementById("scanMedicineBtn");
     const resultArea = document.getElementById("resultContent");
+    const resultCard = document.getElementById("resultCard");
     const startCameraBtn = document.getElementById("startCameraBtn");
     const captureBtn = document.getElementById("captureBtn");
     const cameraPreview = document.getElementById("cameraPreview");
@@ -12,6 +13,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let cameraStream = null;
     let selectedFile = null;
+
+    function addDetail(parent, label, value) {
+        if (value === undefined || value === null || value === "") return;
+
+        const paragraph = document.createElement("p");
+        const strong = document.createElement("strong");
+
+        strong.textContent = `${label}: `;
+        paragraph.append(strong, document.createTextNode(String(value)));
+        parent.appendChild(paragraph);
+    }
+
+    function renderScanResult(result) {
+        if (!resultArea) return;
+
+        resultArea.replaceChildren();
+
+        const scan = result.scan_result?.data || {};
+        const matched = scan.matched_medicine;
+        const candidates = Array.isArray(scan.candidates)
+            ? scan.candidates
+            : [];
+
+        const heading = document.createElement("h3");
+        heading.textContent = "Scan Results";
+        resultArea.appendChild(heading);
+
+        addDetail(resultArea, "Identity Status", scan.identity_status || "UNKNOWN");
+
+        if (matched) {
+            addDetail(
+                resultArea,
+                "Matched Medicine",
+                matched.medicine_name || matched.name || matched.display_name
+            );
+
+            addDetail(resultArea, "Strength", matched.strength);
+            addDetail(resultArea, "Form", matched.dosage_form || matched.form);
+        }
+
+        if (candidates.length) {
+            const candidateHeading = document.createElement("h4");
+            candidateHeading.textContent = "Possible Candidates";
+            resultArea.appendChild(candidateHeading);
+
+            candidates.forEach((candidate, index) => {
+                const item = document.createElement("p");
+
+                const name = typeof candidate === "string"
+                    ? candidate
+                    : candidate.medicine_name ||
+                      candidate.name ||
+                      candidate.display_name ||
+                      "Candidate details unavailable";
+
+                item.textContent = `${index + 1}. ${name}`;
+                resultArea.appendChild(item);
+            });
+        }
+
+        if (scan.message) {
+            addDetail(resultArea, "Message", scan.message);
+        }
+
+        const warnings = [
+            ...(Array.isArray(result.warnings) ? result.warnings : []),
+            ...(Array.isArray(result.scan_result?.warnings)
+                ? result.scan_result.warnings
+                : [])
+        ];
+
+        warnings.forEach(warning => {
+            addDetail(resultArea, "Warning", warning);
+        });
+
+        if (!matched && candidates.length === 0) {
+            addDetail(
+                resultArea,
+                "Next Step",
+                "Identity is not confirmed. Rescan or consult a pharmacist."
+            );
+        }
+
+        if (resultCard) resultCard.hidden = false;
+    }
 
     fileInput.addEventListener("change", () => {
         selectedFile = fileInput.files[0] || null;
@@ -45,6 +131,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (captureBtn && cameraPreview && captureCanvas) {
         captureBtn.addEventListener("click", () => {
+            if (!cameraPreview.videoWidth) {
+                alert("Camera is not ready yet.");
+                return;
+            }
+
             const context = captureCanvas.getContext("2d");
 
             captureCanvas.width = cameraPreview.videoWidth;
@@ -58,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 captureCanvas.height
             );
 
-            captureCanvas.toBlob((blob) => {
+            captureCanvas.toBlob(blob => {
                 if (!blob) {
                     alert("Could not capture image.");
                     return;
@@ -84,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    scanButton.addEventListener("click", async (event) => {
+    scanButton.addEventListener("click", async event => {
         event.preventDefault();
 
         const file = selectedFile || fileInput.files[0];
@@ -101,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const body = new FormData();
-            body.append("file", file);
+            body.append("image", file);
 
             const result = await DawazAPI.request("/scans", {
                 method: "POST",
@@ -113,13 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 JSON.stringify(result)
             );
 
-            const scan = result.scan_result?.data || {};
-
-            if (resultArea) {
-                resultArea.textContent =
-                    `Status: ${scan.identity_status || "UNKNOWN"}\n` +
-                    (scan.message || "Scan completed. Review the result carefully.");
-            }
+            renderScanResult(result);
 
         } catch (error) {
             if (resultArea) {
@@ -127,7 +212,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 alert(error.message);
             }
-
         } finally {
             scanButton.disabled = false;
             scanButton.textContent = "Scan Medicine";
