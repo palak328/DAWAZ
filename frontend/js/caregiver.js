@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.querySelector("#caregiverForm");
     const container = document.querySelector(
@@ -13,17 +14,40 @@ document.addEventListener("DOMContentLoaded", () => {
                 DawazAPI.request("/care-invitations/received")
             ]);
 
-            container.innerHTML = "<h3>Sent Invitations</h3>";
-
             const sentItems = Array.isArray(sent) ? sent : sent.items || [];
             const receivedItems = Array.isArray(received)
                 ? received
                 : received.items || [];
 
+            container.innerHTML = "<h3>Sent Invitations</h3>";
+
             sentItems.forEach(item => {
-                const p = document.createElement("p");
-                p.textContent = `Invitation #${item.id}: ${item.status}`;
-                container.appendChild(p);
+                const card = document.createElement("div");
+                card.textContent = `Invitation #${item.id}: ${item.status}`;
+
+                if (item.status === "active") {
+                    const revoke = document.createElement("button");
+                    revoke.type = "button";
+                    revoke.textContent = "Revoke access";
+
+                    revoke.addEventListener("click", async () => {
+                        if (!confirm("Revoke this caregiver's access?")) return;
+
+                        try {
+                            await DawazAPI.request(
+                                `/care-invitations/${item.id}`,
+                                { method: "DELETE" }
+                            );
+                            await loadInvitations();
+                        } catch (error) {
+                            alert(error.message);
+                        }
+                    });
+
+                    card.appendChild(revoke);
+                }
+
+                container.appendChild(card);
             });
 
             const heading = document.createElement("h3");
@@ -58,10 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     consent.textContent = "Grant consent";
 
                     consent.addEventListener("click", async () => {
-                        const confirmed = confirm(
-                            "Grant this caregiver access to your patient dashboard?"
-                        );
-                        if (!confirmed) return;
+                        if (!confirm("Grant this caregiver access to your patient dashboard?")) return;
 
                         try {
                             await DawazAPI.request(
