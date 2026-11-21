@@ -14,7 +14,7 @@
 
 <body>
 
-    <!-- Top Navigation -->
+    <!-- NAVIGATION -->
     <header class="navbar">
 
         <div class="brand">
@@ -27,95 +27,172 @@
             <a href="medicines.html">My Medicines</a>
             <a href="reminders.html">Reminders</a>
             <a href="medicine-scanner.html">Scan Medicine</a>
-            <a href="caregivers.html">Caregivers</a>
         </nav>
 
         <div class="profile">
+
+            <!-- LANGUAGE SELECTOR -->
+            <div class="language-selector-wrapper">
+                <span class="language-icon">🌐</span>
+
+                <select id="languageSelect" class="language-selector"
+                    aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+            </div>
+
             <span class="profile-icon">P</span>
             <span>Patient</span>
+
         </div>
 
     </header>
 
 
-    <!-- Main Dashboard -->
+    <!-- MAIN DASHBOARD -->
     <main class="dashboard-container">
 
-        <!-- Welcome Section -->
+        <!-- WELCOME HEADER -->
         <section class="welcome-section">
 
-            <div>
+            <div class="welcome-content">
+
                 <p class="greeting">PATIENT DASHBOARD</p>
 
                 <h1>Welcome back!</h1>
 
-                <p>
-                    Manage your medicines and stay on track
-                    with your daily health routine.
+                <p class="welcome-description">
+                    Manage your medicines, follow your schedule
+                    and keep your daily health routine organised.
                 </p>
+
             </div>
 
             <div class="date-display">
-                <p>Today's Overview</p>
-                <h3 id="currentDate">Loading...</h3>
+
+                <div class="date-icon">📅</div>
+
+                <div>
+                    <p>YOUR DAILY OVERVIEW</p>
+                    <h3 id="currentDate">Loading date...</h3>
+                </div>
+
             </div>
 
         </section>
 
 
-        <!-- Overview Cards -->
-        <section class="overview-grid">
+        <!-- OVERVIEW -->
+        <section class="overview-section">
 
-            <div class="overview-card">
-                <p>Next Reminder</p>
-                <h2 id="nextReminderTime">09:00 AM</h2>
-                <span id="nextReminderMedicine">Medicine reminder</span>
+            <div class="section-title">
+                <div>
+                    <p class="section-eyebrow">AT A GLANCE</p>
+                    <h2>Your Overview</h2>
+                </div>
             </div>
 
-            <div class="overview-card">
-                <p>Today's Medicines</p>
-                <h2>04</h2>
-                <span>Scheduled doses</span>
-            </div>
+            <div class="overview-grid">
 
-            <div class="overview-card">
-                <p>Medicine Stock</p>
-                <h2>12</h2>
-                <span>Units remaining</span>
+                <div class="overview-card">
+
+                    <div class="overview-card-top">
+                        <span class="overview-icon">⏰</span>
+                        <span class="overview-label">NEXT REMINDER</span>
+                    </div>
+
+                    <h2 id="nextReminderTime">09:00 AM</h2>
+
+                    <p id="nextReminderMedicine">
+                        Medicine reminder
+                    </p>
+
+                </div>
+
+
+                <div class="overview-card">
+
+                    <div class="overview-card-top">
+                        <span class="overview-icon">💊</span>
+                        <span class="overview-label">TODAY'S MEDICINES</span>
+                    </div>
+
+                    <h2>04</h2>
+
+                    <p>Scheduled doses</p>
+
+                </div>
+
+
+                <div class="overview-card">
+
+                    <div class="overview-card-top">
+                        <span class="overview-icon">📦</span>
+                        <span class="overview-label">MEDICINE STOCK</span>
+                    </div>
+
+                    <h2>12</h2>
+
+                    <p>Units remaining</p>
+
+                </div>
+
             </div>
 
         </section>
 
 
-        <!-- Dashboard Content -->
+        <!-- MAIN DASHBOARD CONTENT -->
         <section class="dashboard-content">
 
-            <!-- Medicine Schedule -->
+            <!-- MEDICINE SCHEDULE -->
             <div class="dashboard-card medicine-schedule-card">
 
                 <div class="card-heading">
-                    <h2>Today's Medicine Schedule</h2>
-                    <a href="reminders.html">View All</a>
+
+                    <div>
+                        <p class="section-eyebrow">DAILY TRACKER</p>
+
+                        <h2>Today's Medicine Schedule</h2>
+
+                        <p class="card-subtitle">
+                            Keep track of your scheduled doses.
+                        </p>
+                    </div>
+
+                    <a href="reminders.html" class="view-all-link">
+                        View All →
+                    </a>
+
                 </div>
 
-                <!-- Today's Progress -->
+
+                <!-- DAILY PROGRESS -->
                 <div class="medicine-progress">
 
                     <div class="progress-heading">
+
                         <div>
                             <h3>Today's Progress</h3>
-                            <p id="progressText">0 of 3 doses confirmed</p>
+
+                            <p id="progressText">
+                                0 of 3 doses confirmed
+                            </p>
                         </div>
 
                         <strong id="progressPercentage">0%</strong>
+
                     </div>
 
                     <div class="progress-track">
+
                         <div
                             class="progress-fill"
                             id="progressBar"
                             style="width: 0%;">
                         </div>
+
                     </div>
 
                     <p class="progress-note">
@@ -125,7 +202,9 @@
                 </div>
 
 
-                <!-- Medicine 1 -->
+                <!-- SCHEDULE PLACEHOLDER -->
+                <!-- dashboard.js dynamically renders medicine reminders here -->
+
                 <div class="medicine-item" data-dose-id="medicine-1">
 
                     <div class="medicine-details">
@@ -140,6 +219,7 @@
                         </span>
 
                         <label class="taken-checkbox">
+
                             <input
                                 type="checkbox"
                                 class="dose-checkbox"
@@ -148,6 +228,7 @@
                                 disabled>
 
                             <span>Mark as taken</span>
+
                         </label>
 
                     </div>
@@ -155,7 +236,6 @@
                 </div>
 
 
-                <!-- Medicine 2 -->
                 <div class="medicine-item" data-dose-id="medicine-2">
 
                     <div class="medicine-details">
@@ -170,6 +250,7 @@
                         </span>
 
                         <label class="taken-checkbox">
+
                             <input
                                 type="checkbox"
                                 class="dose-checkbox"
@@ -178,6 +259,7 @@
                                 disabled>
 
                             <span>Mark as taken</span>
+
                         </label>
 
                     </div>
@@ -185,7 +267,6 @@
                 </div>
 
 
-                <!-- Medicine 3 -->
                 <div class="medicine-item" data-dose-id="medicine-3">
 
                     <div class="medicine-details">
@@ -200,6 +281,7 @@
                         </span>
 
                         <label class="taken-checkbox">
+
                             <input
                                 type="checkbox"
                                 class="dose-checkbox"
@@ -208,6 +290,7 @@
                                 disabled>
 
                             <span>Mark as taken</span>
+
                         </label>
 
                     </div>
@@ -217,23 +300,84 @@
             </div>
 
 
-            <!-- Quick Actions -->
-            <div class="dashboard-card">
+            <!-- QUICK ACTIONS -->
+            <aside class="dashboard-card quick-actions-card">
 
-                <h2>Quick Actions</h2>
+                <div class="card-heading">
+
+                    <div>
+                        <p class="section-eyebrow">SHORTCUTS</p>
+
+                        <h2>Quick Actions</h2>
+
+                        <p class="card-subtitle">
+                            Access important features.
+                        </p>
+                    </div>
+
+                </div>
+
 
                 <a href="medicine-scanner.html" class="action-button">
-                    Scan Medicine
+
+                    <span class="action-icon">📷</span>
+
+                    <span>
+                        <strong>Scan Medicine</strong>
+                        <small>Identify and check a medicine</small>
+                    </span>
+
+                    <span class="action-arrow">→</span>
+
                 </a>
 
+
+                <!-- ASK DAWAZ REDIRECT -->
                 <a href="ask.html" class="action-button secondary">
-                    Ask a Question
+
+                    <span class="action-icon">💬</span>
+
+                    <span>
+                        <strong>Ask DAWAZ</strong>
+                        <small>Get medicine information and assistance</small>
+                    </span>
+
+                    <span class="action-arrow">→</span>
+
                 </a>
+
 
                 <a href="prescription.html" class="action-button secondary">
-                    Upload Prescription
+
+                    <span class="action-icon">📄</span>
+
+                    <span>
+                        <strong>Upload Prescription</strong>
+                        <small>Submit a prescription for review</small>
+                    </span>
+
+                    <span class="action-arrow">→</span>
+
                 </a>
 
+            </aside>
+
+        </section>
+
+
+        <!-- SAFETY NOTE -->
+        <section class="dashboard-safety-note">
+
+            <span class="safety-icon">ⓘ</span>
+
+            <div>
+                <strong>Medicine Safety</strong>
+
+                <p>
+                    Follow your confirmed prescription for medicine timing
+                    and instructions. If you are unsure about a medicine
+                    or dose, consult your doctor or pharmacist.
+                </p>
             </div>
 
         </section>
@@ -242,7 +386,11 @@
 
 
     <script src="../js/dashboard.js"></script>
+    <script src="../js/language.js"></script>
+    <script src="../js/dashboard.js"></script>
 
 </body>
 </html>
+
+
 

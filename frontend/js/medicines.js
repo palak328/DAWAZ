@@ -1,45 +1,43 @@
 
-document.addEventListener("DOMContentLoaded", () => {
 
-    // ---------- ELEMENTS ----------
+document.addEventListener("DOMContentLoaded", () => {
 
     const STORAGE_KEY = "dawazMedicines";
 
     const medicineList = document.getElementById("medicineList");
-    const searchInput = document.getElementById("medicineSearch");
+    const medicineModal = document.getElementById("medicineModal");
+    const medicineForm = document.getElementById("medicineForm");
 
-    const modal = document.getElementById("medicineModal");
-    const form = document.getElementById("medicineForm");
+    const addMedicineBtn = document.getElementById("addMedicineBtn");
+    const emptyAddBtn = document.getElementById("emptyAddBtn");
 
-    const addButton = document.getElementById("addMedicineBtn");
-    const emptyAddButton = document.getElementById("emptyAddBtn");
-    const closeButton = document.getElementById("closeMedicineModal");
-    const cancelButton = document.getElementById("cancelMedicineBtn");
+    const closeMedicineModal = document.getElementById("closeMedicineModal");
+    const cancelMedicineBtn = document.getElementById("cancelMedicineBtn");
 
-    const nameInput = document.getElementById("medicineName");
-    const strengthInput = document.getElementById("medicineStrength");
-    const stockInput = document.getElementById("medicineStock");
-    const instructionsInput = document.getElementById("medicineInstructions");
-    const notesInput = document.getElementById("medicineNotes");
+    const medicineSearch = document.getElementById("medicineSearch");
+
+    const medicineName = document.getElementById("medicineName");
+    const medicineStrength = document.getElementById("medicineStrength");
+    const medicineStock = document.getElementById("medicineStock");
+    const medicineInstructions = document.getElementById("medicineInstructions");
+    const medicineNotes = document.getElementById("medicineNotes");
+
+    const modalTitle = document.getElementById("modalTitle");
+    const medicineFormMessage = document.getElementById("medicineFormMessage");
 
     const totalMedicines = document.getElementById("totalMedicines");
     const lowStockMedicines = document.getElementById("lowStockMedicines");
     const outOfStockMedicines = document.getElementById("outOfStockMedicines");
 
-    const modalTitle = document.getElementById("modalTitle");
-    const formMessage = document.getElementById("medicineFormMessage");
-
-    // ---------- DATA ----------
-
     let medicines = loadMedicines();
-    let editingId = null;
+    let editingMedicineId = null;
 
     function loadMedicines() {
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
             return Array.isArray(saved) ? saved : [];
         } catch (error) {
-            console.error("Could not load medicine records:", error);
+            console.error("Could not load medicines:", error);
             return [];
         }
     }
@@ -48,139 +46,405 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(medicines));
     }
 
-    function createId() {
-        return window.crypto?.randomUUID?.() ||
-            `medicine-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    }
+    function createElement(tag, className, text) {
+        const element = document.createElement(tag);
 
-    // ---------- MODAL ----------
-
-    function openModal(medicine = null) {
-
-        form.reset();
-        editingId = medicine ? medicine.id : null;
-
-        formMessage.textContent = "";
-        formMessage.className = "form-message";
-
-        if (medicine) {
-
-            modalTitle.textContent = "Edit Medicine";
-
-            nameInput.value = medicine.name || "";
-            strengthInput.value = medicine.strength || "";
-            stockInput.value = medicine.stock ?? 0;
-            instructionsInput.value = medicine.instructions || "";
-            notesInput.value = medicine.notes || "";
-
-        } else {
-
-            modalTitle.textContent = "Add Medicine";
+        if (className) {
+            element.className = className;
         }
 
-        modal.hidden = false;
-        nameInput.focus();
+        if (text !== undefined) {
+            element.textContent = text;
+        }
+
+        return element;
+    }
+
+    function updateSummary() {
+
+        totalMedicines.textContent = medicines.length;
+
+        lowStockMedicines.textContent = medicines.filter(
+            medicine => Number(medicine.stock) > 0 &&
+                        Number(medicine.stock) <= 5
+        ).length;
+
+        outOfStockMedicines.textContent = medicines.filter(
+            medicine => Number(medicine.stock) === 0
+        ).length;
+    }
+
+    function getStockStatus(stock) {
+
+        if (stock === 0) {
+            return {
+                text: "Out of Stock",
+                className: "out-of-stock"
+            };
+        }
+
+        if (stock <= 5) {
+            return {
+                text: "Low Stock",
+                className: "low-stock"
+            };
+        }
+
+        return {
+            text: "Available",
+            className: "available"
+        };
+    }
+
+    function renderMedicines(searchTerm = "") {
+
+        medicineList.innerHTML = "";
+
+        const filteredMedicines = medicines.filter(medicine => {
+
+            const name = (medicine.name || "").toLowerCase();
+            const strength = (medicine.strength || "").toLowerCase();
+            const search = searchTerm.toLowerCase();
+
+            return name.includes(search) || strength.includes(search);
+        });
+
+        if (filteredMedicines.length === 0) {
+
+            if (medicines.length === 0) {
+
+                const emptyState = createElement("div", "empty-state");
+
+                emptyState.appendChild(
+                    createElement("div", "empty-state-icon", "💊")
+                );
+
+                emptyState.appendChild(
+                    createElement("h3", "", "No medicines added yet")
+                );
+
+                emptyState.appendChild(
+                    createElement(
+                        "p",
+                        "",
+                        "Add your medicines to maintain a digital medicine cabinet."
+                    )
+                );
+
+                const button = createElement(
+                    "button",
+                    "add-medicine-btn",
+                    "+ Add Your First Medicine"
+                );
+
+                button.type = "button";
+                button.addEventListener("click", openAddModal);
+
+                emptyState.appendChild(button);
+                medicineList.appendChild(emptyState);
+
+            } else {
+
+                medicineList.appendChild(
+                    createElement(
+                        "div",
+                        "no-results",
+                        "No medicines found. Try another search."
+                    )
+                );
+
+            }
+
+            updateSummary();
+            return;
+        }
+
+        filteredMedicines.forEach(medicine => {
+
+            const card = createElement("article", "medicine-card");
+
+            // Medicine name
+            const heading = createElement(
+                "h3",
+                "medicine-card-heading",
+                medicine.name
+            );
+
+            card.appendChild(heading);
+
+            // Strength
+            const strength = createElement(
+                "p",
+                "medicine-strength",
+                medicine.strength || "Strength not specified"
+            );
+
+            card.appendChild(strength);
+
+            // Available stock
+            const stockSection = createElement(
+                "div",
+                "medicine-stock-section"
+            );
+
+            stockSection.appendChild(
+                createElement("span", "stock-label", "Available stock")
+            );
+
+            stockSection.appendChild(
+                createElement(
+                    "span",
+                    "stock-value",
+                    `${medicine.stock} units`
+                )
+            );
+
+            const stockStatus = getStockStatus(Number(medicine.stock));
+
+            stockSection.appendChild(
+                createElement(
+                    "span",
+                    `stock-status ${stockStatus.className}`,
+                    stockStatus.text
+                )
+            );
+
+            card.appendChild(stockSection);
+
+            // Stock controls
+            const stockControls = createElement("div", "stock-controls");
+
+            const decreaseBtn = createElement("button", "stock-btn", "−");
+            decreaseBtn.type = "button";
+            decreaseBtn.setAttribute("aria-label", "Decrease stock");
+            decreaseBtn.disabled = Number(medicine.stock) <= 0;
+
+            decreaseBtn.addEventListener("click", () => {
+                changeStock(medicine.id, -1);
+            });
+
+            const increaseBtn = createElement("button", "stock-btn", "+");
+            increaseBtn.type = "button";
+            increaseBtn.setAttribute("aria-label", "Increase stock");
+
+            increaseBtn.addEventListener("click", () => {
+                changeStock(medicine.id, 1);
+            });
+
+            stockControls.appendChild(decreaseBtn);
+            stockControls.appendChild(increaseBtn);
+
+            card.appendChild(stockControls);
+
+            // Instructions and notes
+            const information = createElement(
+                "div",
+                "medicine-information"
+            );
+
+            const instructions = createElement("p");
+            const instructionsLabel = createElement(
+                "strong",
+                "",
+                "Prescription instructions: "
+            );
+
+            instructions.appendChild(instructionsLabel);
+            instructions.appendChild(
+                document.createTextNode(
+                    medicine.instructions || "Not provided"
+                )
+            );
+
+            const notes = createElement("p");
+            const notesLabel = createElement("strong", "", "Notes: ");
+
+            notes.appendChild(notesLabel);
+            notes.appendChild(
+                document.createTextNode(medicine.notes || "None")
+            );
+
+            information.appendChild(instructions);
+            information.appendChild(notes);
+
+            card.appendChild(information);
+
+            // Edit and delete actions
+            const actions = createElement("div", "medicine-actions");
+
+            const editBtn = createElement(
+                "button",
+                "edit-medicine-btn",
+                "Edit"
+            );
+
+            editBtn.type = "button";
+
+            editBtn.addEventListener("click", () => {
+                openEditModal(medicine.id);
+            });
+
+            const deleteBtn = createElement(
+                "button",
+                "delete-medicine-btn",
+                "Delete"
+            );
+
+            deleteBtn.type = "button";
+
+            deleteBtn.addEventListener("click", () => {
+                deleteMedicine(medicine.id);
+            });
+
+            actions.appendChild(editBtn);
+            actions.appendChild(deleteBtn);
+
+            card.appendChild(actions);
+
+            medicineList.appendChild(card);
+
+        });
+
+        updateSummary();
+    }
+
+    function openAddModal() {
+
+        editingMedicineId = null;
+
+        medicineForm.reset();
+
+        modalTitle.textContent = "Add Medicine";
+
+        medicineFormMessage.textContent = "";
+        medicineFormMessage.className = "form-message";
+
+        medicineModal.hidden = false;
+
+        medicineName.focus();
+    }
+
+    function openEditModal(id) {
+
+        const medicine = medicines.find(item => item.id === id);
+
+        if (!medicine) return;
+
+        editingMedicineId = id;
+
+        medicineName.value = medicine.name;
+        medicineStrength.value = medicine.strength || "";
+        medicineStock.value = medicine.stock;
+        medicineInstructions.value = medicine.instructions || "";
+        medicineNotes.value = medicine.notes || "";
+
+        modalTitle.textContent = "Edit Medicine";
+
+        medicineFormMessage.textContent = "";
+        medicineFormMessage.className = "form-message";
+
+        medicineModal.hidden = false;
+
+        medicineName.focus();
     }
 
     function closeModal() {
 
-        modal.hidden = true;
-        form.reset();
-        editingId = null;
-        formMessage.textContent = "";
+        medicineModal.hidden = true;
+
+        medicineForm.reset();
+
+        editingMedicineId = null;
+
+        medicineFormMessage.textContent = "";
+        medicineFormMessage.className = "form-message";
     }
 
-    addButton.addEventListener("click", () => openModal());
-
-    emptyAddButton?.addEventListener("click", () => openModal());
-
-    closeButton.addEventListener("click", closeModal);
-
-    cancelButton.addEventListener("click", closeModal);
-
-    modal.addEventListener("click", event => {
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
-
-    document.addEventListener("keydown", event => {
-        if (event.key === "Escape" && !modal.hidden) {
-            closeModal();
-        }
-    });
-
-    // ---------- ADD / EDIT MEDICINE ----------
-
-    form.addEventListener("submit", event => {
+    medicineForm.addEventListener("submit", event => {
 
         event.preventDefault();
 
-        const name = nameInput.value.trim();
-        const strength = strengthInput.value.trim();
-        const stock = Number(stockInput.value);
-        const instructions = instructionsInput.value.trim();
-        const notes = notesInput.value.trim();
+        const name = medicineName.value.trim();
+        const strength = medicineStrength.value.trim();
+        const stock = Number(medicineStock.value);
+        const instructions = medicineInstructions.value.trim();
+        const notes = medicineNotes.value.trim();
 
         if (!name) {
-            showMessage("Please enter the medicine name.", "error");
+            showFormMessage("Please enter the medicine name.", "error");
             return;
         }
 
         if (
-            stockInput.value.trim() === "" ||
+            medicineStock.value.trim() === "" ||
             !Number.isInteger(stock) ||
             stock < 0
         ) {
-            showMessage("Enter a valid whole-number stock quantity.", "error");
+            showFormMessage(
+                "Please enter a valid whole-number stock quantity.",
+                "error"
+            );
             return;
         }
 
-        const medicineData = {
-            name,
-            strength,
-            stock,
-            instructions,
-            notes
-        };
+        if (editingMedicineId !== null) {
 
-        if (editingId) {
-
-            const index = medicines.findIndex(
-                medicine => medicine.id === editingId
+            const medicine = medicines.find(
+                item => item.id === editingMedicineId
             );
 
-            if (index !== -1) {
+            if (!medicine) return;
 
-                medicines[index] = {
-                    ...medicines[index],
-                    ...medicineData,
-                    updatedAt: new Date().toISOString()
-                };
-            }
+            medicine.name = name;
+            medicine.strength = strength;
+            medicine.stock = stock;
+            medicine.instructions = instructions;
+            medicine.notes = notes;
+            medicine.updatedAt = new Date().toISOString();
 
         } else {
 
-            medicines.push({
-                id: createId(),
-                ...medicineData,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            });
+            const newMedicine = {
+                id: Date.now().toString(),
+                name,
+                strength,
+                stock,
+                instructions,
+                notes,
+                createdAt: new Date().toISOString()
+            };
+
+            medicines.push(newMedicine);
         }
 
         saveMedicines();
+        renderMedicines(medicineSearch.value);
+
         closeModal();
-        renderMedicines();
+
     });
 
-    function showMessage(message, type) {
-
-        formMessage.textContent = message;
-        formMessage.className = `form-message ${type}`;
+    function showFormMessage(message, type) {
+        medicineFormMessage.textContent = message;
+        medicineFormMessage.className = `form-message ${type}`;
     }
 
-    // ---------- DELETE MEDICINE ----------
+    function changeStock(id, amount) {
+
+        const medicine = medicines.find(item => item.id === id);
+
+        if (!medicine) return;
+
+        const newStock = Number(medicine.stock) + amount;
+
+        if (newStock < 0) return;
+
+        medicine.stock = newStock;
+        medicine.updatedAt = new Date().toISOString();
+
+        saveMedicines();
+        renderMedicines(medicineSearch.value);
+    }
 
     function deleteMedicine(id) {
 
@@ -188,8 +452,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!medicine) return;
 
-        const confirmed = confirm(
-            `Delete ${medicine.name} from your medicine records?`
+        const confirmed = window.confirm(
+            `Are you sure you want to delete ${medicine.name}?`
         );
 
         if (!confirmed) return;
@@ -197,242 +461,35 @@ document.addEventListener("DOMContentLoaded", () => {
         medicines = medicines.filter(item => item.id !== id);
 
         saveMedicines();
-        renderMedicines();
+        renderMedicines(medicineSearch.value);
     }
 
-    // ---------- UPDATE STOCK ----------
+    // BUTTON EVENTS
 
-    function updateStock(id, change) {
+    addMedicineBtn.addEventListener("click", openAddModal);
+    emptyAddBtn.addEventListener("click", openAddModal);
 
-        const medicine = medicines.find(item => item.id === id);
+    closeMedicineModal.addEventListener("click", closeModal);
+    cancelMedicineBtn.addEventListener("click", closeModal);
 
-        if (!medicine) return;
-
-        const newStock = medicine.stock + change;
-
-        if (newStock < 0) {
-            alert("Stock cannot be less than zero.");
-            return;
+    medicineModal.addEventListener("click", event => {
+        if (event.target === medicineModal) {
+            closeModal();
         }
+    });
 
-        medicine.stock = newStock;
-        medicine.updatedAt = new Date().toISOString();
-
-        saveMedicines();
-        renderMedicines();
-    }
-
-    // ---------- MEDICINE CARD ----------
-
-    function createMedicineCard(medicine) {
-
-        const card = document.createElement("article");
-        card.className = "medicine-card";
-
-        const stockStatus =
-            medicine.stock === 0
-                ? "Out of Stock"
-                : medicine.stock <= 5
-                    ? "Low Stock"
-                    : "Available";
-
-        const stockClass =
-            medicine.stock === 0
-                ? "out-of-stock"
-                : medicine.stock <= 5
-                    ? "low-stock"
-                    : "available";
-
-        const heading = document.createElement("div");
-        heading.className = "medicine-card-heading";
-
-        const name = document.createElement("h3");
-        name.textContent = medicine.name;
-
-        const strength = document.createElement("p");
-        strength.className = "medicine-strength";
-        strength.textContent = medicine.strength || "Strength not recorded";
-
-        heading.append(name, strength);
-
-        const stockSection = document.createElement("div");
-        stockSection.className = "medicine-stock-section";
-
-        const stockLabel = document.createElement("span");
-        stockLabel.textContent = "Available stock";
-
-        const stockValue = document.createElement("strong");
-        stockValue.textContent = `${medicine.stock} units`;
-
-        const status = document.createElement("span");
-        status.className = `stock-status ${stockClass}`;
-        status.textContent = stockStatus;
-
-        stockSection.append(stockLabel, stockValue, status);
-
-        const stockControls = document.createElement("div");
-        stockControls.className = "stock-controls";
-
-        const decreaseButton = createButton("−", "stock-btn", () => {
-            updateStock(medicine.id, -1);
-        });
-
-        decreaseButton.setAttribute("aria-label", "Decrease stock");
-
-        const increaseButton = createButton("+", "stock-btn", () => {
-            updateStock(medicine.id, 1);
-        });
-
-        increaseButton.setAttribute("aria-label", "Increase stock");
-
-        stockControls.append(decreaseButton, increaseButton);
-
-        const information = document.createElement("div");
-        information.className = "medicine-information";
-
-        if (medicine.instructions) {
-
-            const instructions = document.createElement("p");
-            instructions.textContent =
-                `Prescription instructions: ${medicine.instructions}`;
-
-            information.appendChild(instructions);
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !medicineModal.hidden) {
+            closeModal();
         }
+    });
 
-        if (medicine.notes) {
+    medicineSearch.addEventListener("input", () => {
+        renderMedicines(medicineSearch.value);
+    });
 
-            const notes = document.createElement("p");
-            notes.textContent = `Notes: ${medicine.notes}`;
-
-            information.appendChild(notes);
-        }
-
-        const actions = document.createElement("div");
-        actions.className = "medicine-actions";
-
-        const editButton = createButton("Edit", "edit-medicine-btn", () => {
-            openModal(medicine);
-        });
-
-        const deleteButton = createButton(
-            "Delete",
-            "delete-medicine-btn",
-            () => deleteMedicine(medicine.id)
-        );
-
-        actions.append(editButton, deleteButton);
-
-        card.append(
-            heading,
-            stockSection,
-            stockControls,
-            information,
-            actions
-        );
-
-        return card;
-    }
-
-    function createButton(label, className, callback) {
-
-        const button = document.createElement("button");
-
-        button.type = "button";
-        button.textContent = label;
-        button.className = className;
-
-        button.addEventListener("click", callback);
-
-        return button;
-    }
-
-    // ---------- SEARCH ----------
-
-    function getFilteredMedicines() {
-
-        const query = searchInput.value.trim().toLowerCase();
-
-        return medicines.filter(medicine => {
-
-            return (
-                medicine.name.toLowerCase().includes(query) ||
-                (medicine.strength || "").toLowerCase().includes(query)
-            );
-        });
-    }
-
-    searchInput.addEventListener("input", renderMedicines);
-
-    // ---------- SUMMARY ----------
-
-    function renderSummary() {
-
-        const lowStock = medicines.filter(
-            medicine => medicine.stock > 0 && medicine.stock <= 5
-        ).length;
-
-        const outOfStock = medicines.filter(
-            medicine => medicine.stock === 0
-        ).length;
-
-        totalMedicines.textContent = medicines.length;
-        lowStockMedicines.textContent = lowStock;
-        outOfStockMedicines.textContent = outOfStock;
-    }
-
-    // ---------- RENDER MEDICINES ----------
-
-    function renderMedicines() {
-
-        medicineList.innerHTML = "";
-
-        const filteredMedicines = getFilteredMedicines();
-
-        if (medicines.length === 0) {
-
-            const empty = document.createElement("div");
-            empty.className = "empty-state";
-
-            const heading = document.createElement("h3");
-            heading.textContent = "No medicines added yet";
-
-            const description = document.createElement("p");
-            description.textContent =
-                "Add your medicine records to manage your cabinet.";
-
-            const button = createButton(
-                "Add Your First Medicine",
-                "primary-btn",
-                () => openModal()
-            );
-
-            empty.append(heading, description, button);
-            medicineList.appendChild(empty);
-
-        } else if (filteredMedicines.length === 0) {
-
-            const message = document.createElement("p");
-            message.className = "no-results";
-            message.textContent = "No medicines match your search.";
-
-            medicineList.appendChild(message);
-
-        } else {
-
-            filteredMedicines.forEach(medicine => {
-
-                medicineList.appendChild(
-                    createMedicineCard(medicine)
-                );
-            });
-        }
-
-        renderSummary();
-    }
-
-    // ---------- INITIAL LOAD ----------
+    // INITIAL RENDER
 
     renderMedicines();
 
 });
-

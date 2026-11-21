@@ -24,16 +24,26 @@
         </div>
 
         <nav class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="medicines.html">My Medicines</a>
-            <a href="reminders.html" class="active">Reminders</a>
-            <a href="medicine-scanner.html">Scan Medicine</a>
-            <a href="caregivers.html">Caregivers</a>
+            <a href="dashboard.html" data-i18n="dashboard">Dashboard</a>
+            <a href="medicines.html" data-i18n="medicines">My Medicines</a>
+            <a href="reminders.html" class="active" data-i18n="reminders">Reminders</a>
+            <a href="medicine-scanner.html" data-i18n="scanner">Scan Medicine</a>
         </nav>
 
         <div class="profile">
+
+            <div class="language-selector-wrapper">
+                <span class="language-icon">🌐</span>
+
+                <select id="languageSelect" class="language-selector"
+                    aria-label="Select language">
+                    <option value="en">English</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+            </div>
+
             <span class="profile-icon">P</span>
-            <span>Patient</span>
+            <span data-i18n="patient">Patient</span>
         </div>
 
     </header>
@@ -46,17 +56,20 @@
         <section class="reminders-heading">
 
             <div>
-                <p class="eyebrow">MEDICATION MANAGEMENT</p>
+                <p class="eyebrow" data-i18n="medicationManagement">
+                    MEDICATION MANAGEMENT
+                </p>
 
-                <h1>Medicine Reminders</h1>
+                <h1 data-i18n="medicineReminders">Medicine Reminders</h1>
 
-                <p>
+                <p data-i18n="reminderPageDescription">
                     Keep track of your medicine schedule and
                     record your daily medication updates.
                 </p>
             </div>
 
-            <button type="button" id="addReminderBtn" class="add-reminder-btn">
+            <button type="button" id="addReminderBtn"
+                class="add-reminder-btn" data-i18n="addReminder">
                 + Add Reminder
             </button>
 
@@ -68,21 +81,21 @@
         <section class="reminder-summary">
 
             <div class="summary-card">
-                <p>Today's Reminders</p>
+                <p data-i18n="todaysReminders">Today's Reminders</p>
                 <h2 id="totalReminders">0</h2>
-                <span>Scheduled reminders</span>
+                <span data-i18n="scheduledReminders">Scheduled reminders</span>
             </div>
 
             <div class="summary-card">
-                <p>Completed</p>
+                <p data-i18n="completed">Completed</p>
                 <h2 id="completedReminders">0</h2>
-                <span>Patient reported taken</span>
+                <span data-i18n="patientReportedTaken">Patient reported taken</span>
             </div>
 
             <div class="summary-card">
-                <p>Upcoming</p>
+                <p data-i18n="upcoming">Upcoming</p>
                 <h2 id="upcomingReminders">0</h2>
-                <span>Remaining reminders</span>
+                <span data-i18n="remainingReminders">Remaining reminders</span>
             </div>
 
         </section>
@@ -95,19 +108,23 @@
             <div class="section-heading">
 
                 <div>
-                    <h2>Today's Schedule</h2>
+                    <h2 data-i18n="todaysSchedule">Today's Schedule</h2>
                     <p id="reminderDate">Loading date...</p>
                 </div>
 
-                <span class="schedule-label">Daily Schedule</span>
+                <span class="schedule-label" data-i18n="dailySchedule">
+                    Daily Schedule
+                </span>
 
             </div>
 
             <div id="reminderList" class="reminder-list">
 
                 <div class="empty-state">
-                    <h3>No reminders added yet</h3>
-                    <p>Your medicine reminders will appear here.</p>
+                    <h3 data-i18n="noReminders">No reminders added yet</h3>
+                    <p data-i18n="remindersWillAppear">
+                        Your medicine reminders will appear here.
+                    </p>
                 </div>
 
             </div>
@@ -121,20 +138,22 @@
 
             <div class="section-heading">
                 <div>
-                    <h2>Reminder History</h2>
-                    <p>Review your previously recorded medicine updates.</p>
+                    <h2 data-i18n="reminderHistory">Reminder History</h2>
+                    <p data-i18n="historyDescription">
+                        Review your previously recorded medicine updates.
+                    </p>
                 </div>
             </div>
 
             <div id="reminderHistory" class="history-list">
 
-                <p class="empty-history">
+                <p class="empty-history" data-i18n="emptyHistory">
                     Your reminder history will appear here.
                 </p>
 
             </div>
 
-            <p class="history-note">
+            <p class="history-note" data-i18n="historyNote">
                 Taken status records the patient's response.
                 It does not independently verify that medicine was taken.
             </p>
@@ -151,15 +170,21 @@
                 <div class="modal-heading">
 
                     <div>
-                        <p class="eyebrow">PERSONAL MEDICATION SCHEDULE</p>
-                        <h2 id="modalTitle">Add Medicine Reminder</h2>
+                        <p class="eyebrow" data-i18n="personalMedicationSchedule">
+                            PERSONAL MEDICATION SCHEDULE
+                        </p>
+
+                        <h2 id="modalTitle" data-i18n="addMedicineReminder">
+                            Add Medicine Reminder
+                        </h2>
                     </div>
 
                     <button
                         type="button"
                         id="closeModalBtn"
                         class="close-modal-btn"
-                        aria-label="Close">
+                        aria-label="Close"
+                        data-i18n-aria-label="close">
 
                         &times;
 
@@ -172,7 +197,7 @@
 
                     <div class="form-group">
 
-                        <label for="reminderMedicine">
+                        <label for="reminderMedicine" data-i18n="medicineName">
                             Medicine Name
                         </label>
 
@@ -180,6 +205,7 @@
                             type="text"
                             id="reminderMedicine"
                             placeholder="Enter confirmed medicine name"
+                            data-i18n-placeholder="enterConfirmedMedicine"
                             required>
 
                     </div>
@@ -187,7 +213,7 @@
 
                     <div class="form-group">
 
-                        <label for="reminderTime">
+                        <label for="reminderTime" data-i18n="reminderTime">
                             Reminder Time
                         </label>
 
@@ -201,17 +227,31 @@
 
                     <div class="form-group">
 
-                        <label for="reminderFrequency">
+                        <label for="reminderFrequency" data-i18n="frequency">
                             Frequency
                         </label>
 
                         <select id="reminderFrequency" required>
 
-                            <option value="">Select frequency</option>
-                            <option value="Once daily">Once daily</option>
-                            <option value="Twice daily">Twice daily</option>
-                            <option value="Three times daily">Three times daily</option>
-                            <option value="Custom">Custom</option>
+                            <option value="" data-i18n="selectFrequency">
+                                Select frequency
+                            </option>
+
+                            <option value="Once daily" data-i18n="onceDaily">
+                                Once daily
+                            </option>
+
+                            <option value="Twice daily" data-i18n="twiceDaily">
+                                Twice daily
+                            </option>
+
+                            <option value="Three times daily" data-i18n="threeTimesDaily">
+                                Three times daily
+                            </option>
+
+                            <option value="Custom" data-i18n="custom">
+                                Custom
+                            </option>
 
                         </select>
 
@@ -220,19 +260,20 @@
 
                     <div class="form-group">
 
-                        <label for="reminderInstructions">
+                        <label for="reminderInstructions" data-i18n="instructionsOptional">
                             Instructions (Optional)
                         </label>
 
                         <textarea
                             id="reminderInstructions"
-                            placeholder="Enter instructions from the confirmed prescription">
+                            placeholder="Enter instructions from the confirmed prescription"
+                            data-i18n-placeholder="enterPrescriptionInstructions">
                         </textarea>
 
                     </div>
 
 
-                    <p class="form-safety-note">
+                    <p class="form-safety-note" data-i18n="reminderFormSafety">
                         Enter only the timing and instructions confirmed
                         by your doctor or prescription.
                     </p>
@@ -243,7 +284,8 @@
                         <button
                             type="button"
                             id="cancelReminderBtn"
-                            class="cancel-btn">
+                            class="cancel-btn"
+                            data-i18n="cancel">
 
                             Cancel
 
@@ -251,7 +293,8 @@
 
                         <button
                             type="submit"
-                            class="save-reminder-btn">
+                            class="save-reminder-btn"
+                            data-i18n="saveReminder">
 
                             Save Reminder
 
@@ -270,9 +313,9 @@
 
         <section class="reminder-safety">
 
-            <strong>Medicine Safety</strong>
+            <strong data-i18n="medicineSafety">Medicine Safety</strong>
 
-            <p>
+            <p data-i18n="reminderSafetyDescription">
                 Reminder schedules should follow your confirmed
                 prescription. If a dose is missed or you are unsure
                 what to do, consult your doctor or pharmacist.
@@ -283,7 +326,9 @@
     </main>
 
 
+    <script src="../js/language.js"></script>
     <script src="../js/reminders.js"></script>
 
 </body>
 </html>
+

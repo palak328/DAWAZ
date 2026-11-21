@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Caregiver Dashboard | DAWAZ</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/caregiver-dashboard.css">
+</head>
+
+<body>
+
+    <!-- Navigation Bar -->
+    <header class="navbar">
+
+        <div class="brand">
+            <div class="brand-logo">D</div>
+            <span>DAWAZ</span>
+        </div>
+
+        <nav class="nav-links">
+            <a href="caregiver-dashboard.html" class="active">Dashboard</a>
+            <a href="#medicationSchedule">Medicine Schedule</a>
+            <a href="#notifications">Notifications</a>
+            <a href="#progress">Patient Progress</a>
+        </nav>
+
+        <div class="profile">
+            <span class="profile-label">Caregiver</span>
+        </div>
+
+    </header>
+
+
+    <main class="caregiver-container">
+
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+
+            <div>
+                <p class="eyebrow">CAREGIVER PANEL</p>
+
+                <h1>Caregiver Dashboard</h1>
+
+                <p>
+                    Monitor medicine schedules and stay updated
+                    on the patient's medication progress.
+                </p>
+            </div>
+
+            <div class="date-display" id="currentDate"></div>
+
+        </section>
+
+
+        <!-- Patient Information -->
+        <section class="patient-card">
+
+            <div class="patient-avatar">P</div>
+
+            <div class="patient-information">
+                <p class="eyebrow">CONNECTED PATIENT</p>
+                <h2 id="patientName">Patient information unavailable</h2>
+                <p id="patientConnectionStatus">
+                    Waiting for patient account connection.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- Overview Cards -->
+        <section class="overview-grid">
+
+            <article class="overview-card">
+                <div class="overview-icon">💊</div>
+                <p>Total Scheduled Doses</p>
+                <h2 id="totalDoses">0</h2>
+            </article>
+
+            <article class="overview-card">
+                <div class="overview-icon">✓</div>
+                <p>Reported Taken</p>
+                <h2 id="takenDoses">0</h2>
+            </article>
+
+            <article class="overview-card">
+                <div class="overview-icon">⏳</div>
+                <p>Pending Doses</p>
+                <h2 id="pendingDoses">0</h2>
+            </article>
+
+            <article class="overview-card">
+                <div class="overview-icon">!</div>
+                <p>Skipped Doses</p>
+                <h2 id="skippedDoses">0</h2>
+            </article>
+
+        </section>
+
+
+        <!-- Medicine Schedule -->
+        <section class="caregiver-section" id="medicationSchedule">
+
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">DAILY MEDICATION</p>
+                    <h2>Medicine Schedule</h2>
+                </div>
+
+                <span class="section-date" id="scheduleDate"></span>
+            </div>
+
+            <div id="caregiverMedicineList" class="caregiver-medicine-list">
+
+                <div class="empty-state">
+                    <p>No medicine schedule available.</p>
+                    <span>
+                        The patient's confirmed medicine schedule
+                        will appear here.
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Patient Progress -->
+        <section class="caregiver-section" id="progress">
+
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">MEDICATION TRACKING</p>
+                    <h2>Patient Progress</h2>
+                </div>
+            </div>
+
+            <div class="progress-card">
+
+                <div class="progress-information">
+                    <span>Today's reported progress</span>
+                    <strong id="progressPercentage">0%</strong>
+                </div>
+
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+
+                <p id="progressMessage">
+                    No dose activity recorded yet.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Notifications -->
+        <section class="caregiver-section" id="notifications">
+
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">STAY UPDATED</p>
+                    <h2>Notifications</h2>
+                </div>
+            </div>
+
+            <div id="caregiverNotifications" class="notification-list">
+
+                <div class="empty-state">
+                    <p>No notifications yet.</p>
+                    <span>
+                        Medicine reminders and patient updates
+                        will appear here when connected.
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Safety Information -->
+        <section class="caregiver-safety-note">
+
+            <strong>Important information</strong>
+
+            <p>
+                Medication statuses reflect information reported
+                by the patient. They do not independently confirm
+                that a medicine was taken.
+            </p>
+
+            <p>
+                Caregivers should follow the patient's confirmed
+                prescription and contact a healthcare professional
+                if medication instructions are unclear.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/caregiver-dashboard.js"></script>
+
+</body>
+</html>

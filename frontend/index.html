@@ -25,7 +25,6 @@
 
             <p class="tagline">Dawa Ko Do Awaaz</p>
 
-
             <!-- Welcome Section -->
             <div class="welcome-section">
                 <h1>Welcome Back!</h1>
@@ -35,7 +34,6 @@
                     Stay connected with your health routine.
                 </p>
             </div>
-
 
             <!-- Login Form -->
             <form id="loginForm">
@@ -47,11 +45,12 @@
                     <input
                         type="text"
                         id="username"
+                        name="username"
                         placeholder="Enter your username"
+                        autocomplete="username"
                         required
                     >
                 </div>
-
 
                 <!-- Password -->
                 <div class="form-group">
@@ -60,34 +59,41 @@
                     <input
                         type="password"
                         id="password"
+                        name="password"
                         placeholder="Enter your password"
+                        autocomplete="current-password"
                         required
                     >
                 </div>
-
 
                 <!-- Role Selection -->
                 <div class="form-group">
                     <label for="role">Login As</label>
 
-                    <select id="role" required>
+                    <select id="role" name="role" required>
                         <option value="patient">Patient</option>
                         <option value="caregiver">Caregiver</option>
                     </select>
                 </div>
 
-
                 <!-- Login Button -->
-                <button type="submit" class="login-button">
+                <button
+                    type="submit"
+                    class="login-button"
+                    id="loginButton"
+                >
                     Login
                 </button>
 
-
                 <!-- Feedback Message -->
-                <p id="message" class="message"></p>
+                <p
+                    id="message"
+                    class="message"
+                    role="status"
+                    aria-live="polite"
+                ></p>
 
             </form>
-
 
             <!-- Forgot Password -->
             <div class="forgot-password">
@@ -96,11 +102,11 @@
                 </a>
             </div>
 
-
             <!-- Signup Section -->
             <div class="signup-section">
                 <p>
                     Don't have an account?
+
                     <a href="pages/signup.html" id="signupLink">
                         Sign Up
                     </a>
