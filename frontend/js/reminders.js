@@ -239,52 +239,54 @@ document.addEventListener("DOMContentLoaded", () => {
         .addEventListener("click", closeModal);
 
     form.addEventListener("submit", async event => {
-        event.preventDefault();
+    event.preventDefault();
 
-        const itemId = Number(medicineSelect.value);
+    const itemId = Number(medicineSelect.value);
 
-        if (!itemId) {
-            showMessage("Select an active prescription medicine.", true);
-            return;
-        }
+    if (!itemId) {
+        showMessage("Select an active prescription medicine.", true);
+        return;
+    }
 
-        if (!timeInput.value || !startInput.value || !endInput.value) {
-            showMessage("Complete all reminder fields.", true);
-            return;
-        }
+    if (!timeInput.value || !startInput.value || !endInput.value) {
+        showMessage("Complete all reminder fields.", true);
+        return;
+    }
 
-        if (endInput.value < startInput.value) {
+    if (endInput.value < startInput.value) {
+        showMessage("End date cannot be before start date.", true);
+        return;
+    }
 
-        const submitButton = form.querySelector(
-            'button[type="submit"]'
-        );
+    const submitButton = form.querySelector(
+        'button[type="submit"]'
+    );
 
-        submitButton.disabled = true;
+    submitButton.disabled = true;
 
-        try {
-            await DawazAPI.request("/medication-schedules", {
-                method: "POST",
-                body: JSON.stringify({
-                    prescription_item_id: itemId,
-                    scheduled_time: timeInput.value,
-                    start_date: startInput.value,
-                    end_date: endInput.value,
-                    timezone: "Asia/Kolkata"
-                })
-            });
+    try {
+        await DawazAPI.request("/medication-schedules", {
+            method: "POST",
+            body: JSON.stringify({
+                prescription_item_id: itemId,
+                scheduled_time: timeInput.value,
+                start_date: startInput.value,
+                end_date: endInput.value,
+                timezone: "Asia/Kolkata"
+            })
+        });
 
-            showMessage("Reminder schedule created.");
+        showMessage("Reminder schedule created.");
 
-            await loadReminders();
+        await loadReminders();
+        closeModal();
 
-            setTimeout(closeModal, 700);
-
-        } catch (error) {
-            showMessage(error.message, true);
-        } finally {
-            submitButton.disabled = false;
-        }
-    });
+    } catch (error) {
+        showMessage(error.message, true);
+    } finally {
+        submitButton.disabled = false;
+    }
+});
 
     async function initialize() {
         try {
