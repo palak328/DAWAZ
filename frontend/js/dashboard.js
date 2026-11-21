@@ -878,31 +878,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 };
             });
 
-            const response = await fetch(CHAT_API_URL, {
-
+            
+            const response = await DawazAPI.request("/questions", {
                 method: "POST",
-
-                headers: {
-
-                    "Content-Type": "application/json"
-
-                },
-
                 body: JSON.stringify({
-
-                    mode: "dashboard_question",
-
                     question: question,
-
-                    conversation: chatHistory,
-
-                    medicines: medicineContext,
-
-                    reminders: reminderContext
-
+                    language: sessionStorage.getItem("dawazLanguage") === "hi"
+                        ? "hi-IN"
+                        : "en-IN"
                 })
-
             });
+
 
             if (!response.ok) {
 
@@ -911,7 +897,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
 
-            const data = await response.json();
+            const data = response;
 
             if (!data.reply || typeof data.reply !== "string") {
 
