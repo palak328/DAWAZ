@@ -1,15 +1,10 @@
 
 import logging
-
 import httpx
 
 from fastapi import (
-    APIRouter,
-    Depends,
-    File,
-    HTTPException,
-    UploadFile,
-    status
+    APIRouter, Depends, File, HTTPException,
+    UploadFile, status
 )
 from sqlalchemy.orm import Session
 
@@ -18,10 +13,7 @@ from app.models.user import User
 from app.models.patient import Patient
 from app.models.prescription import Prescription
 from app.routers.users import get_current_user
-from app.services.prescription_extraction_service import (
-    extract_prescription
-)
-
+from app.services.prescription_extraction_service import extract_prescription
 
 logger = logging.getLogger(__name__)
 
@@ -42,10 +34,7 @@ async def upload_prescription_for_extraction(
     ).first()
 
     if not patient:
-        raise HTTPException(
-            status_code=404,
-            detail="Patient profile not found"
-        )
+        raise HTTPException(404, "Patient profile not found")
 
     try:
         file_bytes = await file.read()
@@ -56,16 +45,21 @@ async def upload_prescription_for_extraction(
             file_bytes=file_bytes
         )
 
-        extraction_data = extraction["data"]
+        extraction_data = extraction.get("data")
 
-        # Always save extraction as a draft.
+        if not isinstance(extraction_data, dict):
+            raise HTTPException(
+                502, "Invalid extraction response"
+            )
+
+        # Extraction is always saved as an unconfirmed draft.
         prescription = Prescription(
             patient_id=patient.id,
             status="draft",
             raw_ocr_text=extraction_data.get("raw_text"),
             extraction_status=extraction_data.get("status"),
             extraction_warnings=extraction.get("warnings", []),
-            extraction_payload=extraction_data
+            extraction_payload=extraction
         )
 
         db.add(prescription)
@@ -74,46 +68,45 @@ async def upload_prescription_for_extraction(
 
         return {
             "prescription_id": prescription.id,
-            "status": prescription.status,
+            "status": "draft",
+            "confirmed": False,
+            "reminders_activated": False,
             "extraction": extraction
         }
 
+    except HTTPException:
+        db.rollback()
+        raise
+
     except ValueError as exc:
         db.rollback()
-        raise HTTPException(
-            status_code=400,
-            detail=str(exc)
-        )
+        raise HTTPException(400, str(exc))
 
     except httpx.TimeoutException:
         db.rollback()
         raise HTTPException(
-            status_code=504,
-            detail="Prescription extraction service timed out"
+            504, "Prescription extraction service timed out"
         )
 
     except httpx.HTTPStatusError:
         db.rollback()
-        logger.exception("Member 2 prescription extraction returned an HTTP error")
+        logger.exception("Backend A extraction HTTP error")
         raise HTTPException(
-            status_code=502,
-            detail="Prescription extraction service returned an error"
+            502, "Prescription extraction service returned an error"
         )
 
     except httpx.RequestError:
         db.rollback()
-        logger.exception("Could not connect to Member 2 prescription extraction")
+        logger.exception("Backend A extraction unavailable")
         raise HTTPException(
-            status_code=503,
-            detail="Prescription extraction service is unavailable"
+            503, "Prescription extraction service is unavailable"
         )
 
     except Exception:
         db.rollback()
-        logger.exception("Failed to save prescription extraction draft")
+        logger.exception("Failed to save extraction draft")
         raise HTTPException(
-            status_code=500,
-            detail="Could not save prescription extraction draft"
+            500, "Could not save prescription extraction draft"
         )
 
     finally:

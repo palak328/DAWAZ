@@ -1,21 +1,20 @@
 
 import logging
-
 import httpx
 
+from datetime import datetime, timezone
 from fastapi import (
     APIRouter,
     Depends,
     File,
     HTTPException,
-    UploadFile,
-    status
+    UploadFile
 )
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from app.models.medicine_scan import MedicineScan
-from datetime import datetime, timezone
+
 from app.database import get_db
+from app.models.medicine_scan import MedicineScan
 from app.models.user import User
 from app.models.patient import Patient
 from app.models.prescription import Prescription
@@ -27,14 +26,12 @@ from app.services.medicine_integration_service import (
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(
-    tags=["Medicine Integration"]
-)
+router = APIRouter(tags=["Medicine Integration"])
 
 
 class ReconciliationRequest(BaseModel):
     prescription_id: int
-    scan_result: int
+    scan_id: int
 
 
 def get_patient(current_user: User, db: Session):
@@ -43,10 +40,7 @@ def get_patient(current_user: User, db: Session):
     ).first()
 
     if not patient:
-        raise HTTPException(
-            status_code=404,
-            detail="Patient profile not found"
-        )
+        raise HTTPException(404, "Patient profile not found")
 
     return patient
 
@@ -70,8 +64,8 @@ def handle_member2_error(exc):
     raise HTTPException(502, "Medicine integration failed")
 
 
-@router.post("/scans", status_code=status.HTTP_201_CREATED)
-async def scan_medicine_image(
+@router.post("/scans")
+async def upload_medicine_scan(
     image: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -79,9 +73,11 @@ async def scan_medicine_image(
     patient = get_patient(current_user, db)
 
     try:
+        image_bytes = await image.read()
+
         result = await scan_medicine(
-            image_bytes=await image.read(),
-            filename=image.filename or "medicine-image",
+            image_bytes=image_bytes,
+            filename=image.filename or "medicine.jpg",
             content_type=image.content_type or ""
         )
 
@@ -95,7 +91,7 @@ async def scan_medicine_image(
             image_quality=data.get("image_quality"),
             matched_medicine=data.get("matched_medicine"),
             candidates=data.get("candidates"),
-            warnings=result.get("warnings", []),
+            warnings=data.get("warnings"),
             response_payload=result
         )
 
@@ -115,11 +111,12 @@ async def scan_medicine_image(
 
     except Exception:
         db.rollback()
-        logger.exception("Failed to save medicine scan")
-        raise HTTPException(500, "Failed to save scan result")
+        logger.exception("Medicine scan upload failed")
+        raise HTTPException(500, "Failed to process medicine scan")
 
     finally:
         await image.close()
+
 
 @router.get("/scans/{scan_id}")
 def get_scan_result(
@@ -135,10 +132,7 @@ def get_scan_result(
     ).first()
 
     if not scan:
-        raise HTTPException(
-            status_code=404,
-            detail="Scan not found"
-        )
+        raise HTTPException(404, "Scan not found")
 
     return {
         "scan_id": scan.id,
@@ -153,6 +147,8 @@ def get_scan_result(
         "reconciliation_status": scan.reconciliation_status,
         "reconciliation": scan.reconciliation_payload
     }
+
+
 @router.post("/reconcile")
 async def reconcile_scanned_medicine(
     request: ReconciliationRequest,
@@ -167,30 +163,43 @@ async def reconcile_scanned_medicine(
     ).first()
 
     if not prescription:
-        raise HTTPException(
-            status_code=404,
-            detail="Prescription not found"
-        )
+        raise HTTPException(404, "Prescription not found")
 
     if prescription.status not in ("confirmed", "active"):
         raise HTTPException(
-            status_code=409,
-            detail="Prescription must be confirmed before reconciliation"
+            409,
+            "Prescription must be confirmed before reconciliation"
         )
 
     if not prescription.items:
+        raise HTTPException(400, "Prescription contains no medicines")
+
+    scan = db.query(MedicineScan).filter(
+        MedicineScan.id == request.scan_id,
+        MedicineScan.patient_id == patient.id
+    ).first()
+
+    if not scan:
+        raise HTTPException(404, "Scan not found")
+
+    if scan.identity_status != "CONFIRMED_FOR_DEMO":
         raise HTTPException(
-            status_code=400,
-            detail="Prescription contains no medicines"
+            409,
+            "Scan identity is not confirmed. Reconciliation is not allowed."
         )
+
+    scan_data = (scan.response_payload or {}).get("data")
+
+    if not isinstance(scan_data, dict):
+        raise HTTPException(502, "Stored scan result has an invalid format")
 
     confirmed_plan = []
 
     for item in prescription.items:
         if not item.identity_confirmed:
             raise HTTPException(
-                status_code=409,
-                detail="Prescription contains an unverified medicine identity"
+                409,
+                "Prescription contains an unverified medicine identity"
             )
 
         confirmed_plan.append({
@@ -200,11 +209,36 @@ async def reconcile_scanned_medicine(
         })
 
     try:
-        return await reconcile_medicine(
-            scan_result=request.scan_result,
+        result = await reconcile_medicine(
+            scan_result=scan_data,
             confirmed_plan=confirmed_plan,
             plan_is_confirmed=True
         )
 
+        reconciliation_data = result.get("data", {})
+
+        scan.reconciliation_payload = result
+        scan.reconciliation_status = (
+            reconciliation_data.get("status", "completed")
+            if isinstance(reconciliation_data, dict)
+            else "completed"
+        )
+        scan.reconciled_at = datetime.now(timezone.utc)
+
+        db.commit()
+        db.refresh(scan)
+
+        return {
+            "scan_id": scan.id,
+            "prescription_id": prescription.id,
+            "reconciliation": result
+        }
+
     except (ValueError, httpx.RequestError, httpx.HTTPStatusError) as exc:
+        db.rollback()
         handle_member2_error(exc)
+
+    except Exception:
+        db.rollback()
+        logger.exception("Failed to reconcile medicine scan")
+        raise HTTPException(500, "Failed to save reconciliation result")

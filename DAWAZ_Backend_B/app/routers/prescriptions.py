@@ -21,40 +21,29 @@ router = APIRouter(
 )
 
 
-def get_current_patient(
-    current_user: User,
-    db: Session
-):
+def get_current_patient(current_user: User, db: Session):
     patient = db.query(Patient).filter(
         Patient.user_id == current_user.id
     ).first()
 
     if not patient:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Patient profile not found"
-        )
+        raise HTTPException(404, "Patient profile not found")
 
     return patient
 
 
-def get_owned_prescription(
-    prescription_id: int,
-    patient_id: int,
-    db: Session
-):
+def get_owned_prescription(prescription_id, patient_id, db):
     prescription = db.query(Prescription).filter(
         Prescription.id == prescription_id,
         Prescription.patient_id == patient_id
     ).first()
 
     if not prescription:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Prescription not found"
-        )
+        raise HTTPException(404, "Prescription not found")
 
     return prescription
+
+
 def get_unresolved_fields(item):
     required_fields = {
         "medicine_name": item.medicine_name,
@@ -67,28 +56,12 @@ def get_unresolved_fields(item):
     }
 
     return [
-        field
-        for field, value in required_fields.items()
-        if value is None or (isinstance(value, str) and not value.strip())
+        field for field, value in required_fields.items()
+        if value is None or (
+            isinstance(value, str) and not value.strip()
+        )
     ]
 
-
-def identity_verified_by_extraction(prescription, item_data):
-    payload = prescription.extraction_payload or {}
-    medicines = payload.get("medicines", [])
-
-    for medicine in medicines:
-        extracted_name = medicine.get("medicine_name")
-
-        if (
-            medicine.get("identity_confirmed") is True
-            and extracted_name
-            and extracted_name.strip().casefold()
-                == item_data.medicine_name.strip().casefold()
-        ):
-            return True
-
-    return False
 
 @router.post(
     "",
@@ -110,8 +83,15 @@ def create_prescription(
     )
 
     for item_data in prescription_data.items:
-        new_item = PrescriptionItem(**item_data.model_dump())
-        new_prescription.items.append(new_item)
+        values = item_data.model_dump()
+
+        # New entries require explicit review and identity verification.
+        values["reviewed_by_patient"] = False
+        values["reviewed_at"] = None
+        values["identity_confirmed"] = False
+        values["needs_review"] = True
+
+        new_prescription.items.append(PrescriptionItem(**values))
 
     db.add(new_prescription)
     db.commit()
@@ -130,12 +110,7 @@ def get_prescription(
     current_user: User = Depends(get_current_user)
 ):
     patient = get_current_patient(current_user, db)
-
-    return get_owned_prescription(
-        prescription_id,
-        patient.id,
-        db
-    )
+    return get_owned_prescription(prescription_id, patient.id, db)
 
 
 @router.patch(
@@ -149,16 +124,12 @@ def update_prescription_draft(
     current_user: User = Depends(get_current_user)
 ):
     patient = get_current_patient(current_user, db)
-
     prescription = get_owned_prescription(
         prescription_id, patient.id, db
     )
 
     if prescription.status != "draft":
-        raise HTTPException(
-            status_code=409,
-            detail="Only draft prescriptions can be edited"
-        )
+        raise HTTPException(409, "Only draft prescriptions can be edited")
 
     prescription.prescription_date = prescription_data.prescription_date
     prescription.notes = prescription_data.notes
@@ -166,27 +137,23 @@ def update_prescription_draft(
     prescription.items.clear()
 
     for item_data in prescription_data.items:
-        item_values = item_data.model_dump()
+        values = item_data.model_dump()
 
-        unresolved = get_unresolved_fields(item_data)
+        # Editing does not count as patient review.
+        values["reviewed_by_patient"] = False
+        values["reviewed_at"] = None
+        values["identity_confirmed"] = False
+        values["needs_review"] = True
 
-        item = PrescriptionItem(
-            **item_values,
-            unresolved_fields=unresolved,
-            needs_review=bool(unresolved),
-            reviewed_by_patient=True,
-            reviewed_at=datetime.now(timezone.utc),
-            identity_confirmed=identity_verified_by_extraction(
-                prescription, item_data
-            )
-        )
+        values["unresolved_fields"] = get_unresolved_fields(item_data)
 
-        prescription.items.append(item)
+        prescription.items.append(PrescriptionItem(**values))
 
     db.commit()
     db.refresh(prescription)
 
     return prescription
+
 
 @router.post(
     "/{prescription_id}/confirm",
@@ -198,46 +165,45 @@ def confirm_prescription(
     current_user: User = Depends(get_current_user)
 ):
     patient = get_current_patient(current_user, db)
-
     prescription = get_owned_prescription(
         prescription_id, patient.id, db
     )
 
     if prescription.status != "draft":
-        raise HTTPException(
-            status_code=409,
-            detail="Only draft prescriptions can be confirmed"
-        )
+        raise HTTPException(409, "Only draft prescriptions can be confirmed")
 
     if not prescription.items:
-        raise HTTPException(
-            status_code=400,
-            detail="Add at least one medicine before confirmation"
-        )
+        raise HTTPException(400, "Add at least one medicine before confirmation")
 
     for item in prescription.items:
-        if not item.reviewed_by_patient:
+        if not item.reviewed_by_patient or not item.reviewed_at:
             raise HTTPException(
-                status_code=400,
-                detail=f"Medicine '{item.medicine_name}' has not been reviewed"
+                409, "Every medicine requires explicit patient review"
             )
 
         if item.needs_review or item.unresolved_fields:
             raise HTTPException(
-                status_code=400,
-                detail=f"Medicine '{item.medicine_name}' has unresolved information"
+                409, "Resolve all unclear prescription fields before confirmation"
             )
 
         if not item.identity_confirmed:
             raise HTTPException(
-                status_code=400,
-                detail=f"Medicine identity for '{item.medicine_name}' is not verified"
+                409, "Medicine identity requires independent verification"
             )
 
-        if not item.dose_quantity or not item.dose_unit:
+        if (
+            item.dose_quantity is None
+            or item.dose_quantity <= 0
+            or not item.dose_unit
+            or not item.strength
+            or not item.dosage_form
+            or not item.route
+            or not item.frequency
+            or not item.duration_days
+            or item.duration_days <= 0
+        ):
             raise HTTPException(
-                status_code=400,
-                detail=f"Dose quantity and unit are missing for '{item.medicine_name}'"
+                409, "Prescription contains incomplete or invalid instructions"
             )
 
     prescription.status = "confirmed"
@@ -247,6 +213,7 @@ def confirm_prescription(
     db.refresh(prescription)
 
     return prescription
+
 
 @router.post(
     "/{prescription_id}/activate",
@@ -258,16 +225,13 @@ def activate_prescription(
     current_user: User = Depends(get_current_user)
 ):
     patient = get_current_patient(current_user, db)
-
     prescription = get_owned_prescription(
-        prescription_id,
-        patient.id,
-        db
+        prescription_id, patient.id, db
     )
 
     if prescription.status != "confirmed":
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=409,
             detail="Prescription must be confirmed before activation"
         )
 
