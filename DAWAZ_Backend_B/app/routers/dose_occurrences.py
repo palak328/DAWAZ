@@ -1,4 +1,10 @@
+from app.models.medication_schedule import MedicationSchedule
+from app.models.prescription import PrescriptionItem
 
+from app.services.stock_service import (
+    deduct_stock_for_dose,
+    reverse_stock_deduction
+)
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -10,7 +16,7 @@ from app.models.medication_schedule import (
     DoseOccurrence,
     DoseOccurrenceCorrection
 )
-
+from app.models.prescription import Prescription, PrescriptionItem
 from app.schemas.medication_schedule import (
     DoseOccurrenceResponse,
     DoseOccurrenceReportRequest,
@@ -131,17 +137,67 @@ def report_dose(
             detail="Dose occurrence has already been reported"
         )
 
-    occurrence.status = report.status
-    occurrence.notes = report.notes
-    occurrence.reported_at = datetime.now(timezone.utc).replace(
-        tzinfo=None
-    )
+    try:
+        if report.status == "taken":
 
-    db.commit()
-    db.refresh(occurrence)
+            schedule = db.query(MedicationSchedule).filter(
+                MedicationSchedule.id == occurrence.schedule_id,
+                MedicationSchedule.patient_id == patient.id
+            ).first()
 
-    return occurrence
+            if not schedule:
+                raise ValueError("Medication schedule not found")
 
+            prescription_item = db.query(PrescriptionItem).join(
+                Prescription,
+                PrescriptionItem.prescription_id == Prescription.id
+            ).filter(
+                PrescriptionItem.id == schedule.prescription_item_id,
+                Prescription.patient_id == patient.id,
+                Prescription.status == "active"
+            ).first()
+
+            if not prescription_item:
+                raise ValueError("Active prescription item not found")
+
+            if (
+                prescription_item.dose_quantity is None
+                or not prescription_item.dose_unit
+            ):
+                raise ValueError(
+                    "Reviewed dose quantity and unit are required"
+                )
+
+            deduct_stock_for_dose(
+                db=db,
+                patient_id=patient.id,
+                prescription_item_id=prescription_item.id,
+                occurrence_id=occurrence.id,
+                quantity_to_deduct=prescription_item.dose_quantity,
+                dose_unit=prescription_item.dose_unit
+            )
+
+        occurrence.status = report.status
+        occurrence.notes = report.notes
+        occurrence.reported_at = datetime.now(
+            timezone.utc
+        ).replace(tzinfo=None)
+
+        db.commit()
+        db.refresh(occurrence)
+
+        return occurrence
+
+    except ValueError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail=str(error)
+        )
+
+    except Exception:
+        db.rollback()
+        raise
 @router.post(
     "/{occurrence_id}/correct",
     response_model=DoseOccurrenceResponse
@@ -185,23 +241,83 @@ def correct_dose_report(
             detail="New status is the same as the existing status"
         )
 
-    correction_record = DoseOccurrenceCorrection(
-        occurrence_id=occurrence.id,
-        previous_status=occurrence.status,
-        corrected_status=correction.status,
-        previous_notes=occurrence.notes,
-        corrected_notes=correction.notes
-    )
+    try:
+        # Taken -> skipped: restore previously deducted stock.
+        if occurrence.status == "taken" and correction.status == "skipped":
 
-    db.add(correction_record)
+            reverse_stock_deduction(
+                db=db,
+                occurrence_id=occurrence.id
+            )
 
-    occurrence.status = correction.status
-    occurrence.notes = correction.notes
+        # Skipped -> taken: deduct stock again.
+        elif occurrence.status == "skipped" and correction.status == "taken":
 
-    db.commit()
-    db.refresh(occurrence)
+            schedule = db.query(MedicationSchedule).filter(
+                MedicationSchedule.id == occurrence.schedule_id,
+                MedicationSchedule.patient_id == patient.id
+            ).first()
 
-    return occurrence
+            if not schedule:
+                raise ValueError("Medication schedule not found")
+
+            prescription_item = db.query(PrescriptionItem).join(
+                Prescription,
+                PrescriptionItem.prescription_id == Prescription.id
+            ).filter(
+                PrescriptionItem.id == schedule.prescription_item_id,
+                Prescription.patient_id == patient.id,
+                Prescription.status == "active"
+            ).first()
+
+            if not prescription_item:
+                raise ValueError("Active prescription item not found")
+
+            if (
+                prescription_item.dose_quantity is None
+                or not prescription_item.dose_unit
+            ):
+                raise ValueError(
+                    "Reviewed dose quantity and unit are required"
+                )
+
+            deduct_stock_for_dose(
+                db=db,
+                patient_id=patient.id,
+                prescription_item_id=prescription_item.id,
+                occurrence_id=occurrence.id,
+                quantity_to_deduct=prescription_item.dose_quantity,
+                dose_unit=prescription_item.dose_unit
+            )
+
+        correction_record = DoseOccurrenceCorrection(
+            occurrence_id=occurrence.id,
+            previous_status=occurrence.status,
+            corrected_status=correction.status,
+            previous_notes=occurrence.notes,
+            corrected_notes=correction.notes
+        )
+
+        db.add(correction_record)
+
+        occurrence.status = correction.status
+        occurrence.notes = correction.notes
+
+        db.commit()
+        db.refresh(occurrence)
+
+        return occurrence
+
+    except ValueError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail=str(error)
+        )
+
+    except Exception:
+        db.rollback()
+        raise
 
 @router.get(
     "/{occurrence_id}/history",

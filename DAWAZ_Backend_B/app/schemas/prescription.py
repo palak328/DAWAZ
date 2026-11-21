@@ -1,5 +1,5 @@
 from datetime import date, datetime
-
+from decimal import Decimal
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -18,7 +18,8 @@ class PrescriptionItemCreate(BaseModel):
 
     food_instruction: str | None = Field(default=None, max_length=100)
     additional_instructions: str | None = None
-
+    dose_quantity: Decimal | None = Field(default=None, gt=0)
+    dose_unit: str | None = Field(default=None, max_length=30)
 
 class PrescriptionCreate(BaseModel):
     prescription_date: date | None = None
