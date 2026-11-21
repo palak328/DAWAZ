@@ -3,7 +3,7 @@ from datetime import datetime, time, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from app.services.dose_occurrences import generate_dose_occurrences
 from app.database import get_db
 from app.models.patient import Patient
 from app.models.prescription import Prescription, PrescriptionItem
@@ -109,6 +109,15 @@ def create_medication_schedule(
     db.add(new_schedule)
     db.commit()
     db.refresh(new_schedule)
+
+    try:
+        generate_dose_occurrences(db, new_schedule)
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Schedule created but dose generation failed"
+        )
 
     return new_schedule
 
