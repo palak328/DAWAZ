@@ -118,7 +118,7 @@
                         <span class="overview-label">TODAY'S MEDICINES</span>
                     </div>
 
-                    <h2>04</h2>
+                    <h2 id="todayMedicineCount">0</h2>
 
                     <p>Scheduled doses</p>
 
@@ -132,7 +132,7 @@
                         <span class="overview-label">MEDICINE STOCK</span>
                     </div>
 
-                    <h2>12</h2>
+                    <h2 id="medicineStockCount">0</h2>
 
                     <p>Units remaining</p>
 
@@ -202,37 +202,8 @@
                 </div>
 
 
-                <!-- SCHEDULE PLACEHOLDER -->
-                <!-- dashboard.js dynamically renders medicine reminders here -->
-
-                <div class="medicine-item" data-dose-id="medicine-1">
-
-                    <div class="medicine-details">
-                        <h3>Medicine 1</h3>
-                        <p>09:00 AM</p>
-                    </div>
-
-                    <div class="medicine-checkpoint">
-
-                        <span class="status upcoming" id="status-medicine-1">
-                            Upcoming
-                        </span>
-
-                        <label class="taken-checkbox">
-
-                            <input
-                                type="checkbox"
-                                class="dose-checkbox"
-                                data-dose-id="medicine-1"
-                                data-reminder-time="09:00"
-                                disabled>
-
-                            <span>Mark as taken</span>
-
-                        </label>
-
-                    </div>
-
+                <div id="backendDoseList">
+                    <p>Loading today's medicine schedule...</p>
                 </div>
 
 
@@ -384,7 +355,7 @@
 
     </main>
 
-
+    <script src="../api/service.js"></script>
     <script src="../js/dashboard.js"></script>
     <script src="../js/language.js"></script>
     <script src="../js/dashboard.js"></script>
