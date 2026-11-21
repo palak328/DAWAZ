@@ -1,37 +1,172 @@
+
 document.addEventListener("DOMContentLoaded", () => {
+
+    // ==========================================
+    // ELEMENTS
+    // ==========================================
+
     const fileInput = document.getElementById("medicineImage");
     const scanButton = document.getElementById("scanMedicineBtn");
     const resultArea = document.getElementById("resultContent");
     const resultCard = document.getElementById("resultCard");
+
     const startCameraBtn = document.getElementById("startCameraBtn");
     const captureBtn = document.getElementById("captureBtn");
     const cameraPreview = document.getElementById("cameraPreview");
     const captureCanvas = document.getElementById("captureCanvas");
+    const cameraPlaceholder = document.getElementById("cameraPlaceholder");
+
     const fileName = document.getElementById("fileName");
+    const imagePreview = document.getElementById("imagePreview");
+    const imagePreviewContainer =
+        document.getElementById("imagePreviewContainer");
+    const removeImageBtn = document.getElementById("removeImageBtn");
+
+    const scanMessage = document.getElementById("scanMessage");
+
+    // Reconciliation
+    const reconciliationCard =
+        document.getElementById("reconciliationCard");
+    const prescriptionSelect =
+        document.getElementById("prescriptionSelect");
+    const reconcileBtn =
+        document.getElementById("reconcileBtn");
+    const reconciliationMessage =
+        document.getElementById("reconciliationMessage");
+    const reconciliationResult =
+        document.getElementById("reconciliationResult");
+
+    // Chat
+    const medicineChatCard =
+        document.getElementById("medicineChatCard");
+    const chatForm = document.getElementById("medicineChatForm");
+    const chatInput = document.getElementById("medicineChatInput");
+    const chatMessages = document.getElementById("chatMessages");
+    const chatMicBtn = document.getElementById("chatMicBtn");
+    const chatVoiceStatus =
+        document.getElementById("chatVoiceStatus");
+    const chatStatus = document.getElementById("chatStatus");
+    const sendChatBtn = document.getElementById("sendChatBtn");
+
+    const retakeScanBtn =
+        document.getElementById("retakeScanBtn");
 
     if (!fileInput || !scanButton) return;
 
+    // ==========================================
+    // STATE
+    // ==========================================
+
     let cameraStream = null;
     let selectedFile = null;
+    let previewUrl = null;
+    let recognition = null;
+
+    // ==========================================
+    // COMMON HELPERS
+    // ==========================================
+
+    function showMessage(element, message) {
+        if (element) element.textContent = message;
+    }
+
+    function stopCamera() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+
+        if (cameraPreview) {
+            cameraPreview.srcObject = null;
+            cameraPreview.hidden = true;
+        }
+
+        if (captureBtn) captureBtn.disabled = true;
+
+        if (cameraPlaceholder) {
+            cameraPlaceholder.hidden = false;
+        }
+    }
+
+    function clearImagePreview() {
+        if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            previewUrl = null;
+        }
+
+        if (imagePreview) imagePreview.removeAttribute("src");
+
+        if (imagePreviewContainer) {
+            imagePreviewContainer.hidden = true;
+        }
+    }
+
+    function setSelectedFile(file) {
+        selectedFile = file || null;
+
+        if (fileName) {
+            fileName.textContent = selectedFile
+                ? selectedFile.name
+                : "";
+        }
+
+        clearImagePreview();
+
+        if (selectedFile && imagePreview && imagePreviewContainer) {
+            previewUrl = URL.createObjectURL(selectedFile);
+            imagePreview.src = previewUrl;
+            imagePreviewContainer.hidden = false;
+        }
+
+        scanButton.disabled = !selectedFile;
+    }
 
     function addDetail(parent, label, value) {
-        if (value === undefined || value === null || value === "") return;
+        if (
+            value === undefined ||
+            value === null ||
+            value === ""
+        ) return;
 
         const paragraph = document.createElement("p");
         const strong = document.createElement("strong");
 
         strong.textContent = `${label}: `;
-        paragraph.append(strong, document.createTextNode(String(value)));
+        paragraph.append(
+            strong,
+            document.createTextNode(String(value))
+        );
+
         parent.appendChild(paragraph);
     }
+
+    function getScanData(result) {
+        return result?.scan_result?.data ||
+            result?.data ||
+            result?.scan_result ||
+            {};
+    }
+
+    function getScanId(result) {
+        return result?.scan_id ??
+            result?.id ??
+            result?.scan?.id ??
+            null;
+    }
+
+    // ==========================================
+    // RENDER SCAN RESULT
+    // ==========================================
 
     function renderScanResult(result) {
         if (!resultArea) return;
 
         resultArea.replaceChildren();
 
-        const scan = result.scan_result?.data || {};
+        const scan = getScanData(result);
+
         const matched = scan.matched_medicine;
+
         const candidates = Array.isArray(scan.candidates)
             ? scan.candidates
             : [];
@@ -40,21 +175,34 @@ document.addEventListener("DOMContentLoaded", () => {
         heading.textContent = "Scan Results";
         resultArea.appendChild(heading);
 
-        addDetail(resultArea, "Identity Status", scan.identity_status || "UNKNOWN");
+        addDetail(
+            resultArea,
+            "Identity Status",
+            scan.identity_status || "UNKNOWN"
+        );
 
         if (matched) {
             addDetail(
                 resultArea,
                 "Matched Medicine",
-                matched.medicine_name || matched.name || matched.display_name
+                matched.medicine_name ||
+                matched.name ||
+                matched.display_name
             );
 
             addDetail(resultArea, "Strength", matched.strength);
-            addDetail(resultArea, "Form", matched.dosage_form || matched.form);
+
+            addDetail(
+                resultArea,
+                "Form",
+                matched.dosage_form || matched.form
+            );
         }
 
         if (candidates.length) {
-            const candidateHeading = document.createElement("h4");
+            const candidateHeading =
+                document.createElement("h4");
+
             candidateHeading.textContent = "Possible Candidates";
             resultArea.appendChild(candidateHeading);
 
@@ -73,12 +221,12 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
 
-        if (scan.message) {
-            addDetail(resultArea, "Message", scan.message);
-        }
+        addDetail(resultArea, "Message", scan.message);
 
         const warnings = [
-            ...(Array.isArray(result.warnings) ? result.warnings : []),
+            ...(Array.isArray(result.warnings)
+                ? result.warnings
+                : []),
             ...(Array.isArray(result.scan_result?.warnings)
                 ? result.scan_result.warnings
                 : [])
@@ -88,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
             addDetail(resultArea, "Warning", warning);
         });
 
-        if (!matched && candidates.length === 0) {
+        if (!matched && !candidates.length) {
             addDetail(
                 resultArea,
                 "Next Step",
@@ -97,42 +245,100 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (resultCard) resultCard.hidden = false;
+
+        if (reconciliationCard) {
+            reconciliationCard.hidden = false;
+        }
+
+        if (medicineChatCard) {
+            medicineChatCard.hidden = false;
+        }
     }
 
-    fileInput.addEventListener("change", () => {
-        selectedFile = fileInput.files[0] || null;
+    // ==========================================
+    // IMAGE UPLOAD
+    // ==========================================
 
-        if (fileName) {
-            fileName.textContent = selectedFile
-                ? selectedFile.name
-                : "";
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+
+        if (!file) {
+            setSelectedFile(null);
+            return;
         }
+
+        if (!file.type.startsWith("image/")) {
+            showMessage(scanMessage, "Please select a valid image.");
+            fileInput.value = "";
+            setSelectedFile(null);
+            return;
+        }
+
+        stopCamera();
+        setSelectedFile(file);
+        showMessage(scanMessage, "");
     });
+
+    // ==========================================
+    // REMOVE IMAGE
+    // ==========================================
+
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener("click", () => {
+            fileInput.value = "";
+            setSelectedFile(null);
+            showMessage(scanMessage, "Image removed.");
+        });
+    }
+
+    // ==========================================
+    // CAMERA
+    // ==========================================
 
     if (startCameraBtn && cameraPreview) {
         startCameraBtn.addEventListener("click", async () => {
             try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "environment" }
-                });
+                stopCamera();
+
+                cameraStream =
+                    await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: "environment" }
+                    });
 
                 cameraPreview.srcObject = cameraStream;
+                cameraPreview.hidden = false;
+
+                if (cameraPlaceholder) {
+                    cameraPlaceholder.hidden = true;
+                }
+
                 await cameraPreview.play();
 
                 startCameraBtn.textContent = "Camera Started";
 
-                if (captureBtn) captureBtn.disabled = false;
+                if (captureBtn) {
+                    captureBtn.disabled = false;
+                }
 
             } catch (error) {
-                alert("Camera unavailable. Please upload an image instead.");
+                stopCamera();
+
+                showMessage(
+                    scanMessage,
+                    "Camera unavailable. Please upload an image instead."
+                );
             }
         });
     }
 
+    // ==========================================
+    // CAPTURE IMAGE
+    // ==========================================
+
     if (captureBtn && cameraPreview && captureCanvas) {
         captureBtn.addEventListener("click", () => {
             if (!cameraPreview.videoWidth) {
-                alert("Camera is not ready yet.");
+                showMessage(scanMessage, "Camera is not ready.");
                 return;
             }
 
@@ -149,50 +355,63 @@ document.addEventListener("DOMContentLoaded", () => {
                 captureCanvas.height
             );
 
+            captureBtn.disabled = true;
+
             captureCanvas.toBlob(blob => {
                 if (!blob) {
-                    alert("Could not capture image.");
+                    showMessage(
+                        scanMessage,
+                        "Could not capture image."
+                    );
+
+                    captureBtn.disabled = false;
                     return;
                 }
 
-                selectedFile = new File(
+                const file = new File(
                     [blob],
                     "medicine-capture.jpg",
                     { type: "image/jpeg" }
                 );
 
-                if (fileName) {
-                    fileName.textContent = selectedFile.name;
-                }
+                setSelectedFile(file);
+                stopCamera();
+
+                showMessage(scanMessage, "Image captured successfully.");
+
             }, "image/jpeg");
-
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
-
-            cameraPreview.srcObject = null;
         });
     }
+
+    // ==========================================
+    // SCAN MEDICINE
+    // ==========================================
 
     scanButton.addEventListener("click", async event => {
         event.preventDefault();
 
-        const file = selectedFile || fileInput.files[0];
-
-        if (!file) {
-            alert("Capture or select a medicine image first.");
+        if (!selectedFile) {
+            showMessage(
+                scanMessage,
+                "Capture or select a medicine image first."
+            );
             return;
         }
 
         scanButton.disabled = true;
         scanButton.textContent = "Scanning...";
 
-        if (resultArea) resultArea.textContent = "Processing image...";
+        showMessage(scanMessage, "Processing medicine image...");
+
+        if (resultArea) {
+            resultArea.textContent = "Processing image...";
+        }
 
         try {
             const body = new FormData();
-            body.append("image", file);
+
+            // Backend B expects the field name "image".
+            body.append("image", selectedFile);
 
             const result = await DawazAPI.request("/scans", {
                 method: "POST",
@@ -206,45 +425,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
             renderScanResult(result);
 
+            showMessage(
+                scanMessage,
+                "Scan completed. Review the identification result."
+            );
+
+            if (reconciliationCard) {
+                reconciliationCard.hidden = false;
+            }
+
         } catch (error) {
             if (resultArea) {
                 resultArea.textContent = error.message;
-            } else {
-                alert(error.message);
             }
+
+            showMessage(scanMessage, error.message);
+
         } finally {
-            scanButton.disabled = false;
-            scanButton.textContent = "Scan Medicine";
+            scanButton.disabled = !selectedFile;
+            scanButton.textContent = "Identify Medicine";
         }
     });
-});
-    // PRESCRIPTION RECONCILIATION
 
-    const reconciliationCard =
-        document.getElementById("reconciliationCard");
-
-    const prescriptionSelect =
-        document.getElementById("prescriptionSelect");
-
-    const reconcileBtn =
-        document.getElementById("reconcileBtn");
-
-    const reconciliationMessage =
-        document.getElementById("reconciliationMessage");
-
-    const reconciliationResult =
-        document.getElementById("reconciliationResult");
+    // ==========================================
+    // LOAD CONFIRMED PRESCRIPTIONS
+    // ==========================================
 
     async function loadConfirmedPrescriptions() {
         if (!prescriptionSelect) return;
 
         try {
-            const prescriptions =
+            const response =
                 await DawazAPI.request("/prescriptions");
 
-            const eligible = prescriptions.filter(p =>
+            const prescriptions = Array.isArray(response)
+                ? response
+                : response.prescriptions || response.items || [];
+
+            const eligible = prescriptions.filter(prescription =>
                 ["confirmed", "active"].includes(
-                    String(p.status).toLowerCase()
+                    String(prescription.status).toLowerCase()
                 )
             );
 
@@ -252,6 +472,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const placeholder = document.createElement("option");
             placeholder.value = "";
+
             placeholder.textContent = eligible.length
                 ? "Choose a prescription"
                 : "No confirmed prescriptions available";
@@ -260,7 +481,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             eligible.forEach(prescription => {
                 const option = document.createElement("option");
+
                 option.value = prescription.id;
+
                 option.textContent =
                     `Prescription #${prescription.id} (${prescription.status})`;
 
@@ -275,11 +498,17 @@ document.addEventListener("DOMContentLoaded", () => {
             option.textContent = "Could not load prescriptions";
 
             prescriptionSelect.appendChild(option);
-            reconciliationMessage.textContent = error.message;
+
+            showMessage(reconciliationMessage, error.message);
         }
     }
 
+    // ==========================================
+    // RECONCILIATION
+    // ==========================================
+
     if (prescriptionSelect && reconcileBtn) {
+
         loadConfirmedPrescriptions();
 
         prescriptionSelect.addEventListener("change", () => {
@@ -287,53 +516,292 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         reconcileBtn.addEventListener("click", async () => {
+
             const savedScan = JSON.parse(
                 sessionStorage.getItem("dawazLatestScan") || "null"
             );
 
-            const scanId = savedScan?.scan_id ?? savedScan?.id;
-
-            if (!scanId) {
-                reconciliationMessage.textContent =
-                    "Scan ID unavailable. Please scan again.";
+            if (!savedScan) {
+                showMessage(
+                    reconciliationMessage,
+                    "Please scan a medicine first."
+                );
                 return;
             }
 
-            const scanData = savedScan.scan_result?.data || {};
+            const scanId = getScanId(savedScan);
+            const scanData = getScanData(savedScan);
 
-            if (scanData.identity_status !== "CONFIRMED_FOR_DEMO") {
-                reconciliationMessage.textContent =
-                    "Medicine identity is not confirmed. Reconciliation is unavailable.";
+            if (!scanId) {
+                showMessage(
+                    reconciliationMessage,
+                    "Scan ID unavailable. Please scan again."
+                );
+                return;
+            }
+
+            if (
+                scanData.identity_status !== "CONFIRMED_FOR_DEMO"
+            ) {
+                showMessage(
+                    reconciliationMessage,
+                    "Medicine identity is not confirmed. Comparison is unavailable."
+                );
+                return;
+            }
+
+            if (!prescriptionSelect.value) {
+                showMessage(
+                    reconciliationMessage,
+                    "Select a confirmed prescription first."
+                );
                 return;
             }
 
             reconcileBtn.disabled = true;
             reconcileBtn.textContent = "Comparing...";
-            reconciliationMessage.textContent = "";
-            reconciliationResult.replaceChildren();
+
+            showMessage(reconciliationMessage, "");
+
+            if (reconciliationResult) {
+                reconciliationResult.replaceChildren();
+            }
 
             try {
                 const result = await DawazAPI.request("/reconcile", {
                     method: "POST",
                     body: JSON.stringify({
-                        prescription_id: Number(prescriptionSelect.value),
+                        prescription_id: Number(
+                            prescriptionSelect.value
+                        ),
                         scan_id: Number(scanId)
                     })
                 });
 
-                reconciliationMessage.textContent =
-                    "Comparison completed.";
+                showMessage(
+                    reconciliationMessage,
+                    "Comparison completed."
+                );
 
-                const output = document.createElement("pre");
-                output.textContent = JSON.stringify(result, null, 2);
-                reconciliationResult.appendChild(output);
+                if (reconciliationResult) {
+                    const output = document.createElement("pre");
+
+                    output.textContent =
+                        JSON.stringify(result, null, 2);
+
+                    reconciliationResult.appendChild(output);
+                }
 
             } catch (error) {
-                reconciliationMessage.textContent =
-                    `Comparison failed: ${error.message}`;
+                showMessage(
+                    reconciliationMessage,
+                    `Comparison failed: ${error.message}`
+                );
+
             } finally {
                 reconcileBtn.disabled = !prescriptionSelect.value;
                 reconcileBtn.textContent = "Compare Medicine";
             }
         });
     }
+
+    // ==========================================
+    // CHAT LANGUAGE
+    // ==========================================
+
+    function getChatLanguage() {
+        const savedLanguage =
+            sessionStorage.getItem("dawazLanguage") || "en-IN";
+
+        if (savedLanguage === "hi" || savedLanguage === "hi-IN") {
+            return "hi-IN";
+        }
+
+        return "en-IN";
+    }
+
+    // ==========================================
+    // CHAT MESSAGE RENDERING
+    // ==========================================
+
+    function addChatMessage(label, message) {
+        if (!chatMessages) return;
+
+        const paragraph = document.createElement("p");
+
+        paragraph.textContent = `${label}: ${message}`;
+
+        chatMessages.appendChild(paragraph);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // ==========================================
+    // SEND MEDICINE QUESTION
+    // ==========================================
+
+    if (chatForm && chatInput && chatMessages) {
+
+        chatForm.addEventListener("submit", async event => {
+            event.preventDefault();
+
+            const question = chatInput.value.trim();
+
+            if (!question) return;
+
+            addChatMessage("You", question);
+
+            chatInput.value = "";
+
+            if (sendChatBtn) {
+                sendChatBtn.disabled = true;
+                sendChatBtn.textContent = "Sending...";
+            }
+
+            showMessage(chatStatus, "Getting an answer...");
+
+            try {
+                const result = await DawazAPI.request("/questions", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        question,
+                        language: getChatLanguage()
+                    })
+                });
+
+                const answer =
+                    result.answer ||
+                    result.response ||
+                    result.message ||
+                    "No answer was returned.";
+
+                addChatMessage("DAWAZ", answer);
+
+                showMessage(chatStatus, "Response received.");
+
+            } catch (error) {
+                addChatMessage("DAWAZ", error.message);
+
+                showMessage(
+                    chatStatus,
+                    "Could not get a response."
+                );
+
+            } finally {
+                if (sendChatBtn) {
+                    sendChatBtn.disabled = false;
+                    sendChatBtn.textContent = "Send";
+                }
+            }
+        });
+    }
+
+    // ==========================================
+    // BROWSER VOICE RECOGNITION
+    // ==========================================
+
+    if (chatMicBtn) {
+
+        const SpeechRecognition =
+            window.SpeechRecognition ||
+            window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+
+            chatMicBtn.disabled = true;
+
+            showMessage(
+                chatVoiceStatus,
+                "Voice input is not supported in this browser."
+            );
+
+        } else {
+
+            recognition = new SpeechRecognition();
+
+            recognition.interimResults = false;
+            recognition.continuous = false;
+
+            recognition.onstart = () => {
+                showMessage(chatVoiceStatus, "Listening...");
+            };
+
+            recognition.onresult = event => {
+                const transcript =
+                    event.results[0][0].transcript;
+
+                if (chatInput) {
+                    chatInput.value = transcript;
+                }
+
+                showMessage(
+                    chatVoiceStatus,
+                    "Voice captured. Press Send to submit."
+                );
+            };
+
+            recognition.onerror = event => {
+                showMessage(
+                    chatVoiceStatus,
+                    `Voice input error: ${event.error}`
+                );
+            };
+
+            recognition.onend = () => {
+                chatMicBtn.disabled = false;
+            };
+
+            chatMicBtn.addEventListener("click", () => {
+                try {
+                    recognition.lang = getChatLanguage();
+
+                    chatMicBtn.disabled = true;
+                    recognition.start();
+
+                } catch (error) {
+                    chatMicBtn.disabled = false;
+
+                    showMessage(
+                        chatVoiceStatus,
+                        "Could not start voice input. Try again."
+                    );
+                }
+            });
+        }
+    }
+
+    // ==========================================
+    // RETAKE / UPLOAD ANOTHER IMAGE
+    // ==========================================
+
+    if (retakeScanBtn) {
+        retakeScanBtn.addEventListener("click", () => {
+
+            stopCamera();
+
+            fileInput.value = "";
+            setSelectedFile(null);
+
+            sessionStorage.removeItem("dawazLatestScan");
+
+            if (resultCard) resultCard.hidden = true;
+
+            if (reconciliationCard) {
+                reconciliationCard.hidden = true;
+            }
+
+            if (medicineChatCard) {
+                medicineChatCard.hidden = true;
+            }
+
+            if (resultArea) resultArea.replaceChildren();
+
+            if (reconciliationResult) {
+                reconciliationResult.replaceChildren();
+            }
+
+            showMessage(scanMessage, "Select or capture a new image.");
+            showMessage(reconciliationMessage, "");
+        });
+    }
+
+});
