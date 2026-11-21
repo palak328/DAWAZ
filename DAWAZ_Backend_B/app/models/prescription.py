@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-
+from sqlalchemy import Numeric
 from app.database import Base
 
 
@@ -60,7 +60,9 @@ class PrescriptionItem(Base):
         nullable=False,
         index=True
     )
+    dose_quantity = Column(Numeric(10, 3), nullable=True)
 
+    dose_unit = Column(String(30), nullable=True)
     medicine_name = Column(String(150), nullable=False)
     strength = Column(String(100), nullable=True)
     dosage_form = Column(String(50), nullable=True)
