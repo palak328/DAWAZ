@@ -1,11 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     const fileInput = document.querySelector('input[type="file"]');
-    const scanButton = document.querySelector(
-        "#scanButton, button[type='submit']"
-    );
-    const resultArea = document.querySelector(
-        "#scanResult, #result, .scan-result"
-    );
+    const scanButton = document.getElementById("scanMedicineBtn");
+    const resultArea = document.getElementById("resultContent");
 
     if (!fileInput || !scanButton) return;
 
