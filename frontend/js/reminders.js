@@ -12,7 +12,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const endInput = document.getElementById("reminderEndDate");
 
     const message = document.getElementById("reminderFormMessage");
-
+    if (!window.DawazAPI) {
+    reminderList.textContent = "Backend API service is not loaded.";
+    return;
+    }
     let activeMedicines = [];
     let todayDoses = [];
 
@@ -245,10 +248,12 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        if (endInput.value < startInput.value) {
-            showMessage("End date cannot be before start date.", true);
+        if (!timeInput.value || !startInput.value || !endInput.value) {
+            showMessage("Complete all reminder fields.", true);
             return;
         }
+
+        if (endInput.value < startInput.value) {
 
         const submitButton = form.querySelector(
             'button[type="submit"]'

@@ -5,7 +5,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     if (!container) return;
-
+    if (!window.DawazAPI) {
+    container.textContent = "Backend API service is not loaded.";
+    return;
+    }
     async function loadMedicines() {
         container.textContent = "Loading medicine cabinet...";
 
@@ -220,7 +223,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                             "End date cannot be before start date.";
                         return;
                     }
-
+                    if (!timeInput.value || !startInput.value || !endInput.value) {
+                        scheduleMessage.textContent = "Complete all schedule fields.";
+                        return;
+                    }
                     scheduleButton.disabled = true;
                     scheduleMessage.textContent = "Creating reminder schedule...";
 
