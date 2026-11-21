@@ -6,14 +6,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Medicines | DAWAZ</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/medicines.css">
 </head>
 
 <body>
 
-    <!-- Navigation -->
     <nav class="navbar">
-        <div class="logo">DAWAZ</div>
+        <a href="dashboard.html" class="logo">DAWAZ</a>
 
         <div class="nav-links">
             <a href="dashboard.html">Dashboard</a>
@@ -26,90 +27,91 @@
 
     <main class="medicines-container">
 
-        <!-- Page Heading -->
         <section class="medicines-heading">
             <div>
-                <p class="section-label">PATIENT MEDICINE CABINET</p>
                 <h1>My Medicines</h1>
-                <p>Manage your medicine records and keep track of available stock.</p>
+                <p>Manage your medicine records and monitor your stock.</p>
             </div>
 
-            <button type="button" id="addMedicineBtn" class="primary-btn">
+            <button type="button" id="addMedicineBtn" class="add-medicine-btn">
                 + Add Medicine
             </button>
         </section>
 
-        <!-- Summary Cards -->
         <section class="medicine-summary">
 
             <div class="summary-card">
-                <span>Total Medicines</span>
+                <p>Total Medicines</p>
                 <h2 id="totalMedicines">0</h2>
             </div>
 
             <div class="summary-card">
-                <span>Low Stock</span>
+                <p>Low Stock</p>
                 <h2 id="lowStockMedicines">0</h2>
             </div>
 
             <div class="summary-card">
-                <span>Out of Stock</span>
+                <p>Out of Stock</p>
                 <h2 id="outOfStockMedicines">0</h2>
             </div>
 
         </section>
 
-        <!-- Search -->
         <section class="medicine-search-section">
-            <div>
-                <h2>Medicine Records</h2>
-                <p>Your saved medicine information.</p>
-            </div>
-
             <input
                 type="search"
                 id="medicineSearch"
-                placeholder="Search medicines..."
+                placeholder="Search medicines by name or strength..."
                 aria-label="Search medicines"
             >
         </section>
 
-        <!-- Medicine Cards -->
-        <section id="medicineList" class="medicine-grid">
+        <section class="medicine-list-section">
+            <div id="medicineList">
 
-            <div class="empty-state" id="emptyState">
-                <h3>No medicines added yet</h3>
-                <p>Your medicine records will appear here.</p>
-                <button type="button" id="emptyAddBtn" class="primary-btn">
-                    Add Your First Medicine
-                </button>
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-state-icon">💊</div>
+
+                    <h3>No medicines added yet</h3>
+
+                    <p>
+                        Add your medicines to maintain a digital medicine cabinet.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="emptyAddBtn"
+                        class="add-medicine-btn"
+                    >
+                        + Add Your First Medicine
+                    </button>
+                </div>
+
             </div>
-
         </section>
 
-        <!-- Add/Edit Medicine Modal -->
-        <div class="modal-overlay" id="medicineModal" hidden>
+        <!-- ADD / EDIT MEDICINE MODAL -->
+        <div id="medicineModal" class="modal-overlay" hidden>
 
             <div class="modal-card">
 
                 <div class="modal-heading">
-                    <div>
-                        <h2 id="modalTitle">Add Medicine</h2>
-                        <p>Enter details from the confirmed prescription.</p>
-                    </div>
+                    <h2 id="modalTitle">Add Medicine</h2>
 
                     <button
                         type="button"
                         id="closeMedicineModal"
                         class="close-btn"
                         aria-label="Close"
-                    >&times;</button>
+                    >
+                        &times;
+                    </button>
                 </div>
 
                 <form id="medicineForm">
 
                     <div class="form-group">
-                        <label for="medicineName">Medicine Name *</label>
+                        <label for="medicineName">Medicine Name</label>
                         <input
                             type="text"
                             id="medicineName"
@@ -128,13 +130,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="medicineStock">Available Stock *</label>
+                        <label for="medicineStock">Available Stock</label>
                         <input
                             type="number"
                             id="medicineStock"
                             min="0"
                             step="1"
-                            placeholder="Number of tablets / units"
+                            placeholder="Enter available quantity"
                             required
                         >
                     </div>
@@ -145,8 +147,7 @@
                         </label>
                         <textarea
                             id="medicineInstructions"
-                            rows="3"
-                            placeholder="Enter instructions exactly as prescribed"
+                            placeholder="Enter instructions from the confirmed prescription"
                         ></textarea>
                     </div>
 
@@ -154,25 +155,26 @@
                         <label for="medicineNotes">Additional Notes</label>
                         <textarea
                             id="medicineNotes"
-                            rows="2"
-                            placeholder="Optional notes"
+                            placeholder="Enter additional notes"
                         ></textarea>
                     </div>
 
                     <p id="medicineFormMessage" class="form-message"></p>
 
                     <div class="modal-actions">
+
                         <button
                             type="button"
                             id="cancelMedicineBtn"
-                            class="secondary-btn"
+                            class="cancel-medicine-btn"
                         >
                             Cancel
                         </button>
 
-                        <button type="submit" class="primary-btn">
+                        <button type="submit" class="save-medicine-btn">
                             Save Medicine
                         </button>
+
                     </div>
 
                 </form>
@@ -180,21 +182,19 @@
             </div>
         </div>
 
-        <!-- Safety Note -->
         <section class="medicine-safety-note">
-            <h3>Important Health Reminder</h3>
-            <p>
-                DAWAZ stores medicine information for tracking purposes.
-                Always follow your confirmed doctor's prescription.
-                Do not change medicine doses or instructions based on
-                stock information.
-            </p>
+            <strong>Medicine Safety:</strong>
+            Always follow your confirmed doctor's prescription.
+            DAWAZ does not independently recommend or change medicine doses.
         </section>
 
     </main>
 
     <script src="../js/medicines.js"></script>
+    <script src="../js/medicine-voice.js"></script>
 
 </body>
 </html>
+
+
 

@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ask a Question | DAWAZ</title>
+
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/ask.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar">
+
+        <a href="dashboard.html" class="logo">
+            <span class="logo-icon">D</span>
+            DAWAZ
+        </a>
+
+        <div class="nav-links">
+
+            <a href="dashboard.html">Dashboard</a>
+
+            <a href="medicines.html">My Medicines</a>
+
+            <a href="reminders.html">Reminders</a>
+
+            <a href="medicine-scanner.html">Scan Medicine</a>
+
+            <a href="ask.html" class="active">Ask a Question</a>
+
+        </div>
+
+        <div class="user-profile">
+            <span class="profile-icon">P</span>
+            <span>Patient</span>
+        </div>
+
+    </nav>
+
+
+    <!-- MAIN ASK PAGE -->
+    <main class="ask-container">
+
+        <!-- PAGE HEADING -->
+        <section class="ask-heading">
+
+            <div>
+                <span class="ask-label">DAWAZ HEALTH ASSISTANT</span>
+
+                <h1>Ask a Question</h1>
+
+                <p>
+                    Get help understanding your medicine information
+                    and managing your medicine records.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- CHAT AREA -->
+        <section class="chat-section">
+
+            <!-- CHAT HEADER -->
+            <div class="chat-header">
+
+                <div class="assistant-profile">
+
+                    <div class="assistant-avatar">
+                        💊
+                    </div>
+
+                    <div>
+                        <h2>DAWAZ Assistant</h2>
+                        <p>Medicine Information Support</p>
+                    </div>
+
+                </div>
+
+                <span class="assistant-status">
+                    <span class="status-dot"></span>
+                    Ready
+                </span>
+
+            </div>
+
+
+            <!-- CHAT MESSAGES -->
+            <div
+                class="chat-messages"
+                id="chatMessages"
+                aria-live="polite"
+                aria-label="Conversation"
+            >
+
+                <!-- WELCOME MESSAGE -->
+                <div class="message assistant-message">
+
+                    <div class="message-avatar">
+                        💊
+                    </div>
+
+                    <div class="message-content">
+
+                        <div class="message-bubble">
+
+                            <p>
+                                Hello! I'm your DAWAZ medicine assistant.
+                            </p>
+
+                            <p>
+                                You can ask me questions about the
+                                medicine information saved in your account.
+                            </p>
+
+                            <p>
+                                What would you like to know?
+                            </p>
+
+                        </div>
+
+                        <span class="message-time">Assistant</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SUGGESTED QUESTIONS -->
+            <div class="suggested-questions" id="suggestedQuestions">
+
+                <p>Suggested questions</p>
+
+                <div class="suggestion-buttons">
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="Show me my saved medicines."
+                    >
+                        My saved medicines
+                    </button>
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="Where can I find my prescription instructions?"
+                    >
+                        Prescription instructions
+                    </button>
+
+                    <button
+                        type="button"
+                        class="suggestion-btn"
+                        data-question="How can I check my medicine stock?"
+                    >
+                        Check medicine stock
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGE INPUT -->
+            <form class="chat-input-area" id="chatForm">
+
+                <textarea
+                    id="chatInput"
+                    placeholder="Type your medicine-related question..."
+                    rows="1"
+                    maxlength="1000"
+                    aria-label="Type your question"
+                    required
+                ></textarea>
+
+                <button
+                    type="submit"
+                    id="sendMessageBtn"
+                    class="send-message-btn"
+                    aria-label="Send message"
+                >
+                    <span>Send</span>
+                    <span class="send-icon">➤</span>
+                </button>
+
+            </form>
+
+            <p class="input-hint">
+                Press Enter to send. Use Shift + Enter for a new line.
+            </p>
+
+        </section>
+
+
+        <!-- SAFETY INFORMATION -->
+        <section class="ask-safety-note">
+
+            <div class="safety-icon">ⓘ</div>
+
+            <div>
+                <h3>Important Medicine Safety Information</h3>
+
+                <p>
+                    DAWAZ provides support for understanding medicine
+                    information. It does not replace a doctor or pharmacist.
+                    Always follow your confirmed prescription. For unclear
+                    instructions, dosage questions, side effects or urgent
+                    health concerns, contact a qualified healthcare professional.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="../js/ask.js"></script>
+
+</body>
+</html>

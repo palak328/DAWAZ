@@ -28,7 +28,6 @@
             <a href="medicines.html">My Medicines</a>
             <a href="reminders.html">Reminders</a>
             <a href="medicine-scanner.html" class="active">Scan Medicine</a>
-            <a href="caregivers.html">Caregivers</a>
         </nav>
 
         <div class="profile">
@@ -59,7 +58,7 @@
         </section>
 
 
-        <!-- SMART SCAN GUIDANCE - MOVED TO TOP -->
+        <!-- SMART SCAN GUIDANCE -->
 
         <section class="guidance-card">
 
@@ -70,41 +69,27 @@
             <div class="guidance-grid">
 
                 <div class="guidance-item">
-
                     <span>01</span>
-
                     <h3>Good Lighting</h3>
-
                     <p>
                         Make sure the medicine name is clearly visible.
                     </p>
-
                 </div>
 
-
                 <div class="guidance-item">
-
                     <span>02</span>
-
                     <h3>Clear Focus</h3>
-
                     <p>
                         Keep the camera steady and avoid blurry images.
                     </p>
-
                 </div>
 
-
                 <div class="guidance-item">
-
                     <span>03</span>
-
                     <h3>Show Packaging</h3>
-
                     <p>
                         Include the medicine name and strength if visible.
                     </p>
-
                 </div>
 
             </div>
@@ -119,14 +104,12 @@
             <div class="scanner-header">
 
                 <div>
-
                     <h2>Scan Medicine</h2>
 
                     <p>
                         Position your medicine packaging clearly
                         inside the camera frame.
                     </p>
-
                 </div>
 
                 <span class="scanner-icon">📷</span>
@@ -292,6 +275,98 @@
         </section>
 
 
+        <!-- SMART IDENTIFICATION ASSISTANCE -->
+
+        <section
+            class="clarification-card"
+            id="clarificationCard"
+            hidden>
+
+            <div class="clarification-header">
+
+                <span class="clarification-icon">💬</span>
+
+                <div>
+                    <p class="eyebrow">SMART IDENTIFICATION ASSISTANCE</p>
+
+                    <h2>Let's identify your medicine</h2>
+
+                    <p>
+                        We couldn't identify the medicine confidently
+                        from the image. A few additional details may help.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <!-- BACKEND-GENERATED QUESTIONS -->
+
+            <div
+                class="clarification-questions"
+                id="clarificationQuestions">
+
+                <!-- Questions will be inserted by scanner.js -->
+
+            </div>
+
+
+            <!-- ADDITIONAL INFORMATION -->
+
+            <div class="clarification-extra">
+
+                <label for="additionalMedicineInfo">
+                    Additional information (optional)
+                </label>
+
+                <textarea
+                    id="additionalMedicineInfo"
+                    rows="3"
+                    maxlength="500"
+                    placeholder="Type any other visible information about the medicine..."
+                ></textarea>
+
+            </div>
+
+
+            <!-- SUBMIT ANSWERS -->
+
+            <button
+                type="button"
+                id="submitClarificationBtn"
+                class="clarification-submit-btn">
+
+                Submit Answers
+
+            </button>
+
+            <p
+                id="clarificationMessage"
+                class="clarification-message"
+                role="status"
+                aria-live="polite">
+            </p>
+
+
+            <!-- RETAKE IMAGE -->
+
+            <button
+                type="button"
+                id="retakeScanBtn"
+                class="retake-scan-btn">
+
+                Retake / Upload Another Image
+
+            </button>
+
+            <p class="clarification-safety">
+                If the medicine still cannot be identified confidently,
+                do not use an assumed identity. Ask a pharmacist or doctor.
+            </p>
+
+        </section>
+
+
         <!-- SAFETY NOTE -->
 
         <section class="safety-note">
@@ -318,4 +393,5 @@
 </body>
 
 </html>
+
 

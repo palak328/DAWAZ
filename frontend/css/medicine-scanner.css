@@ -1,4 +1,10 @@
 
+/* ============================================
+   DAWAZ - MEDICINE SCANNER
+============================================ */
+
+/* GLOBAL */
+
 * {
     margin: 0;
     padding: 0;
@@ -10,6 +16,7 @@ body {
     background: #F7FAF9;
     color: #10221F;
 }
+
 
 /* NAVBAR */
 
@@ -70,6 +77,7 @@ body {
     font-weight: bold;
 }
 
+
 /* MAIN CONTAINER */
 
 .scanner-container {
@@ -77,6 +85,7 @@ body {
     margin: 45px auto;
     padding: 0 25px 50px;
 }
+
 
 /* PAGE HEADING */
 
@@ -102,6 +111,7 @@ body {
     font-size: 15px;
     line-height: 1.6;
 }
+
 
 /* SCANNER CARD */
 
@@ -141,6 +151,7 @@ body {
     justify-content: center;
     font-size: 23px;
 }
+
 
 /* CAMERA AREA */
 
@@ -195,6 +206,7 @@ body {
     pointer-events: none;
 }
 
+
 /* CAMERA CONTROLS */
 
 .camera-controls {
@@ -212,6 +224,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     border: none;
+    transition: 0.2s ease;
 }
 
 .primary-btn {
@@ -219,7 +232,7 @@ body {
     color: white;
 }
 
-.primary-btn:hover {
+.primary-btn:hover:not(:disabled) {
     background: #084F4F;
 }
 
@@ -236,6 +249,7 @@ button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 
 /* DIVIDER */
 
@@ -256,6 +270,7 @@ button:disabled {
     height: 1px;
     background: #E3ECE8;
 }
+
 
 /* IMAGE UPLOAD */
 
@@ -300,6 +315,7 @@ button:disabled {
     color: #0B6E6E;
 }
 
+
 /* IMAGE PREVIEW */
 
 .image-preview-container {
@@ -331,6 +347,7 @@ button:disabled {
     cursor: pointer;
 }
 
+
 /* SCAN BUTTON */
 
 .scan-btn {
@@ -344,6 +361,7 @@ button:disabled {
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
+    transition: 0.2s ease;
 }
 
 .scan-btn:hover:not(:disabled) {
@@ -355,7 +373,9 @@ button:disabled {
     margin-top: 12px;
     font-size: 13px;
     color: #0B6E6E;
+    line-height: 1.5;
 }
+
 
 /* GUIDANCE */
 
@@ -407,6 +427,7 @@ button:disabled {
     line-height: 1.6;
 }
 
+
 /* RESULT CARD */
 
 .result-card {
@@ -421,78 +442,6 @@ button:disabled {
     font-size: 20px;
     margin-bottom: 18px;
 }
-
-/* SAFETY NOTE */
-
-.safety-note {
-    background: #FFF7E8;
-    border: 1px solid #F1D9A9;
-    border-radius: 12px;
-    padding: 20px;
-}
-
-.safety-note strong {
-    color: #80500C;
-    font-size: 14px;
-}
-
-.safety-note p {
-    color: #785D35;
-    font-size: 13px;
-    line-height: 1.7;
-    margin-top: 8px;
-}
-
-/* RESPONSIVE DESIGN */
-
-@media (max-width: 750px) {
-
-    .navbar {
-        padding: 15px 5%;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .nav-links {
-        order: 3;
-        width: 100%;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .scanner-container {
-        margin-top: 30px;
-        padding: 0 16px 35px;
-    }
-
-    .page-heading h1 {
-        font-size: 27px;
-    }
-
-    .scanner-card,
-    .guidance-card,
-    .result-card {
-        padding: 20px;
-    }
-
-    .guidance-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .camera-area {
-        min-height: 260px;
-    }
-
-    .camera-controls {
-        flex-direction: column;
-    }
-
-    .camera-controls button {
-        width: 100%;
-    }
-}
-
-/* MEDICINE IDENTIFICATION RESULTS */
 
 .result-status {
     padding: 18px;
@@ -532,4 +481,315 @@ button:disabled {
     font-size: 14px;
     margin: 10px 0;
     color: #344A43;
+}
+
+
+/* ============================================
+   SMART CLARIFICATION SECTION
+============================================ */
+
+.clarification-card {
+    background: #FFFFFF;
+    border: 1px solid #CFE5DE;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 18px rgba(11, 110, 110, 0.04);
+}
+
+.clarification-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 24px;
+}
+
+.clarification-icon {
+    min-width: 46px;
+    height: 46px;
+    background: #D7EFEC;
+    color: #084F4F;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.clarification-header .eyebrow {
+    margin-bottom: 7px;
+}
+
+.clarification-header h2 {
+    font-size: 21px;
+    margin-bottom: 9px;
+    color: #10221F;
+}
+
+.clarification-header p:last-child {
+    color: #71817B;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* GENERATED QUESTIONS */
+
+#clarificationQuestions {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.clarification-question {
+    background: #F7FAF9;
+    border: 1px solid #E1ECE7;
+    border-radius: 11px;
+    padding: 18px;
+}
+
+.clarification-question label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #23433B;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.clarification-answer {
+    width: 100%;
+    min-height: 45px;
+    padding: 12px 14px;
+    border: 1px solid #C9DCD5;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #10221F;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s ease;
+}
+
+.clarification-answer:focus {
+    border-color: #0B6E6E;
+    box-shadow: 0 0 0 3px rgba(11, 110, 110, 0.10);
+}
+
+.clarification-answer::placeholder {
+    color: #98A8A2;
+}
+
+
+/* ADDITIONAL INFORMATION */
+
+.additional-info-group {
+    margin-top: 22px;
+}
+
+.additional-info-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #23433B;
+    margin-bottom: 10px;
+}
+
+#additionalMedicineInfo {
+    width: 100%;
+    min-height: 100px;
+    padding: 13px;
+    resize: vertical;
+    border: 1px solid #C9DCD5;
+    border-radius: 9px;
+    background: #FFFFFF;
+    color: #10221F;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    outline: none;
+}
+
+#additionalMedicineInfo:focus {
+    border-color: #0B6E6E;
+    box-shadow: 0 0 0 3px rgba(11, 110, 110, 0.10);
+}
+
+#additionalMedicineInfo::placeholder {
+    color: #98A8A2;
+}
+
+
+/* CLARIFICATION BUTTONS */
+
+.clarification-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 23px;
+}
+
+#submitClarificationBtn {
+    flex: 1;
+    min-height: 48px;
+    padding: 13px 20px;
+    background: #0B6E6E;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+#submitClarificationBtn:hover:not(:disabled) {
+    background: #084F4F;
+}
+
+#retakeScanBtn {
+    min-height: 48px;
+    padding: 13px 20px;
+    background: #D7EFEC;
+    color: #084F4F;
+    border: none;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+#retakeScanBtn:hover:not(:disabled) {
+    background: #BDE3DE;
+}
+
+#clarificationMessage {
+    margin-top: 15px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #687873;
+}
+
+.clarification-safety {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: #FFF7E8;
+    border: 1px solid #F1D9A9;
+    border-radius: 9px;
+    color: #785D35;
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+
+/* SAFETY NOTE */
+
+.safety-note {
+    background: #FFF7E8;
+    border: 1px solid #F1D9A9;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.safety-note strong {
+    color: #80500C;
+    font-size: 14px;
+}
+
+.safety-note p {
+    color: #785D35;
+    font-size: 13px;
+    line-height: 1.7;
+    margin-top: 8px;
+}
+
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 750px) {
+
+    .navbar {
+        padding: 15px 5%;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .scanner-container {
+        margin-top: 30px;
+        padding: 0 16px 35px;
+    }
+
+    .page-heading h1 {
+        font-size: 27px;
+    }
+
+    .scanner-card,
+    .guidance-card,
+    .result-card,
+    .clarification-card {
+        padding: 20px;
+    }
+
+    .guidance-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .camera-area {
+        min-height: 260px;
+    }
+
+    .camera-controls {
+        flex-direction: column;
+    }
+
+    .camera-controls button {
+        width: 100%;
+    }
+
+    .clarification-header h2 {
+        font-size: 19px;
+    }
+
+    .clarification-actions {
+        flex-direction: column;
+    }
+
+    #submitClarificationBtn,
+    #retakeScanBtn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .brand {
+        font-size: 19px;
+    }
+
+    .nav-links {
+        gap: 8px;
+    }
+
+    .nav-links a {
+        font-size: 12px;
+    }
+
+    .profile {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .clarification-card {
+        padding: 17px;
+    }
+
+    .clarification-question {
+        padding: 14px;
+    }
 }
