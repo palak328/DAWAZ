@@ -1,53 +1,62 @@
 
-import os
+import logging
 import httpx
 
-from app.schemas.voice_question import VoiceQuestionResponse
+from fastapi import APIRouter, Depends, HTTPException, status
 
-MEMBER2_API_URL = os.getenv(
-    "MEMBER2_API_URL",
-    "http://127.0.0.1:8001"
+from app.models.user import User
+from app.routers.users import get_current_user
+from app.schemas.voice_question import (
+    VoiceQuestionRequest,
+    VoiceQuestionResponse
+)
+from app.services.voice_question_service import forward_question
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(
+    prefix="/questions",
+    tags=["Voice Questions"]
 )
 
-REQUEST_TIMEOUT = 15.0
-SUPPORTED_LANGUAGES = {"en-IN", "hi-IN"}
 
-
-async def forward_question(
-    question: str,
-    language: str
-) -> VoiceQuestionResponse:
-
-    question = question.strip()
-
-    if not question:
-        raise ValueError("Question cannot be empty")
-
-    if len(question) > 1000:
-        raise ValueError("Question must not exceed 1000 characters")
-
-    if language not in SUPPORTED_LANGUAGES:
-        raise ValueError("Unsupported language")
-
-    payload = {
-        "question": question,
-        "language": language
-    }
-
-    async with httpx.AsyncClient(
-        timeout=REQUEST_TIMEOUT
-    ) as client:
-
-        response = await client.post(
-            f"{MEMBER2_API_URL}/member2/questions",
-            json=payload
+@router.post(
+    "",
+    response_model=VoiceQuestionResponse
+)
+async def ask_medicine_question(
+    question_data: VoiceQuestionRequest,
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        return await forward_question(
+            question=question_data.question,
+            language=question_data.language
         )
 
-        response.raise_for_status()
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc)
+        )
 
-        result = response.json()
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=504,
+            detail="Medicine question service timed out"
+        )
 
-        if not isinstance(result, dict):
-            raise ValueError("Invalid response from Backend A")
+    except httpx.HTTPStatusError:
+        logger.exception("Backend A returned an HTTP error")
+        raise HTTPException(
+            status_code=502,
+            detail="Medicine question service returned an error"
+        )
 
-        return VoiceQuestionResponse.model_validate(result)
+    except httpx.RequestError:
+        logger.exception("Backend A is unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="Medicine question service is unavailable"
+        )
+
