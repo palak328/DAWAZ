@@ -218,3 +218,122 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+    // PRESCRIPTION RECONCILIATION
+
+    const reconciliationCard =
+        document.getElementById("reconciliationCard");
+
+    const prescriptionSelect =
+        document.getElementById("prescriptionSelect");
+
+    const reconcileBtn =
+        document.getElementById("reconcileBtn");
+
+    const reconciliationMessage =
+        document.getElementById("reconciliationMessage");
+
+    const reconciliationResult =
+        document.getElementById("reconciliationResult");
+
+    async function loadConfirmedPrescriptions() {
+        if (!prescriptionSelect) return;
+
+        try {
+            const prescriptions =
+                await DawazAPI.request("/prescriptions");
+
+            const eligible = prescriptions.filter(p =>
+                ["confirmed", "active"].includes(
+                    String(p.status).toLowerCase()
+                )
+            );
+
+            prescriptionSelect.replaceChildren();
+
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = eligible.length
+                ? "Choose a prescription"
+                : "No confirmed prescriptions available";
+
+            prescriptionSelect.appendChild(placeholder);
+
+            eligible.forEach(prescription => {
+                const option = document.createElement("option");
+                option.value = prescription.id;
+                option.textContent =
+                    `Prescription #${prescription.id} (${prescription.status})`;
+
+                prescriptionSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            prescriptionSelect.replaceChildren();
+
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Could not load prescriptions";
+
+            prescriptionSelect.appendChild(option);
+            reconciliationMessage.textContent = error.message;
+        }
+    }
+
+    if (prescriptionSelect && reconcileBtn) {
+        loadConfirmedPrescriptions();
+
+        prescriptionSelect.addEventListener("change", () => {
+            reconcileBtn.disabled = !prescriptionSelect.value;
+        });
+
+        reconcileBtn.addEventListener("click", async () => {
+            const savedScan = JSON.parse(
+                sessionStorage.getItem("dawazLatestScan") || "null"
+            );
+
+            const scanId = savedScan?.scan_id ?? savedScan?.id;
+
+            if (!scanId) {
+                reconciliationMessage.textContent =
+                    "Scan ID unavailable. Please scan again.";
+                return;
+            }
+
+            const scanData = savedScan.scan_result?.data || {};
+
+            if (scanData.identity_status !== "CONFIRMED_FOR_DEMO") {
+                reconciliationMessage.textContent =
+                    "Medicine identity is not confirmed. Reconciliation is unavailable.";
+                return;
+            }
+
+            reconcileBtn.disabled = true;
+            reconcileBtn.textContent = "Comparing...";
+            reconciliationMessage.textContent = "";
+            reconciliationResult.replaceChildren();
+
+            try {
+                const result = await DawazAPI.request("/reconcile", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        prescription_id: Number(prescriptionSelect.value),
+                        scan_id: Number(scanId)
+                    })
+                });
+
+                reconciliationMessage.textContent =
+                    "Comparison completed.";
+
+                const output = document.createElement("pre");
+                output.textContent = JSON.stringify(result, null, 2);
+                reconciliationResult.appendChild(output);
+
+            } catch (error) {
+                reconciliationMessage.textContent =
+                    `Comparison failed: ${error.message}`;
+            } finally {
+                reconcileBtn.disabled = !prescriptionSelect.value;
+                reconcileBtn.textContent = "Compare Medicine";
+            }
+        });
+    }

@@ -99,7 +99,19 @@ def create_prescription(
 
     return new_prescription
 
+@router.get(
+    "",
+    response_model=list[PrescriptionResponse]
+)
+def get_prescriptions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    patient = get_current_patient(current_user, db)
 
+    return db.query(Prescription).filter(
+        Prescription.patient_id == patient.id
+    ).order_by(Prescription.id.desc()).all()
 @router.get(
     "/{prescription_id}",
     response_model=PrescriptionResponse
