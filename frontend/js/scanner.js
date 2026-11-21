@@ -1,10 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    // ==========================================
     // ELEMENTS
-    // ==========================================
-
     const fileInput = document.getElementById("medicineImage");
     const scanButton = document.getElementById("scanMedicineBtn");
     const resultArea = document.getElementById("resultContent");
@@ -21,10 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const imagePreviewContainer =
         document.getElementById("imagePreviewContainer");
     const removeImageBtn = document.getElementById("removeImageBtn");
-
     const scanMessage = document.getElementById("scanMessage");
 
-    // Reconciliation
+    // RECONCILIATION
     const reconciliationCard =
         document.getElementById("reconciliationCard");
     const prescriptionSelect =
@@ -36,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const reconciliationResult =
         document.getElementById("reconciliationResult");
 
-    // Chat
+    // CHAT
     const medicineChatCard =
         document.getElementById("medicineChatCard");
     const chatForm = document.getElementById("medicineChatForm");
@@ -53,22 +49,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!fileInput || !scanButton) return;
 
-    // ==========================================
-    // STATE
-    // ==========================================
+    // COMMON HELPERS
+    function showMessage(element, message) {
+        if (element) element.textContent = message;
+    }
 
+    if (!window.DawazAPI) {
+        showMessage(scanMessage, "Backend API service is not loaded.");
+        scanButton.disabled = true;
+        return;
+    }
+
+    // STATE
     let cameraStream = null;
     let selectedFile = null;
     let previewUrl = null;
     let recognition = null;
-
-    // ==========================================
-    // COMMON HELPERS
-    // ==========================================
-
-    function showMessage(element, message) {
-        if (element) element.textContent = message;
-    }
 
     function stopCamera() {
         if (cameraStream) {
@@ -122,16 +118,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function addDetail(parent, label, value) {
-        if (
-            value === undefined ||
-            value === null ||
-            value === ""
-        ) return;
+        if (value === undefined || value === null || value === "") {
+            return;
+        }
 
         const paragraph = document.createElement("p");
         const strong = document.createElement("strong");
 
         strong.textContent = `${label}: `;
+
         paragraph.append(
             strong,
             document.createTextNode(String(value))
@@ -154,17 +149,13 @@ document.addEventListener("DOMContentLoaded", () => {
             null;
     }
 
-    // ==========================================
     // RENDER SCAN RESULT
-    // ==========================================
-
     function renderScanResult(result) {
         if (!resultArea) return;
 
         resultArea.replaceChildren();
 
         const scan = getScanData(result);
-
         const matched = scan.matched_medicine;
 
         const candidates = Array.isArray(scan.candidates)
@@ -200,9 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (candidates.length) {
-            const candidateHeading =
-                document.createElement("h4");
-
+            const candidateHeading = document.createElement("h4");
             candidateHeading.textContent = "Possible Candidates";
             resultArea.appendChild(candidateHeading);
 
@@ -224,9 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
         addDetail(resultArea, "Message", scan.message);
 
         const warnings = [
-            ...(Array.isArray(result.warnings)
-                ? result.warnings
-                : []),
+            ...(Array.isArray(result.warnings) ? result.warnings : []),
             ...(Array.isArray(result.scan_result?.warnings)
                 ? result.scan_result.warnings
                 : [])
@@ -245,20 +232,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (resultCard) resultCard.hidden = false;
-
-        if (reconciliationCard) {
-            reconciliationCard.hidden = false;
-        }
-
-        if (medicineChatCard) {
-            medicineChatCard.hidden = false;
-        }
+        if (reconciliationCard) reconciliationCard.hidden = false;
+        if (medicineChatCard) medicineChatCard.hidden = false;
     }
 
-    // ==========================================
     // IMAGE UPLOAD
-    // ==========================================
-
     fileInput.addEventListener("change", () => {
         const file = fileInput.files[0];
 
@@ -279,10 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showMessage(scanMessage, "");
     });
 
-    // ==========================================
     // REMOVE IMAGE
-    // ==========================================
-
     if (removeImageBtn) {
         removeImageBtn.addEventListener("click", () => {
             fileInput.value = "";
@@ -291,14 +266,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
     // CAMERA
-    // ==========================================
-
     if (startCameraBtn && cameraPreview) {
         startCameraBtn.addEventListener("click", async () => {
             try {
                 stopCamera();
+
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    throw new Error("Camera API unavailable");
+                }
 
                 cameraStream =
                     await navigator.mediaDevices.getUserMedia({
@@ -316,9 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 startCameraBtn.textContent = "Camera Started";
 
-                if (captureBtn) {
-                    captureBtn.disabled = false;
-                }
+                if (captureBtn) captureBtn.disabled = false;
 
             } catch (error) {
                 stopCamera();
@@ -331,10 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
     // CAPTURE IMAGE
-    // ==========================================
-
     if (captureBtn && cameraPreview && captureCanvas) {
         captureBtn.addEventListener("click", () => {
             if (!cameraPreview.videoWidth) {
@@ -359,11 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             captureCanvas.toBlob(blob => {
                 if (!blob) {
-                    showMessage(
-                        scanMessage,
-                        "Could not capture image."
-                    );
-
+                    showMessage(scanMessage, "Could not capture image.");
                     captureBtn.disabled = false;
                     return;
                 }
@@ -378,15 +345,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 stopCamera();
 
                 showMessage(scanMessage, "Image captured successfully.");
-
             }, "image/jpeg");
         });
     }
 
-    // ==========================================
     // SCAN MEDICINE
-    // ==========================================
-
     scanButton.addEventListener("click", async event => {
         event.preventDefault();
 
@@ -410,7 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const body = new FormData();
 
-            // Backend B expects the field name "image".
+            // Backend B expects "image".
             body.append("image", selectedFile);
 
             const result = await DawazAPI.request("/scans", {
@@ -430,10 +393,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 "Scan completed. Review the identification result."
             );
 
-            if (reconciliationCard) {
-                reconciliationCard.hidden = false;
-            }
-
         } catch (error) {
             if (resultArea) {
                 resultArea.textContent = error.message;
@@ -447,10 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ==========================================
     // LOAD CONFIRMED PRESCRIPTIONS
-    // ==========================================
-
     async function loadConfirmedPrescriptions() {
         if (!prescriptionSelect) return;
 
@@ -472,7 +428,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const placeholder = document.createElement("option");
             placeholder.value = "";
-
             placeholder.textContent = eligible.length
                 ? "Choose a prescription"
                 : "No confirmed prescriptions available";
@@ -481,14 +436,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             eligible.forEach(prescription => {
                 const option = document.createElement("option");
-
                 option.value = prescription.id;
-
                 option.textContent =
                     `Prescription #${prescription.id} (${prescription.status})`;
 
                 prescriptionSelect.appendChild(option);
             });
+
+            reconcileBtn.disabled = true;
 
         } catch (error) {
             prescriptionSelect.replaceChildren();
@@ -503,12 +458,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ==========================================
     // RECONCILIATION
-    // ==========================================
-
     if (prescriptionSelect && reconcileBtn) {
-
         loadConfirmedPrescriptions();
 
         prescriptionSelect.addEventListener("change", () => {
@@ -516,10 +467,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         reconcileBtn.addEventListener("click", async () => {
+            let savedScan;
 
-            const savedScan = JSON.parse(
-                sessionStorage.getItem("dawazLatestScan") || "null"
-            );
+            try {
+                savedScan = JSON.parse(
+                    sessionStorage.getItem("dawazLatestScan") || "null"
+                );
+            } catch {
+                savedScan = null;
+            }
 
             if (!savedScan) {
                 showMessage(
@@ -540,9 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            if (
-                scanData.identity_status !== "CONFIRMED_FOR_DEMO"
-            ) {
+            if (scanData.identity_status !== "CONFIRMED_FOR_DEMO") {
                 showMessage(
                     reconciliationMessage,
                     "Medicine identity is not confirmed. Comparison is unavailable."
@@ -571,9 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const result = await DawazAPI.request("/reconcile", {
                     method: "POST",
                     body: JSON.stringify({
-                        prescription_id: Number(
-                            prescriptionSelect.value
-                        ),
+                        prescription_id: Number(prescriptionSelect.value),
                         scan_id: Number(scanId)
                     })
                 });
@@ -586,8 +538,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (reconciliationResult) {
                     const output = document.createElement("pre");
 
-                    output.textContent =
-                        JSON.stringify(result, null, 2);
+                    const reconciliation =
+                        result.reconciliation?.data ||
+                        result.reconciliation ||
+                        result;
+
+                    output.textContent = JSON.stringify(
+                        reconciliation,
+                        null,
+                        2
+                    );
 
                     reconciliationResult.appendChild(output);
                 }
@@ -605,51 +565,37 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
     // CHAT LANGUAGE
-    // ==========================================
-
     function getChatLanguage() {
         const savedLanguage =
             sessionStorage.getItem("dawazLanguage") || "en-IN";
 
-        if (savedLanguage === "hi" || savedLanguage === "hi-IN") {
-            return "hi-IN";
-        }
-
-        return "en-IN";
+        return savedLanguage === "hi" ||
+            savedLanguage === "hi-IN"
+            ? "hi-IN"
+            : "en-IN";
     }
 
-    // ==========================================
-    // CHAT MESSAGE RENDERING
-    // ==========================================
-
+    // CHAT MESSAGE
     function addChatMessage(label, message) {
         if (!chatMessages) return;
 
         const paragraph = document.createElement("p");
-
         paragraph.textContent = `${label}: ${message}`;
 
         chatMessages.appendChild(paragraph);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // ==========================================
-    // SEND MEDICINE QUESTION
-    // ==========================================
-
+    // SEND QUESTION
     if (chatForm && chatInput && chatMessages) {
-
         chatForm.addEventListener("submit", async event => {
             event.preventDefault();
 
             const question = chatInput.value.trim();
-
             if (!question) return;
 
             addChatMessage("You", question);
-
             chatInput.value = "";
 
             if (sendChatBtn) {
@@ -670,21 +616,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const answer =
                     result.answer ||
+                    result.data?.answer ||
                     result.response ||
                     result.message ||
                     "No answer was returned.";
 
                 addChatMessage("DAWAZ", answer);
-
                 showMessage(chatStatus, "Response received.");
 
             } catch (error) {
                 addChatMessage("DAWAZ", error.message);
-
-                showMessage(
-                    chatStatus,
-                    "Could not get a response."
-                );
+                showMessage(chatStatus, "Could not get a response.");
 
             } finally {
                 if (sendChatBtn) {
@@ -695,18 +637,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ==========================================
     // BROWSER VOICE RECOGNITION
-    // ==========================================
-
     if (chatMicBtn) {
-
         const SpeechRecognition =
             window.SpeechRecognition ||
             window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
-
             chatMicBtn.disabled = true;
 
             showMessage(
@@ -715,7 +652,6 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
         } else {
-
             recognition = new SpeechRecognition();
 
             recognition.interimResults = false;
@@ -753,7 +689,6 @@ document.addEventListener("DOMContentLoaded", () => {
             chatMicBtn.addEventListener("click", () => {
                 try {
                     recognition.lang = getChatLanguage();
-
                     chatMicBtn.disabled = true;
                     recognition.start();
 
@@ -769,13 +704,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // ==========================================
-    // RETAKE / UPLOAD ANOTHER IMAGE
-    // ==========================================
-
+    // RETAKE SCAN
     if (retakeScanBtn) {
         retakeScanBtn.addEventListener("click", () => {
-
             stopCamera();
 
             fileInput.value = "";
@@ -784,14 +715,8 @@ document.addEventListener("DOMContentLoaded", () => {
             sessionStorage.removeItem("dawazLatestScan");
 
             if (resultCard) resultCard.hidden = true;
-
-            if (reconciliationCard) {
-                reconciliationCard.hidden = true;
-            }
-
-            if (medicineChatCard) {
-                medicineChatCard.hidden = true;
-            }
+            if (reconciliationCard) reconciliationCard.hidden = true;
+            if (medicineChatCard) medicineChatCard.hidden = true;
 
             if (resultArea) resultArea.replaceChildren();
 
