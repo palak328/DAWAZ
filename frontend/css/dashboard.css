@@ -775,3 +775,26 @@ input {
     }
 }
 
+/* LANGUAGE SELECTOR */
+
+.language-selector-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 12px;
+}
+
+.language-icon {
+    font-size: 18px;
+}
+
+.language-selector {
+    padding: 7px 9px;
+    border: 1px solid #D7EFEC;
+    border-radius: 7px;
+    background: #F7FAF9;
+    color: #084F4F;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}

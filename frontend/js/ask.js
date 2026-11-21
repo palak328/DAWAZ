@@ -1,477 +1,410 @@
 
+
+/* ============================================
+   DAWAZ - ASK ASSISTANT
+   Chat + Voice Input + Voice Output
+============================================ */
+
 document.addEventListener("DOMContentLoaded", () => {
 
+    "use strict";
+
     // =========================================
-    // 1. HTML ELEMENTS
+    // 1. CONFIGURATION
+    // =========================================
+
+    // Replace this with your actual backend URL.
+    // Do not use the Live Server URL (port 5500).
+    const API_BASE = "http://127.0.0.1:8000";
+
+    const ASK_ENDPOINT = "/api/assistant/ask";
+    const TRANSCRIBE_ENDPOINT = "/api/assistant/transcribe";
+
+
+    // =========================================
+    // 2. HTML ELEMENTS
     // =========================================
 
     const chatForm = document.getElementById("chatForm");
     const chatInput = document.getElementById("chatInput");
     const chatMessages = document.getElementById("chatMessages");
-    const sendMessageBtn = document.getElementById("sendMessageBtn");
-    const suggestedQuestions = document.getElementById("suggestedQuestions");
+
+    const chatStatus = document.getElementById("chatStatus");
+    const statusText = document.getElementById("statusText");
+
+    const suggestedQuestions =
+        document.getElementById("suggestedQuestions");
 
     const chatMicBtn = document.getElementById("chatMicBtn");
-    const chatStatus = document.getElementById("chatStatus");
+    const sendMessageBtn =
+        document.getElementById("sendMessageBtn");
+
     const voiceStatus = document.getElementById("voiceStatus");
+    const stopVoiceBtn = document.getElementById("stopVoiceBtn");
 
-    // Supports either of these selector IDs.
-    const languageSelector =
-        document.getElementById("languageSelect") ||
-        document.querySelector("[data-language-selector]");
 
     // =========================================
-    // 2. API ENDPOINTS
+    // 3. CHECK REQUIRED ELEMENTS
     // =========================================
 
-    const API_URL = "/api/assistant/ask";
-    const TRANSCRIPTION_API_URL = "/api/assistant/transcribe";
-
-    // =========================================
-    // 3. LANGUAGE SETTINGS
-    // =========================================
-
-    const LANGUAGE_KEY = "dawazLanguage";
-
-    let currentLanguage =
-        localStorage.getItem(LANGUAGE_KEY) || "en";
-
-    const languageText = {
-        en: {
-            thinking: "DAWAZ is thinking...",
-            preparing: "DAWAZ is preparing a response...",
-            online: "Online",
-            connectionError:
-                "I couldn't connect to DAWAZ right now. Please try again later.",
-            invalidResponse:
-                "DAWAZ did not return a valid response. Please try again.",
-            unsupported:
-                "Audio recording is not supported in this browser.",
-            recording:
-                "Recording... Click the microphone again to stop.",
-            processing: "Processing your recording...",
-            noAudio: "No audio was recorded. Please try again.",
-            permission:
-                "Microphone permission denied. Allow microphone access in browser settings.",
-            microphoneError:
-                "Could not access the microphone. Check your device settings.",
-            transcriptionComplete:
-                "Transcription complete. Review your message and press Send.",
-            transcriptionError:
-                "Could not transcribe audio. Check the backend connection.",
-            speakingUnavailable:
-                "Speech is not supported in this browser.",
-            languageEnglish: "English",
-            languageHindi: "Hindi"
-        },
-
-        hi: {
-            thinking: "DAWAZ सोच रहा है...",
-            preparing: "DAWAZ जवाब तैयार कर रहा है...",
-            online: "ऑनलाइन",
-            connectionError:
-                "अभी DAWAZ से कनेक्ट नहीं हो पाया। कृपया बाद में प्रयास करें।",
-            invalidResponse:
-                "DAWAZ से सही जवाब नहीं मिला। कृपया दोबारा प्रयास करें।",
-            unsupported:
-                "इस ब्राउज़र में ऑडियो रिकॉर्डिंग उपलब्ध नहीं है।",
-            recording:
-                "रिकॉर्डिंग हो रही है... रोकने के लिए माइक्रोफ़ोन फिर दबाएँ।",
-            processing: "आपकी रिकॉर्डिंग प्रोसेस हो रही है...",
-            noAudio:
-                "कोई ऑडियो रिकॉर्ड नहीं हुआ। कृपया दोबारा प्रयास करें।",
-            permission:
-                "माइक्रोफ़ोन की अनुमति नहीं मिली। ब्राउज़र सेटिंग में अनुमति दें।",
-            microphoneError:
-                "माइक्रोफ़ोन इस्तेमाल नहीं हो पाया। अपनी डिवाइस सेटिंग जाँचें।",
-            transcriptionComplete:
-                "ट्रांसक्रिप्शन पूरा हुआ। अपना संदेश जाँचें और Send दबाएँ।",
-            transcriptionError:
-                "आवाज़ को टेक्स्ट में नहीं बदला जा सका। बैकएंड कनेक्शन जाँचें।",
-            speakingUnavailable:
-                "इस ब्राउज़र में टेक्स्ट पढ़कर सुनाने की सुविधा उपलब्ध नहीं है।",
-            languageEnglish: "अंग्रेज़ी",
-            languageHindi: "हिंदी"
-        }
-    };
-
-    function getText(key) {
-        return languageText[currentLanguage]?.[key] ||
-            languageText.en[key] ||
-            key;
+    if (!chatForm || !chatInput || !chatMessages) {
+        console.error("DAWAZ: Required chat elements are missing.");
+        return;
     }
 
-    function updateLanguage(language) {
 
-        currentLanguage = language === "hi" ? "hi" : "en";
+    // =========================================
+    // 4. LANGUAGE
+    // =========================================
 
-        localStorage.setItem(LANGUAGE_KEY, currentLanguage);
+    function getLanguage() {
 
-        if (languageSelector) {
-            languageSelector.value = currentLanguage;
+        if (window.DAWAZ_LANGUAGE &&
+            typeof window.DAWAZ_LANGUAGE.getLanguage === "function") {
+
+            return window.DAWAZ_LANGUAGE.getLanguage();
+        }
+
+        return localStorage.getItem("dawazLanguage") || "en";
+    }
+
+
+    function getVoice() {
+        return window.DAWAZ_VOICE || null;
+    }
+
+
+    function translate(key, fallback) {
+
+        if (window.DAWAZ_LANGUAGE &&
+            typeof window.DAWAZ_LANGUAGE.translate === "function") {
+
+            return window.DAWAZ_LANGUAGE.translate(key) || fallback;
+        }
+
+        return fallback;
+    }
+
+
+    // =========================================
+    // 5. CHAT STATUS
+    // =========================================
+
+    function setStatus(message) {
+
+        if (statusText) {
+            statusText.textContent = message;
         }
 
         if (chatStatus) {
-            chatStatus.textContent = getText("online");
+            chatStatus.classList.add("active");
         }
     }
 
-    updateLanguage(currentLanguage);
 
-    if (languageSelector) {
-        languageSelector.addEventListener("change", () => {
-            updateLanguage(languageSelector.value);
-        });
-    }
+    function setVoiceStatus(message) {
 
-    // =========================================
-    // 4. VARIABLES
-    // =========================================
-
-    let isSending = false;
-    let isRecording = false;
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let microphoneStream = null;
-
-    let speechEnabled = true;
-    let currentUtterance = null;
-
-    // =========================================
-    // 5. TEXT-TO-SPEECH
-    // =========================================
-
-    function getSpeechLanguage() {
-        return currentLanguage === "hi" ? "hi-IN" : "en-IN";
-    }
-
-    function speakMessage(message) {
-
-        if (!speechEnabled || !("speechSynthesis" in window)) {
-            return;
+        if (voiceStatus) {
+            voiceStatus.textContent = message;
         }
-
-        window.speechSynthesis.cancel();
-
-        currentUtterance = new SpeechSynthesisUtterance(message);
-        currentUtterance.lang = getSpeechLanguage();
-        currentUtterance.rate = 0.9;
-        currentUtterance.pitch = 1;
-        currentUtterance.volume = 1;
-
-        const voices = window.speechSynthesis.getVoices();
-
-        const preferredVoice = voices.find(voice =>
-            voice.lang.toLowerCase() === getSpeechLanguage().toLowerCase()
-        );
-
-        if (preferredVoice) {
-            currentUtterance.voice = preferredVoice;
-        }
-
-        window.speechSynthesis.speak(currentUtterance);
     }
 
-    function stopSpeaking() {
-
-        if ("speechSynthesis" in window) {
-            window.speechSynthesis.cancel();
-        }
-
-        currentUtterance = null;
-    }
-
-    // Browser voices may load after the page.
-    if ("speechSynthesis" in window) {
-        window.speechSynthesis.onvoiceschanged = () => {
-            window.speechSynthesis.getVoices();
-        };
-    }
 
     // =========================================
-    // 6. DISPLAY CHAT MESSAGE
+    // 6. ADD CHAT MESSAGE
     // =========================================
 
-    function createMessage(message, sender) {
+    function addMessage(text, sender) {
 
-        const messageElement = document.createElement("div");
+        const message = document.createElement("div");
 
-        messageElement.classList.add(
-            "message",
-            sender === "user" ? "user-message" : "assistant-message"
-        );
+        message.className =
+            sender === "user"
+                ? "message user-message"
+                : "message assistant-message";
+
+        const avatar = document.createElement("div");
+        avatar.className = "message-avatar";
+
+        avatar.textContent =
+            sender === "user" ? "U" : "D";
 
         const content = document.createElement("div");
         content.className = "message-content";
 
-        const bubble = document.createElement("div");
-        bubble.className = "message-bubble";
-        bubble.textContent = message;
+        const paragraph = document.createElement("p");
+        paragraph.textContent = text;
 
-        content.appendChild(bubble);
+        content.appendChild(paragraph);
 
-        // Add replay control only to DAWAZ replies.
-        if (sender !== "user") {
+        message.appendChild(avatar);
+        message.appendChild(content);
 
-            const controls = document.createElement("div");
-            controls.className = "message-audio-controls";
+        if (sender === "assistant") {
 
-            const replayButton = document.createElement("button");
-            replayButton.type = "button";
-            replayButton.className = "message-speak-btn";
-            replayButton.textContent = "🔊";
-            replayButton.title = "Read this reply aloud";
-            replayButton.setAttribute("aria-label", "Read this reply aloud");
+            const actions = document.createElement("div");
+            actions.className = "message-actions";
 
-            replayButton.addEventListener("click", () => {
-                speakMessage(message);
+            const playButton = document.createElement("button");
+            playButton.type = "button";
+            playButton.textContent = "🔊";
+            playButton.title = "Read response aloud";
+
+            playButton.addEventListener("click", () => {
+                speakResponse(text);
             });
 
-            controls.appendChild(replayButton);
-            content.appendChild(controls);
+            const stopButton = document.createElement("button");
+            stopButton.type = "button";
+            stopButton.textContent = "⏹";
+            stopButton.title = "Stop voice";
 
-            // Automatically read the assistant's reply.
-            speakMessage(message);
+            stopButton.addEventListener("click", stopVoice);
+
+            actions.appendChild(playButton);
+            actions.appendChild(stopButton);
+
+            content.appendChild(actions);
         }
 
-        messageElement.appendChild(content);
-        chatMessages.appendChild(messageElement);
+        chatMessages.appendChild(message);
 
-        scrollToBottom();
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
+
     // =========================================
-    // 7. STOP SPEECH CONTROL
+    // 7. TYPING INDICATOR
     // =========================================
 
-    function createSpeechControls() {
+    function showTyping() {
 
-        if (document.getElementById("stopSpeechBtn")) {
+        const typing = document.createElement("div");
+
+        typing.className = "message assistant-message";
+        typing.id = "dawazTyping";
+
+        typing.textContent =
+            getLanguage() === "hi"
+                ? "DAWAZ जवाब तैयार कर रहा है..."
+                : "DAWAZ is typing...";
+
+        chatMessages.appendChild(typing);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+
+    function removeTyping() {
+
+        const typing = document.getElementById("dawazTyping");
+
+        if (typing) {
+            typing.remove();
+        }
+    }
+
+
+    // =========================================
+    // 8. VOICE OUTPUT
+    // =========================================
+
+    async function speakResponse(text) {
+
+        const voice = getVoice();
+
+        if (!voice || typeof voice.speak !== "function") {
+            setVoiceStatus("Voice service is unavailable.");
             return;
         }
 
-        const stopButton = document.createElement("button");
+        try {
 
-        stopButton.id = "stopSpeechBtn";
-        stopButton.type = "button";
-        stopButton.className = "stop-speech-btn";
-        stopButton.textContent = "⏹ Stop speaking";
+            stopVoice();
 
-        stopButton.addEventListener("click", stopSpeaking);
+            setVoiceStatus(
+                getLanguage() === "hi"
+                    ? "आवाज़ में जवाब दिया जा रहा है..."
+                    : "Speaking response..."
+            );
 
-        if (chatForm && chatForm.parentElement) {
-            chatForm.parentElement.insertBefore(
-                stopButton,
-                chatForm
+            await voice.speak(text);
+
+            setVoiceStatus("");
+
+        } catch (error) {
+
+            console.error("DAWAZ voice error:", error);
+
+            setVoiceStatus(
+                getLanguage() === "hi"
+                    ? "आवाज़ उपलब्ध नहीं है।"
+                    : "Voice playback failed."
             );
         }
     }
 
-    createSpeechControls();
 
-    // =========================================
-    // 8. SCROLL CHAT
-    // =========================================
+    function stopVoice() {
 
-    function scrollToBottom() {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+        const voice = getVoice();
 
-    // =========================================
-    // 9. TYPING INDICATOR
-    // =========================================
-
-    function showTypingIndicator() {
-
-        removeTypingIndicator();
-
-        const typing = document.createElement("div");
-
-        typing.id = "typingIndicator";
-        typing.className = "message assistant-message";
-
-        const content = document.createElement("div");
-        content.className = "message-content";
-
-        const bubble = document.createElement("div");
-        bubble.className = "message-bubble typing-indicator";
-        bubble.textContent = getText("thinking");
-
-        content.appendChild(bubble);
-        typing.appendChild(content);
-
-        chatMessages.appendChild(typing);
-
-        scrollToBottom();
-    }
-
-    function removeTypingIndicator() {
-
-        const indicator = document.getElementById("typingIndicator");
-
-        if (indicator) {
-            indicator.remove();
+        if (voice && typeof voice.stop === "function") {
+            voice.stop();
         }
+
+        setVoiceStatus("");
     }
 
+
+    if (stopVoiceBtn) {
+        stopVoiceBtn.addEventListener("click", stopVoice);
+    }
+
+
     // =========================================
-    // 10. SEND QUESTION TO FASTAPI
+    // 9. SEND QUESTION TO BACKEND
     // =========================================
 
     async function sendQuestion(question) {
 
-        const trimmedQuestion = question.trim();
+        question = question.trim();
 
-        if (!trimmedQuestion || isSending) {
-            return;
-        }
+        if (!question) return;
 
-        isSending = true;
-
-        stopSpeaking();
-
-        createMessage(trimmedQuestion, "user");
+        addMessage(question, "user");
 
         chatInput.value = "";
         chatInput.style.height = "auto";
 
         sendMessageBtn.disabled = true;
 
-        if (chatMicBtn) {
-            chatMicBtn.disabled = true;
-        }
+        showTyping();
 
-        if (chatStatus) {
-            chatStatus.textContent = getText("preparing");
-        }
-
-        showTypingIndicator();
+        setStatus(
+            getLanguage() === "hi"
+                ? "DAWAZ जवाब तैयार कर रहा है..."
+                : "DAWAZ is thinking..."
+        );
 
         try {
 
-            const response = await fetch(API_URL, {
+            const response = await fetch(
+                API_BASE + ASK_ENDPOINT,
+                {
+                    method: "POST",
 
-                method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    question: trimmedQuestion,
-                    language: currentLanguage
-                })
-
-            });
+                    body: JSON.stringify({
+                        question: question,
+                        language: getLanguage()
+                    })
+                }
+            );
 
             if (!response.ok) {
-                throw new Error(`Server error: ${response.status}`);
+                throw new Error(
+                    "Server error: " + response.status
+                );
             }
 
             const data = await response.json();
 
-            removeTypingIndicator();
+            const answer =
+                data.answer ||
+                data.response ||
+                data.message;
 
-            if (
-                typeof data.answer === "string" &&
-                data.answer.trim()
-            ) {
-
-                createMessage(data.answer.trim(), "assistant");
-
-            } else {
-
-                throw new Error("Invalid response from assistant.");
+            if (!answer || typeof answer !== "string") {
+                throw new Error(
+                    "The backend did not return a valid answer."
+                );
             }
+
+            removeTyping();
+
+            addMessage(answer, "assistant");
+
+            setStatus(
+                getLanguage() === "hi"
+                    ? "DAWAZ तैयार है"
+                    : "DAWAZ is ready"
+            );
+
+            // Automatically read the response aloud.
+            await speakResponse(answer);
 
         } catch (error) {
 
-            console.error("Assistant error:", error);
+            console.error("DAWAZ chat error:", error);
 
-            removeTypingIndicator();
+            removeTyping();
 
-            createMessage(
-                getText("connectionError"),
+            addMessage(
+                getLanguage() === "hi"
+                    ? "माफ़ कीजिए, अभी जवाब प्राप्त नहीं हो सका। कृपया सर्वर कनेक्शन जाँचें।"
+                    : "Sorry, I could not get a response. Please check the backend connection.",
                 "assistant"
             );
 
+            setStatus("Connection problem.");
+
         } finally {
 
-            isSending = false;
-
             sendMessageBtn.disabled = false;
-
-            if (chatMicBtn) {
-                chatMicBtn.disabled = false;
-            }
-
-            if (chatStatus) {
-                chatStatus.textContent = getText("online");
-            }
-
             chatInput.focus();
         }
     }
 
+
     // =========================================
-    // 11. CHAT FORM
+    // 10. CHAT FORM
     // =========================================
 
-    chatForm.addEventListener("submit", (event) => {
+    chatForm.addEventListener("submit", event => {
 
         event.preventDefault();
-
-        if (isRecording) {
-            return;
-        }
 
         sendQuestion(chatInput.value);
     });
 
-    // =========================================
-    // 12. ENTER TO SEND
-    // =========================================
 
-    chatInput.addEventListener("keydown", (event) => {
+    // Enter to send, Shift + Enter for new line.
+    chatInput.addEventListener("keydown", event => {
 
-        if (
-            event.key === "Enter" &&
-            !event.shiftKey
-        ) {
+        if (event.key === "Enter" && !event.shiftKey) {
 
             event.preventDefault();
 
-            if (!isSending && !isRecording) {
-                chatForm.requestSubmit();
-            }
+            chatForm.requestSubmit();
         }
     });
 
-    // =========================================
-    // 13. TEXTAREA AUTO RESIZE
-    // =========================================
 
+    // Automatically resize textarea.
     chatInput.addEventListener("input", () => {
 
         chatInput.style.height = "auto";
 
         chatInput.style.height =
-            Math.min(chatInput.scrollHeight, 120) + "px";
+            chatInput.scrollHeight + "px";
     });
 
+
     // =========================================
-    // 14. SUGGESTED QUESTIONS
+    // 11. SUGGESTED QUESTIONS
     // =========================================
 
     if (suggestedQuestions) {
 
-        suggestedQuestions.addEventListener("click", (event) => {
+        suggestedQuestions.addEventListener("click", event => {
 
             const button = event.target.closest("[data-question]");
 
-            if (!button || isSending || isRecording) {
-                return;
-            }
+            if (!button) return;
 
             const question = button.dataset.question;
 
@@ -481,47 +414,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // =========================================
-    // 15. AUDIO FORMAT
-    // =========================================
-
-    function getSupportedAudioType() {
-
-        if (!window.MediaRecorder) {
-            return "";
-        }
-
-        const formats = [
-            "audio/webm;codecs=opus",
-            "audio/webm",
-            "audio/mp4"
-        ];
-
-        return formats.find(type =>
-            MediaRecorder.isTypeSupported(type)
-        ) || "";
-    }
 
     // =========================================
-    // 16. START AUDIO RECORDING
+    // 12. MICROPHONE RECORDING
     // =========================================
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let microphoneStream = null;
+
 
     async function startRecording() {
 
-        if (
-            !navigator.mediaDevices ||
-            !navigator.mediaDevices.getUserMedia ||
-            !window.MediaRecorder
-        ) {
-
-            if (voiceStatus) {
-                voiceStatus.textContent = getText("unsupported");
-            }
-
-            return;
-        }
-
         try {
+
+            if (!navigator.mediaDevices ||
+                !navigator.mediaDevices.getUserMedia) {
+
+                throw new Error(
+                    "Microphone is not supported by this browser."
+                );
+            }
 
             microphoneStream =
                 await navigator.mediaDevices.getUserMedia({
@@ -530,15 +443,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             audioChunks = [];
 
-            const audioType = getSupportedAudioType();
+            const options = {};
 
-            mediaRecorder = audioType
-                ? new MediaRecorder(microphoneStream, {
-                    mimeType: audioType
-                })
-                : new MediaRecorder(microphoneStream);
+            if (MediaRecorder.isTypeSupported("audio/webm")) {
+                options.mimeType = "audio/webm";
+            }
 
-            mediaRecorder.ondataavailable = (event) => {
+            mediaRecorder = new MediaRecorder(
+                microphoneStream,
+                options
+            );
+
+            mediaRecorder.ondataavailable = event => {
 
                 if (event.data.size > 0) {
                     audioChunks.push(event.data);
@@ -551,126 +467,76 @@ document.addEventListener("DOMContentLoaded", () => {
                     type: mediaRecorder.mimeType || "audio/webm"
                 });
 
-                stopMicrophoneStream();
+                microphoneStream
+                    .getTracks()
+                    .forEach(track => track.stop());
 
-                if (audioBlob.size === 0) {
-
-                    if (voiceStatus) {
-                        voiceStatus.textContent = getText("noAudio");
-                    }
-
-                    if (chatMicBtn) {
-                        chatMicBtn.disabled = false;
-                    }
-
-                    return;
-                }
+                microphoneStream = null;
 
                 await transcribeAudio(audioBlob);
             };
 
             mediaRecorder.start();
 
-            isRecording = true;
+            chatMicBtn.textContent = "⏹";
+            chatMicBtn.classList.add("recording");
 
-            if (chatMicBtn) {
-                chatMicBtn.textContent = "⏹";
-                chatMicBtn.classList.add("recording");
-                chatMicBtn.title = "Stop recording";
-            }
-
-            if (voiceStatus) {
-                voiceStatus.textContent = getText("recording");
-            }
+            setVoiceStatus(
+                getLanguage() === "hi"
+                    ? "रिकॉर्डिंग शुरू..."
+                    : "Recording..."
+            );
 
         } catch (error) {
 
             console.error("Microphone error:", error);
 
-            stopMicrophoneStream();
-
-            if (voiceStatus) {
-
-                voiceStatus.textContent =
-                    error.name === "NotAllowedError"
-                        ? getText("permission")
-                        : getText("microphoneError");
-            }
+            setVoiceStatus(
+                "Microphone access failed. Check browser permissions."
+            );
         }
     }
 
-    // =========================================
-    // 17. STOP AUDIO RECORDING
-    // =========================================
 
     function stopRecording() {
 
-        if (!mediaRecorder || mediaRecorder.state !== "recording") {
-            return;
+        if (mediaRecorder &&
+            mediaRecorder.state === "recording") {
+
+            mediaRecorder.stop();
         }
 
-        isRecording = false;
-
-        if (chatMicBtn) {
-            chatMicBtn.disabled = true;
-        }
-
-        if (voiceStatus) {
-            voiceStatus.textContent = getText("processing");
-        }
-
-        mediaRecorder.stop();
-
-        if (chatMicBtn) {
-            chatMicBtn.textContent = "🎙";
-            chatMicBtn.classList.remove("recording");
-            chatMicBtn.title = "Record voice";
-        }
+        chatMicBtn.textContent = "🎤";
+        chatMicBtn.classList.remove("recording");
     }
 
-    // =========================================
-    // 18. RELEASE MICROPHONE
-    // =========================================
-
-    function stopMicrophoneStream() {
-
-        if (microphoneStream) {
-
-            microphoneStream.getTracks().forEach(track => {
-                track.stop();
-            });
-
-            microphoneStream = null;
-        }
-    }
 
     // =========================================
-    // 19. SEND AUDIO TO FASTAPI
+    // 13. AUDIO TRANSCRIPTION
     // =========================================
 
     async function transcribeAudio(audioBlob) {
 
-        const formData = new FormData();
-
-        const extension = audioBlob.type.includes("mp4")
-            ? "mp4"
-            : "webm";
-
-        const audioFile = new File(
-            [audioBlob],
-            `dawaz-recording.${extension}`,
-            { type: audioBlob.type }
+        setVoiceStatus(
+            getLanguage() === "hi"
+                ? "आवाज़ को टेक्स्ट में बदला जा रहा है..."
+                : "Transcribing audio..."
         );
-
-        formData.append("file", audioFile);
-
-        // Tell the backend which language to transcribe.
-        formData.append("language", currentLanguage);
 
         try {
 
+            const formData = new FormData();
+
+            formData.append(
+                "file",
+                audioBlob,
+                "recording.webm"
+            );
+
+            formData.append("language", getLanguage());
+
             const response = await fetch(
-                TRANSCRIPTION_API_URL,
+                API_BASE + TRANSCRIBE_ENDPOINT,
                 {
                     method: "POST",
                     body: formData
@@ -679,93 +545,104 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!response.ok) {
                 throw new Error(
-                    `Transcription server error: ${response.status}`
+                    "Transcription error: " + response.status
                 );
             }
 
             const data = await response.json();
 
-            if (
-                !data.text ||
-                typeof data.text !== "string"
-            ) {
-                throw new Error("Transcription text was not received.");
+            const transcript =
+                data.transcription ||
+                data.text ||
+                data.transcript;
+
+            if (!transcript) {
+                throw new Error(
+                    "No transcription received."
+                );
             }
 
-            chatInput.value = data.text.trim();
-
-            chatInput.style.height = "auto";
-
-            chatInput.style.height =
-                Math.min(chatInput.scrollHeight, 120) + "px";
-
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    getText("transcriptionComplete");
-            }
-
+            // Insert transcription for the user to review.
+            chatInput.value = transcript;
             chatInput.focus();
+
+            setVoiceStatus(
+                getLanguage() === "hi"
+                    ? "टेक्स्ट तैयार है। भेजने से पहले जाँच लें।"
+                    : "Transcription ready. Review before sending."
+            );
 
         } catch (error) {
 
-            console.error("Transcription error:", error);
+            console.error("DAWAZ transcription error:", error);
 
-            if (voiceStatus) {
-                voiceStatus.textContent =
-                    getText("transcriptionError");
-            }
+            setVoiceStatus(
+                getLanguage() === "hi"
+                    ? "आवाज़ को टेक्स्ट में नहीं बदला जा सका।"
+                    : "Could not transcribe audio."
+            );
 
         } finally {
 
-            stopMicrophoneStream();
-
-            if (chatMicBtn) {
-                chatMicBtn.disabled = false;
-            }
-
-            if (sendMessageBtn) {
-                sendMessageBtn.disabled = false;
-            }
+            chatMicBtn.textContent = "🎤";
+            chatMicBtn.classList.remove("recording");
         }
     }
 
+
     // =========================================
-    // 20. MICROPHONE BUTTON
+    // 14. MICROPHONE BUTTON
     // =========================================
 
     if (chatMicBtn) {
 
         chatMicBtn.addEventListener("click", () => {
 
-            if (isSending) {
-                return;
-            }
+            if (mediaRecorder &&
+                mediaRecorder.state === "recording") {
 
-            if (isRecording) {
                 stopRecording();
+
             } else {
+
                 startRecording();
             }
         });
     }
 
+
     // =========================================
-    // 21. PAGE CLEANUP
+    // 15. LANGUAGE CHANGE
     // =========================================
 
-    window.addEventListener("beforeunload", () => {
+    window.addEventListener(
+        "dawazLanguageChanged",
+        () => {
 
-        stopSpeaking();
+            stopVoice();
 
-        if (
-            mediaRecorder &&
-            mediaRecorder.state === "recording"
-        ) {
-            mediaRecorder.stop();
+            setStatus(
+                getLanguage() === "hi"
+                    ? "DAWAZ तैयार है"
+                    : "DAWAZ is ready"
+            );
         }
+    );
 
-        stopMicrophoneStream();
-    });
+
+    // =========================================
+    // 16. INITIALIZE
+    // =========================================
+
+    setStatus(
+        getLanguage() === "hi"
+            ? "DAWAZ तैयार है"
+            : "DAWAZ is ready"
+    );
+
+    console.log("DAWAZ Ask Assistant initialized.");
 
 });
+
+
 

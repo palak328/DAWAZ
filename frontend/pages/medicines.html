@@ -14,67 +14,117 @@
 <body>
 
     <nav class="navbar">
+
         <a href="dashboard.html" class="logo">DAWAZ</a>
 
         <div class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="medicines.html" class="active">My Medicines</a>
-            <a href="reminders.html">Reminders</a>
-            <a href="medicine-scanner.html">Scan Medicine</a>
-            <a href="caregivers.html">Caregivers</a>
+            <a href="dashboard.html" data-i18n="dashboard">Dashboard</a>
+
+            <a href="medicines.html" class="active" data-i18n="medicines">
+                My Medicines
+            </a>
+
+            <a href="reminders.html" data-i18n="reminders">Reminders</a>
+
+            <a href="medicine-scanner.html" data-i18n="scanner">
+                Scan Medicine
+            </a>
+
+            <a href="caregivers.html" data-i18n="caregivers">Caregivers</a>
         </div>
+
+        <!-- LANGUAGE SELECTOR -->
+        <div class="language-selector-wrapper">
+            <span class="language-icon" aria-hidden="true">🌐</span>
+
+            <select
+                id="languageSelect"
+                class="language-selector"
+                aria-label="Select language"
+            >
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+            </select>
+        </div>
+
     </nav>
+
 
     <main class="medicines-container">
 
+        <!-- PAGE HEADING -->
         <section class="medicines-heading">
+
             <div>
-                <h1>My Medicines</h1>
-                <p>Manage your medicine records and monitor your stock.</p>
+                <h1 data-i18n="myMedicines">My Medicines</h1>
+
+                <p data-i18n="manageMedicines">
+                    Manage your medicine records and monitor your stock.
+                </p>
             </div>
 
-            <button type="button" id="addMedicineBtn" class="add-medicine-btn">
+            <button
+                type="button"
+                id="addMedicineBtn"
+                class="add-medicine-btn"
+                data-i18n="addMedicine"
+            >
                 + Add Medicine
             </button>
+
         </section>
 
+
+        <!-- MEDICINE SUMMARY -->
         <section class="medicine-summary">
 
             <div class="summary-card">
-                <p>Total Medicines</p>
+                <p data-i18n="totalMedicines">Total Medicines</p>
                 <h2 id="totalMedicines">0</h2>
             </div>
 
             <div class="summary-card">
-                <p>Low Stock</p>
+                <p data-i18n="lowStock">Low Stock</p>
                 <h2 id="lowStockMedicines">0</h2>
             </div>
 
             <div class="summary-card">
-                <p>Out of Stock</p>
+                <p data-i18n="outOfStock">Out of Stock</p>
                 <h2 id="outOfStockMedicines">0</h2>
             </div>
 
         </section>
 
+
+        <!-- MEDICINE SEARCH -->
         <section class="medicine-search-section">
+
             <input
                 type="search"
                 id="medicineSearch"
                 placeholder="Search medicines by name or strength..."
                 aria-label="Search medicines"
+                data-i18n-placeholder="searchMedicines"
+                data-i18n-aria-label="searchMedicines"
             >
+
         </section>
 
+
+        <!-- MEDICINE LIST -->
         <section class="medicine-list-section">
+
             <div id="medicineList">
 
                 <div id="emptyState" class="empty-state">
+
                     <div class="empty-state-icon">💊</div>
 
-                    <h3>No medicines added yet</h3>
+                    <h3 data-i18n="noMedicines">
+                        No medicines added yet
+                    </h3>
 
-                    <p>
+                    <p data-i18n="emptyMedicineDescription">
                         Add your medicines to maintain a digital medicine cabinet.
                     </p>
 
@@ -82,13 +132,17 @@
                         type="button"
                         id="emptyAddBtn"
                         class="add-medicine-btn"
+                        data-i18n="addFirstMedicine"
                     >
                         + Add Your First Medicine
                     </button>
+
                 </div>
 
             </div>
+
         </section>
+
 
         <!-- ADD / EDIT MEDICINE MODAL -->
         <div id="medicineModal" class="modal-overlay" hidden>
@@ -96,82 +150,133 @@
             <div class="modal-card">
 
                 <div class="modal-heading">
-                    <h2 id="modalTitle">Add Medicine</h2>
+
+                    <h2 id="modalTitle" data-i18n="addMedicineTitle">
+                        Add Medicine
+                    </h2>
 
                     <button
                         type="button"
                         id="closeMedicineModal"
                         class="close-btn"
                         aria-label="Close"
+                        data-i18n-aria-label="close"
                     >
                         &times;
                     </button>
+
                 </div>
+
 
                 <form id="medicineForm">
 
+                    <!-- MEDICINE NAME -->
                     <div class="form-group">
-                        <label for="medicineName">Medicine Name</label>
+
+                        <label for="medicineName" data-i18n="medicineName">
+                            Medicine Name
+                        </label>
+
                         <input
                             type="text"
                             id="medicineName"
                             placeholder="Enter medicine name"
+                            data-i18n-placeholder="enterMedicineName"
                             required
                         >
+
                     </div>
 
+
+                    <!-- STRENGTH -->
                     <div class="form-group">
-                        <label for="medicineStrength">Strength</label>
+
+                        <label for="medicineStrength" data-i18n="strength">
+                            Strength
+                        </label>
+
                         <input
                             type="text"
                             id="medicineStrength"
                             placeholder="Enter prescribed strength"
+                            data-i18n-placeholder="enterStrength"
                         >
+
                     </div>
 
+
+                    <!-- STOCK -->
                     <div class="form-group">
-                        <label for="medicineStock">Available Stock</label>
+
+                        <label for="medicineStock" data-i18n="availableStock">
+                            Available Stock
+                        </label>
+
                         <input
                             type="number"
                             id="medicineStock"
                             min="0"
                             step="1"
                             placeholder="Enter available quantity"
+                            data-i18n-placeholder="enterQuantity"
                             required
                         >
+
                     </div>
 
+
+                    <!-- PRESCRIPTION INSTRUCTIONS -->
                     <div class="form-group">
-                        <label for="medicineInstructions">
+
+                        <label for="medicineInstructions" data-i18n="prescriptionInstructions">
                             Prescription Instructions
                         </label>
+
                         <textarea
                             id="medicineInstructions"
                             placeholder="Enter instructions from the confirmed prescription"
+                            data-i18n-placeholder="enterPrescriptionInstructions"
                         ></textarea>
+
                     </div>
 
+
+                    <!-- ADDITIONAL NOTES -->
                     <div class="form-group">
-                        <label for="medicineNotes">Additional Notes</label>
+
+                        <label for="medicineNotes" data-i18n="additionalNotes">
+                            Additional Notes
+                        </label>
+
                         <textarea
                             id="medicineNotes"
                             placeholder="Enter additional notes"
+                            data-i18n-placeholder="enterAdditionalNotes"
                         ></textarea>
+
                     </div>
+
 
                     <p id="medicineFormMessage" class="form-message"></p>
 
+
+                    <!-- MODAL BUTTONS -->
                     <div class="modal-actions">
 
                         <button
                             type="button"
                             id="cancelMedicineBtn"
                             class="cancel-medicine-btn"
+                            data-i18n="cancel"
                         >
                             Cancel
                         </button>
 
-                        <button type="submit" class="save-medicine-btn">
+                        <button
+                            type="submit"
+                            class="save-medicine-btn"
+                            data-i18n="saveMedicine"
+                        >
                             Save Medicine
                         </button>
 
@@ -180,21 +285,39 @@
                 </form>
 
             </div>
+
         </div>
 
+
+        <!-- MEDICINE SAFETY NOTE -->
         <section class="medicine-safety-note">
-            <strong>Medicine Safety:</strong>
-            Always follow your confirmed doctor's prescription.
-            DAWAZ does not independently recommend or change medicine doses.
+
+            <strong data-i18n="medicineSafety">
+                Medicine Safety:
+            </strong>
+
+            <span data-i18n="medicineSafetyDescription">
+                Always follow your confirmed doctor's prescription.
+                DAWAZ does not independently recommend or change medicine doses.
+            </span>
+
         </section>
 
     </main>
 
+
+    <!-- SHARED LANGUAGE SYSTEM -->
+    <script src="../js/language.js"></script>
+
+    <!-- MEDICINE FUNCTIONALITY -->
     <script src="../js/medicines.js"></script>
+
+    <!-- TEXT TO SPEECH -->
     <script src="../js/medicine-voice.js"></script>
 
 </body>
 </html>
+
 
 
 

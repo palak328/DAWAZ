@@ -1,6 +1,7 @@
 
 // ============================================
 // DAWAZ - SMART MEDICINE SCANNER
+// ENGLISH / HINDI LANGUAGE SUPPORT
 // ============================================
 
 
@@ -98,7 +99,174 @@ let isChatStarted = false;
 
 
 // ============================================
-// 3. DISPLAY SCAN MESSAGE
+// 3. TRANSLATIONS
+// ============================================
+
+const scannerTranslations = {
+
+    en: {
+
+        selectImage: "Select or capture a medicine image to begin.",
+        cameraUnsupported: "Camera access is not supported by this browser.",
+        cameraReady: "Camera is ready. Position the medicine clearly.",
+        cameraError: "Unable to access camera. Allow camera permission or upload an image instead.",
+        startCameraFirst: "Start the camera first.",
+        cameraNotReady: "Camera is not ready. Please wait a moment.",
+        captureError: "Unable to capture image.",
+        unsupportedImage: "Unsupported image. Please select JPG, PNG or WEBP.",
+        imageTooLarge: "Image size must be less than 10 MB.",
+        capturedImage: "Captured medicine image",
+        imageSelected: "Image selected successfully.",
+        identify: "Identify Medicine",
+        identifying: "Identifying...",
+        submitAnswers: "Submit Answers",
+        rechecking: "Rechecking...",
+        noImage: "The original image is missing. Please scan the medicine again.",
+        answerEveryQuestion: "Please answer every question before submitting.",
+        sendingAnswers: "Sending your answers and original image for re-evaluation...",
+        stillUncertain: "The medicine is still uncertain. Do not rely on a guessed identification.",
+        moreInformation: "The system still needs more reliable information. Please check the packaging or consult a pharmacist.",
+        recheckSuccess: "Medicine re-evaluation response received.",
+        recheckError: "Unable to recheck the medicine. Check the backend connection and try again.",
+        matchedTitle: "Medicine matched with prescription",
+        matchedDescription: "The identified medicine matches a confirmed prescription record.",
+        notFoundTitle: "Medicine not found in prescription",
+        notFoundDescription: "This medicine was not found in the confirmed prescription.",
+        uncertainTitle: "Unable to identify medicine confidently",
+        uncertainDescription: "More information is needed. Please answer the clarification questions below.",
+        unavailableTitle: "Result unavailable",
+        unknownStatus: "The server returned an unrecognised result.",
+        medicine: "Medicine",
+        strength: "Strength",
+        clarificationUnavailable: "The system could not generate clarification questions. Please capture a clearer image or consult a pharmacist.",
+        noQuestions: "No usable clarification questions were received.",
+        enterAnswer: "Enter your answer",
+        clarificationInstructions: "Please answer the questions using information visible on the medicine packaging.",
+        scanAgain: "Capture or upload a clearer medicine image.",
+        scanFirst: "Please capture or upload a medicine image first.",
+        sendingImage: "Sending image for medicine identification...",
+        scanSuccess: "Medicine identification response received.",
+        scanError: "Medicine recognition is currently unavailable. Check the backend connection and try again.",
+        chatPreparing: "DAWAZ will ask relevant follow-up questions after the scan.",
+        chatScanRequired: "Please complete a medicine scan before starting the conversation.",
+        thinking: "DAWAZ is thinking...",
+        chatReady: "DAWAZ is ready to help.",
+        chatError: "I couldn't connect to the medicine assistant. Please try again later.",
+        chatUnavailable: "Chat service is currently unavailable.",
+        conversationPreparing: "DAWAZ is preparing a question about your scanned medicine.",
+        speechUnsupported: "Speech recognition is not supported. Please type your question.",
+        voiceUnsupportedTitle: "Speech recognition is not supported by this browser.",
+        listening: "Listening... Speak your question.",
+        speechConverted: "Speech converted to text. Review it before sending.",
+        speechError: "Unable to recognise speech. You can type your question instead.",
+        voiceStopped: "Voice input stopped.",
+        microphoneError: "Unable to start the microphone. Check browser permissions.",
+        microphoneStartError: "Unable to start the microphone. Check browser permissions.",
+        browserVoiceUnavailable: "Voice input is not supported. Please type your question.",
+        medicineLabel: "Medicine",
+        strengthLabel: "Strength"
+    },
+
+    hi: {
+
+        selectImage: "शुरू करने के लिए दवा की तस्वीर चुनें या कैमरे से खींचें।",
+        cameraUnsupported: "इस ब्राउज़र में कैमरा उपलब्ध नहीं है।",
+        cameraReady: "कैमरा तैयार है। दवा को साफ़ तरीके से फ्रेम में रखें।",
+        cameraError: "कैमरा चालू नहीं हो सका। कैमरे की अनुमति दें या तस्वीर अपलोड करें।",
+        startCameraFirst: "पहले कैमरा चालू करें।",
+        cameraNotReady: "कैमरा अभी तैयार नहीं है। कृपया कुछ समय प्रतीक्षा करें।",
+        captureError: "तस्वीर नहीं खींची जा सकी।",
+        unsupportedImage: "यह तस्वीर समर्थित नहीं है। कृपया JPG, PNG या WEBP चुनें।",
+        imageTooLarge: "तस्वीर का आकार 10 MB से कम होना चाहिए।",
+        capturedImage: "कैमरे से ली गई दवा की तस्वीर",
+        imageSelected: "तस्वीर सफलतापूर्वक चुन ली गई है।",
+        identify: "दवा की पहचान करें",
+        identifying: "पहचान की जा रही है...",
+        submitAnswers: "जवाब सबमिट करें",
+        rechecking: "दोबारा जाँच हो रही है...",
+        noImage: "मूल तस्वीर उपलब्ध नहीं है। कृपया दवा को दोबारा स्कैन करें।",
+        answerEveryQuestion: "सबमिट करने से पहले सभी सवालों के जवाब दें।",
+        sendingAnswers: "आपके जवाब और मूल तस्वीर दोबारा जाँच के लिए भेजे जा रहे हैं...",
+        stillUncertain: "दवा की पहचान अभी भी स्पष्ट नहीं है। अनुमानित पहचान पर भरोसा न करें।",
+        moreInformation: "सिस्टम को अभी और विश्वसनीय जानकारी चाहिए। पैकेजिंग जाँचें या फार्मासिस्ट से सलाह लें।",
+        recheckSuccess: "दवा की दोबारा जाँच का जवाब प्राप्त हुआ।",
+        recheckError: "दवा की दोबारा जाँच नहीं हो सकी। बैकएंड कनेक्शन जाँचें और फिर प्रयास करें।",
+        matchedTitle: "दवा प्रिस्क्रिप्शन से मेल खाती है",
+        matchedDescription: "पहचानी गई दवा की पुष्टि किए गए प्रिस्क्रिप्शन रिकॉर्ड से मेल मिला है।",
+        notFoundTitle: "दवा प्रिस्क्रिप्शन में नहीं मिली",
+        notFoundDescription: "यह दवा पुष्टि किए गए प्रिस्क्रिप्शन में नहीं मिली।",
+        uncertainTitle: "दवा की विश्वसनीय पहचान नहीं हो सकी",
+        uncertainDescription: "अधिक जानकारी आवश्यक है। कृपया नीचे दिए गए सवालों के जवाब दें।",
+        unavailableTitle: "परिणाम उपलब्ध नहीं है",
+        unknownStatus: "सर्वर से एक अपरिचित परिणाम प्राप्त हुआ।",
+        medicine: "दवा",
+        strength: "दवा की मात्रा / शक्ति",
+        clarificationUnavailable: "सिस्टम स्पष्टीकरण वाले सवाल नहीं बना सका। कृपया साफ़ तस्वीर लें या फार्मासिस्ट से सलाह लें।",
+        noQuestions: "कोई उपयोगी स्पष्टीकरण वाला सवाल प्राप्त नहीं हुआ।",
+        enterAnswer: "अपना जवाब लिखें",
+        clarificationInstructions: "दवा की पैकेजिंग पर दिखाई देने वाली जानकारी के आधार पर जवाब दें।",
+        scanAgain: "दवा की एक साफ़ तस्वीर लें या अपलोड करें।",
+        scanFirst: "पहले दवा की तस्वीर लें या अपलोड करें।",
+        sendingImage: "दवा की पहचान के लिए तस्वीर भेजी जा रही है...",
+        scanSuccess: "दवा की पहचान का जवाब प्राप्त हुआ।",
+        scanError: "दवा की पहचान अभी उपलब्ध नहीं है। बैकएंड कनेक्शन जाँचें और फिर प्रयास करें।",
+        chatPreparing: "स्कैन के बाद DAWAZ आपसे संबंधित सवाल पूछेगा।",
+        chatScanRequired: "बातचीत शुरू करने से पहले दवा स्कैन करें।",
+        thinking: "DAWAZ सोच रहा है...",
+        chatReady: "DAWAZ आपकी मदद के लिए तैयार है।",
+        chatError: "दवा सहायक से कनेक्शन नहीं हो सका। कृपया बाद में प्रयास करें।",
+        chatUnavailable: "चैट सेवा अभी उपलब्ध नहीं है।",
+        conversationPreparing: "DAWAZ आपकी स्कैन की गई दवा के बारे में सवाल तैयार कर रहा है।",
+        speechUnsupported: "इस ब्राउज़र में वॉइस पहचान उपलब्ध नहीं है। कृपया अपना सवाल टाइप करें।",
+        voiceUnsupportedTitle: "इस ब्राउज़र में वॉइस पहचान समर्थित नहीं है।",
+        listening: "सुन रहा है... अपना सवाल बोलें।",
+        speechConverted: "आवाज़ टेक्स्ट में बदल गई है। भेजने से पहले इसे जाँच लें।",
+        speechError: "आवाज़ पहचानी नहीं जा सकी। आप अपना सवाल टाइप कर सकते हैं।",
+        voiceStopped: "वॉइस इनपुट बंद कर दिया गया है।",
+        microphoneError: "माइक्रोफ़ोन शुरू नहीं हो सका। ब्राउज़र की अनुमति जाँचें।",
+        microphoneStartError: "माइक्रोफ़ोन शुरू नहीं हो सका। ब्राउज़र की अनुमति जाँचें।",
+        browserVoiceUnavailable: "वॉइस इनपुट उपलब्ध नहीं है। कृपया अपना सवाल टाइप करें।",
+        medicineLabel: "दवा",
+        strengthLabel: "दवा की शक्ति"
+    }
+
+};
+
+
+// ============================================
+// 4. LANGUAGE HELPERS
+// ============================================
+
+function getCurrentLanguage() {
+
+    if (window.DAWAZ_LANGUAGE) {
+        return window.DAWAZ_LANGUAGE.getLanguage();
+    }
+
+    return localStorage.getItem("dawazLanguage") || "en";
+}
+
+
+function t(key) {
+
+    const language = getCurrentLanguage();
+
+    return scannerTranslations[language]?.[key]
+        || scannerTranslations.en[key]
+        || key;
+}
+
+
+function getSpeechLanguage() {
+
+    return getCurrentLanguage() === "hi"
+        ? "hi-IN"
+        : "en-IN";
+}
+
+
+// ============================================
+// 5. DISPLAY SCAN MESSAGE
 // ============================================
 
 function showMessage(message, type = "info") {
@@ -121,7 +289,7 @@ function showMessage(message, type = "info") {
 
 
 // ============================================
-// 4. DISPLAY CLARIFICATION MESSAGE
+// 6. DISPLAY CLARIFICATION MESSAGE
 // ============================================
 
 function showClarificationMessage(message, type = "info") {
@@ -144,7 +312,7 @@ function showClarificationMessage(message, type = "info") {
 
 
 // ============================================
-// 5. STOP CAMERA
+// 7. STOP CAMERA
 // ============================================
 
 function stopCamera() {
@@ -152,9 +320,7 @@ function stopCamera() {
     if (cameraStream) {
 
         cameraStream.getTracks().forEach(function (track) {
-
             track.stop();
-
         });
 
         cameraStream = null;
@@ -169,7 +335,7 @@ function stopCamera() {
 
 
 // ============================================
-// 6. RESET RESULT
+// 8. RESET RESULT
 // ============================================
 
 function resetResult() {
@@ -183,7 +349,7 @@ function resetResult() {
 
 
 // ============================================
-// 7. RESET CLARIFICATION
+// 9. RESET CLARIFICATION
 // ============================================
 
 function resetClarification() {
@@ -198,14 +364,14 @@ function resetClarification() {
 
     submitClarificationBtn.disabled = false;
 
-    submitClarificationBtn.textContent = "Submit Answers";
+    submitClarificationBtn.textContent = t("submitAnswers");
 
     showClarificationMessage("");
 }
 
 
 // ============================================
-// 8. RESET CHAT
+// 10. RESET CHAT
 // ============================================
 
 function resetMedicineChat() {
@@ -220,8 +386,7 @@ function resetMedicineChat() {
 
     medicineChatInput.value = "";
 
-    chatStatus.textContent =
-        "DAWAZ will ask relevant follow-up questions after the scan.";
+    chatStatus.textContent = t("chatPreparing");
 
     chatVoiceStatus.textContent = "";
 
@@ -237,7 +402,7 @@ function resetMedicineChat() {
 
 
 // ============================================
-// 9. RESET IMAGE
+// 11. RESET IMAGE
 // ============================================
 
 function resetImage() {
@@ -267,12 +432,12 @@ function resetImage() {
 
     resetMedicineChat();
 
-    showMessage("Select or capture a medicine image to begin.");
+    showMessage(t("selectImage"));
 }
 
 
 // ============================================
-// 10. DISPLAY IMAGE PREVIEW
+// 12. DISPLAY IMAGE PREVIEW
 // ============================================
 
 function displayImage(file) {
@@ -283,20 +448,14 @@ function displayImage(file) {
 
     if (!ALLOWED_TYPES.includes(file.type)) {
 
-        showMessage(
-            "Unsupported image. Please select JPG, PNG or WEBP.",
-            "error"
-        );
+        showMessage(t("unsupportedImage"), "error");
 
         return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
 
-        showMessage(
-            "Image size must be less than 10 MB.",
-            "error"
-        );
+        showMessage(t("imageTooLarge"), "error");
 
         return;
     }
@@ -317,7 +476,7 @@ function displayImage(file) {
     scanMedicineBtn.disabled = false;
 
     fileName.textContent =
-        file.name || "Captured medicine image";
+        file.name || t("capturedImage");
 
     resetResult();
 
@@ -325,12 +484,12 @@ function displayImage(file) {
 
     resetMedicineChat();
 
-    showMessage("Image selected successfully.", "success");
+    showMessage(t("imageSelected"), "success");
 }
 
 
 // ============================================
-// 11. START CAMERA
+// 13. START CAMERA
 // ============================================
 
 startCameraBtn.addEventListener("click", async function () {
@@ -338,10 +497,7 @@ startCameraBtn.addEventListener("click", async function () {
     if (!navigator.mediaDevices ||
         !navigator.mediaDevices.getUserMedia) {
 
-        showMessage(
-            "Camera access is not supported by this browser.",
-            "error"
-        );
+        showMessage(t("cameraUnsupported"), "error");
 
         return;
     }
@@ -376,31 +532,26 @@ startCameraBtn.addEventListener("click", async function () {
 
         startCameraBtn.disabled = true;
 
-        showMessage(
-            "Camera is ready. Position the medicine clearly."
-        );
+        showMessage(t("cameraReady"));
 
     } catch (error) {
 
         console.error("Camera error:", error);
 
-        showMessage(
-            "Unable to access camera. Allow camera permission or upload an image instead.",
-            "error"
-        );
+        showMessage(t("cameraError"), "error");
     }
 });
 
 
 // ============================================
-// 12. CAPTURE IMAGE
+// 14. CAPTURE IMAGE
 // ============================================
 
 captureBtn.addEventListener("click", function () {
 
     if (!cameraStream) {
 
-        showMessage("Start the camera first.", "error");
+        showMessage(t("startCameraFirst"), "error");
 
         return;
     }
@@ -410,16 +561,12 @@ captureBtn.addEventListener("click", function () {
 
     if (!width || !height) {
 
-        showMessage(
-            "Camera is not ready. Please wait a moment.",
-            "error"
-        );
+        showMessage(t("cameraNotReady"), "error");
 
         return;
     }
 
     captureCanvas.width = width;
-
     captureCanvas.height = height;
 
     const context = captureCanvas.getContext("2d");
@@ -436,10 +583,7 @@ captureBtn.addEventListener("click", function () {
 
         if (!blob) {
 
-            showMessage(
-                "Unable to capture image.",
-                "error"
-            );
+            showMessage(t("captureError"), "error");
 
             return;
         }
@@ -471,7 +615,7 @@ captureBtn.addEventListener("click", function () {
 
 
 // ============================================
-// 13. UPLOAD IMAGE
+// 15. UPLOAD IMAGE
 // ============================================
 
 medicineImage.addEventListener("change", function () {
@@ -487,7 +631,7 @@ medicineImage.addEventListener("change", function () {
 
 
 // ============================================
-// 14. REMOVE IMAGE
+// 16. REMOVE IMAGE
 // ============================================
 
 removeImageBtn.addEventListener("click", function () {
@@ -498,7 +642,7 @@ removeImageBtn.addEventListener("click", function () {
 
 
 // ============================================
-// 15. DISPLAY IDENTIFICATION RESULT
+// 17. DISPLAY IDENTIFICATION RESULT
 // ============================================
 
 function displayResult(data) {
@@ -519,37 +663,33 @@ function displayResult(data) {
 
     if (status === "matched") {
 
-        statusTitle = "Medicine matched with prescription";
+        statusTitle = t("matchedTitle");
 
-        statusDescription =
-            "The identified medicine matches a confirmed prescription record.";
+        statusDescription = t("matchedDescription");
 
         statusClass = "matched";
 
     } else if (status === "not_found") {
 
-        statusTitle = "Medicine not found in prescription";
+        statusTitle = t("notFoundTitle");
 
-        statusDescription =
-            "This medicine was not found in the confirmed prescription.";
+        statusDescription = t("notFoundDescription");
 
         statusClass = "not-found";
 
     } else if (status === "uncertain") {
 
-        statusTitle = "Unable to identify medicine confidently";
+        statusTitle = t("uncertainTitle");
 
-        statusDescription =
-            "More information is needed. Please answer the clarification questions below.";
+        statusDescription = t("uncertainDescription");
 
         statusClass = "uncertain";
 
     } else {
 
-        statusTitle = "Result unavailable";
+        statusTitle = t("unavailableTitle");
 
-        statusDescription =
-            "The server returned an unrecognised result.";
+        statusDescription = t("unknownStatus");
 
         statusClass = "uncertain";
     }
@@ -574,7 +714,7 @@ function displayResult(data) {
 
         const name = document.createElement("p");
 
-        name.textContent = `Medicine: ${medicine.name}`;
+        name.textContent = `${t("medicine")}: ${medicine.name}`;
 
         resultContent.appendChild(name);
     }
@@ -583,7 +723,7 @@ function displayResult(data) {
 
         const strength = document.createElement("p");
 
-        strength.textContent = `Strength: ${medicine.strength}`;
+        strength.textContent = `${t("strength")}: ${medicine.strength}`;
 
         resultContent.appendChild(strength);
     }
@@ -609,8 +749,7 @@ function displayResult(data) {
 
             const note = document.createElement("p");
 
-            note.textContent =
-                "The system could not generate clarification questions. Please capture a clearer image or consult a pharmacist.";
+            note.textContent = t("clarificationUnavailable");
 
             resultContent.appendChild(note);
         }
@@ -619,9 +758,6 @@ function displayResult(data) {
     }
 
     resetClarification();
-
-    // Start chat only for an identification result
-    // that the backend has classified.
 
     if (status === "matched" || status === "not_found") {
 
@@ -635,7 +771,7 @@ function displayResult(data) {
 
 
 // ============================================
-// 16. DISPLAY CLARIFICATION QUESTIONS
+// 18. DISPLAY CLARIFICATION QUESTIONS
 // ============================================
 
 function displayClarificationQuestions(questions) {
@@ -667,6 +803,9 @@ function displayClarificationQuestions(questions) {
 
         label.htmlFor = inputId;
 
+        // Questions are supplied by the backend.
+        // Backend must return them in the selected language.
+
         label.textContent = questionText;
 
         const answerInput = document.createElement("input");
@@ -677,7 +816,7 @@ function displayClarificationQuestions(questions) {
 
         answerInput.className = "clarification-answer";
 
-        answerInput.placeholder = "Enter your answer";
+        answerInput.placeholder = t("enterAnswer");
 
         answerInput.autocomplete = "off";
 
@@ -691,19 +830,14 @@ function displayClarificationQuestions(questions) {
 
     if (clarificationQuestions.children.length === 0) {
 
-        showClarificationMessage(
-            "No usable clarification questions were received.",
-            "error"
-        );
+        showClarificationMessage(t("noQuestions"), "error");
 
         return;
     }
 
     clarificationCard.hidden = false;
 
-    showClarificationMessage(
-        "Please answer the questions using information visible on the medicine packaging."
-    );
+    showClarificationMessage(t("clarificationInstructions"));
 
     clarificationCard.scrollIntoView({
 
@@ -716,17 +850,14 @@ function displayClarificationQuestions(questions) {
 
 
 // ============================================
-// 17. SUBMIT CLARIFICATION ANSWERS
+// 19. SUBMIT CLARIFICATION ANSWERS
 // ============================================
 
 submitClarificationBtn.addEventListener("click", async function () {
 
     if (!selectedImage) {
 
-        showClarificationMessage(
-            "The original image is missing. Please scan the medicine again.",
-            "error"
-        );
+        showClarificationMessage(t("noImage"), "error");
 
         return;
     }
@@ -771,10 +902,7 @@ submitClarificationBtn.addEventListener("click", async function () {
 
     if (hasMissingAnswer) {
 
-        showClarificationMessage(
-            "Please answer every question before submitting.",
-            "error"
-        );
+        showClarificationMessage(t("answerEveryQuestion"), "error");
 
         return;
     }
@@ -783,11 +911,9 @@ submitClarificationBtn.addEventListener("click", async function () {
 
     submitClarificationBtn.disabled = true;
 
-    submitClarificationBtn.textContent = "Rechecking...";
+    submitClarificationBtn.textContent = t("rechecking");
 
-    showClarificationMessage(
-        "Sending your answers and original image for re-evaluation..."
-    );
+    showClarificationMessage(t("sendingAnswers"));
 
     try {
 
@@ -795,15 +921,14 @@ submitClarificationBtn.addEventListener("click", async function () {
 
         formData.append("image", selectedImage);
 
-        formData.append(
-            "answers",
-            JSON.stringify(answers)
-        );
+        formData.append("answers", JSON.stringify(answers));
 
         formData.append(
             "additionalInfo",
             additionalMedicineInfo.value.trim()
         );
+
+        formData.append("language", getCurrentLanguage());
 
         const response = await fetch(API_URL, {
 
@@ -826,21 +951,13 @@ submitClarificationBtn.addEventListener("click", async function () {
 
         if (result.status === "uncertain") {
 
-            showMessage(
-                "The medicine is still uncertain. Do not rely on a guessed identification.",
-                "info"
-            );
+            showMessage(t("stillUncertain"), "info");
 
-            showClarificationMessage(
-                "The system still needs more reliable information. Please check the packaging or consult a pharmacist."
-            );
+            showClarificationMessage(t("moreInformation"));
 
         } else {
 
-            showMessage(
-                "Medicine re-evaluation response received.",
-                "success"
-            );
+            showMessage(t("recheckSuccess"), "success");
         }
 
     } catch (error) {
@@ -850,10 +967,7 @@ submitClarificationBtn.addEventListener("click", async function () {
             error
         );
 
-        showClarificationMessage(
-            "Unable to recheck the medicine. Check the backend connection and try again.",
-            "error"
-        );
+        showClarificationMessage(t("recheckError"), "error");
 
     } finally {
 
@@ -861,22 +975,20 @@ submitClarificationBtn.addEventListener("click", async function () {
 
         submitClarificationBtn.disabled = false;
 
-        submitClarificationBtn.textContent = "Submit Answers";
+        submitClarificationBtn.textContent = t("submitAnswers");
     }
 });
 
 
 // ============================================
-// 18. RETAKE SCAN
+// 20. RETAKE SCAN
 // ============================================
 
 retakeScanBtn.addEventListener("click", function () {
 
     resetImage();
 
-    showMessage(
-        "Capture or upload a clearer medicine image."
-    );
+    showMessage(t("scanAgain"));
 
     cameraArea.scrollIntoView({
 
@@ -889,17 +1001,14 @@ retakeScanBtn.addEventListener("click", function () {
 
 
 // ============================================
-// 19. SCAN MEDICINE
+// 21. SCAN MEDICINE
 // ============================================
 
 scanMedicineBtn.addEventListener("click", async function () {
 
     if (!selectedImage) {
 
-        showMessage(
-            "Please capture or upload a medicine image first.",
-            "error"
-        );
+        showMessage(t("scanFirst"), "error");
 
         return;
     }
@@ -912,7 +1021,7 @@ scanMedicineBtn.addEventListener("click", async function () {
 
     scanMedicineBtn.disabled = true;
 
-    scanMedicineBtn.textContent = "Identifying...";
+    scanMedicineBtn.textContent = t("identifying");
 
     resetResult();
 
@@ -920,15 +1029,15 @@ scanMedicineBtn.addEventListener("click", async function () {
 
     resetMedicineChat();
 
-    showMessage(
-        "Sending image for medicine identification..."
-    );
+    showMessage(t("sendingImage"));
 
     try {
 
         const formData = new FormData();
 
         formData.append("image", selectedImage);
+
+        formData.append("language", getCurrentLanguage());
 
         const response = await fetch(API_URL, {
 
@@ -949,10 +1058,7 @@ scanMedicineBtn.addEventListener("click", async function () {
 
         displayResult(result);
 
-        showMessage(
-            "Medicine identification response received.",
-            "success"
-        );
+        showMessage(t("scanSuccess"), "success");
 
     } catch (error) {
 
@@ -961,10 +1067,7 @@ scanMedicineBtn.addEventListener("click", async function () {
             error
         );
 
-        showMessage(
-            "Medicine recognition is currently unavailable. Check the backend connection and try again.",
-            "error"
-        );
+        showMessage(t("scanError"), "error");
 
     } finally {
 
@@ -972,13 +1075,13 @@ scanMedicineBtn.addEventListener("click", async function () {
 
         scanMedicineBtn.disabled = !selectedImage;
 
-        scanMedicineBtn.textContent = "Identify Medicine";
+        scanMedicineBtn.textContent = t("identify");
     }
 });
 
 
 // ============================================
-// 20. ADD CHAT MESSAGE
+// 22. ADD CHAT MESSAGE
 // ============================================
 
 function addChatMessage(message, sender) {
@@ -1003,7 +1106,7 @@ function addChatMessage(message, sender) {
 
 
 // ============================================
-// 21. CHAT LOADING INDICATOR
+// 23. CHAT LOADING INDICATOR
 // ============================================
 
 function showChatLoading() {
@@ -1014,7 +1117,7 @@ function showChatLoading() {
 
     loading.className = "chat-typing";
 
-    loading.textContent = "DAWAZ is thinking...";
+    loading.textContent = t("thinking");
 
     chatMessages.appendChild(loading);
 
@@ -1034,7 +1137,7 @@ function hideChatLoading() {
 
 
 // ============================================
-// 22. SEND MESSAGE TO DAWAZ
+// 24. SEND MESSAGE TO DAWAZ
 // ============================================
 
 async function sendMessageToDAWAZ(message, mode = "message") {
@@ -1045,8 +1148,7 @@ async function sendMessageToDAWAZ(message, mode = "message") {
 
     if (!selectedImage || !currentScanResult) {
 
-        chatStatus.textContent =
-            "Please complete a medicine scan before starting the conversation.";
+        chatStatus.textContent = t("chatScanRequired");
 
         return;
     }
@@ -1078,6 +1180,8 @@ async function sendMessageToDAWAZ(message, mode = "message") {
             "conversation",
             JSON.stringify(chatHistory)
         );
+
+        formData.append("language", getCurrentLanguage());
 
         const response = await fetch(CHAT_API_URL, {
 
@@ -1115,8 +1219,7 @@ async function sendMessageToDAWAZ(message, mode = "message") {
 
         });
 
-        chatStatus.textContent =
-            "DAWAZ is ready to help.";
+        chatStatus.textContent = t("chatReady");
 
     } catch (error) {
 
@@ -1127,13 +1230,9 @@ async function sendMessageToDAWAZ(message, mode = "message") {
             error
         );
 
-        addChatMessage(
-            "I couldn't connect to the medicine assistant. Please try again later.",
-            "assistant"
-        );
+        addChatMessage(t("chatError"), "assistant");
 
-        chatStatus.textContent =
-            "Chat service is currently unavailable.";
+        chatStatus.textContent = t("chatUnavailable");
 
     } finally {
 
@@ -1147,7 +1246,7 @@ async function sendMessageToDAWAZ(message, mode = "message") {
 
 
 // ============================================
-// 23. START AUTOMATIC DAWAZ CONVERSATION
+// 25. START AUTOMATIC DAWAZ CONVERSATION
 // ============================================
 
 async function startMedicineConversation() {
@@ -1160,8 +1259,7 @@ async function startMedicineConversation() {
 
     isChatStarted = true;
 
-    chatStatus.textContent =
-        "DAWAZ is preparing a question about your scanned medicine.";
+    chatStatus.textContent = t("conversationPreparing");
 
     medicineChatCard.scrollIntoView({
 
@@ -1176,7 +1274,7 @@ async function startMedicineConversation() {
 
 
 // ============================================
-// 24. PATIENT TYPES A MESSAGE
+// 26. PATIENT TYPES A MESSAGE
 // ============================================
 
 medicineChatForm.addEventListener("submit", async function (event) {
@@ -1206,7 +1304,7 @@ medicineChatForm.addEventListener("submit", async function (event) {
 
 
 // ============================================
-// 25. SPEECH TO TEXT
+// 27. SPEECH TO TEXT
 // ============================================
 
 function setupSpeechRecognition() {
@@ -1219,11 +1317,9 @@ function setupSpeechRecognition() {
 
         chatMicBtn.disabled = true;
 
-        chatMicBtn.title =
-            "Speech recognition is not supported by this browser.";
+        chatMicBtn.title = t("voiceUnsupportedTitle");
 
-        chatVoiceStatus.textContent =
-            "Voice input is not supported. Please type your question.";
+        chatVoiceStatus.textContent = t("speechUnsupported");
 
         return;
     }
@@ -1238,15 +1334,16 @@ function setupSpeechRecognition() {
 
             chatMicBtn.classList.remove("recording");
 
-            chatVoiceStatus.textContent =
-                "Voice input stopped.";
+            chatVoiceStatus.textContent = t("voiceStopped");
 
             return;
         }
 
         speechRecognition = new SpeechRecognition();
 
-        speechRecognition.lang = "en-IN";
+        // Change speech recognition language based on website language.
+
+        speechRecognition.lang = getSpeechLanguage();
 
         speechRecognition.continuous = false;
 
@@ -1256,8 +1353,7 @@ function setupSpeechRecognition() {
 
             chatMicBtn.classList.add("recording");
 
-            chatVoiceStatus.textContent =
-                "Listening... Speak your question.";
+            chatVoiceStatus.textContent = t("listening");
 
         };
 
@@ -1271,8 +1367,7 @@ function setupSpeechRecognition() {
                     ? medicineChatInput.value + " " + transcript
                     : transcript;
 
-            chatVoiceStatus.textContent =
-                "Speech converted to text. Review it before sending.";
+            chatVoiceStatus.textContent = t("speechConverted");
 
         };
 
@@ -1283,8 +1378,7 @@ function setupSpeechRecognition() {
                 event.error
             );
 
-            chatVoiceStatus.textContent =
-                "Unable to recognise speech. You can type your question instead.";
+            chatVoiceStatus.textContent = t("speechError");
 
         };
 
@@ -1311,8 +1405,7 @@ function setupSpeechRecognition() {
 
             chatMicBtn.classList.remove("recording");
 
-            chatVoiceStatus.textContent =
-                "Unable to start the microphone. Check browser permissions.";
+            chatVoiceStatus.textContent = t("microphoneStartError");
         }
 
     });
@@ -1320,14 +1413,84 @@ function setupSpeechRecognition() {
 
 
 // ============================================
-// 26. INITIALISE SPEECH RECOGNITION
+// 28. UPDATE DYNAMIC TEXT ON LANGUAGE CHANGE
+// ============================================
+
+function updateScannerLanguage() {
+
+    // Update buttons
+
+    if (!isScanning) {
+        scanMedicineBtn.textContent = t("identify");
+    }
+
+    if (!isSubmittingClarification) {
+        submitClarificationBtn.textContent = t("submitAnswers");
+    }
+
+    // Update voice input language for the next recording.
+
+    if (speechRecognition) {
+
+        speechRecognition.lang = getSpeechLanguage();
+
+    }
+
+    // Update current clarification placeholders.
+
+    const answerInputs =
+        clarificationQuestions.querySelectorAll(
+            ".clarification-answer"
+        );
+
+    answerInputs.forEach(function (input) {
+
+        input.placeholder = t("enterAnswer");
+
+    });
+
+    // Update status text when no operation is running.
+
+    if (!selectedImage) {
+
+        showMessage(t("selectImage"));
+
+    }
+
+    if (!currentScanResult && !isSendingMessage) {
+
+        chatStatus.textContent = t("chatPreparing");
+
+    }
+
+    if (!isChatStarted) {
+
+        chatStatus.textContent = t("chatPreparing");
+
+    }
+}
+
+
+// ============================================
+// 29. INITIALISE SPEECH RECOGNITION
 // ============================================
 
 setupSpeechRecognition();
 
 
 // ============================================
-// 27. CLEAN UP WHEN LEAVING PAGE
+// 30. LISTEN FOR LANGUAGE CHANGES
+// ============================================
+
+window.addEventListener("dawazLanguageChanged", function () {
+
+    updateScannerLanguage();
+
+});
+
+
+// ============================================
+// 31. CLEAN UP WHEN LEAVING PAGE
 // ============================================
 
 window.addEventListener("beforeunload", function () {
@@ -1346,6 +1509,7 @@ window.addEventListener("beforeunload", function () {
         speechRecognition = null;
     }
 });
+
 
 
 

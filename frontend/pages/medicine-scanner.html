@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,9 +14,7 @@
 
 <body>
 
-    <!-- =====================================
-         NAVIGATION BAR
-    ====================================== -->
+    <!-- NAVIGATION BAR -->
 
     <header class="navbar">
 
@@ -25,44 +22,58 @@
 
             <!-- BRAND -->
             <a href="dashboard.html" class="brand">
-
                 <span class="brand-logo">D</span>
-
                 <span>DAWAZ</span>
-
             </a>
-
 
             <!-- NAVIGATION LINKS -->
             <nav class="nav-links">
 
-                <a href="dashboard.html">
+                <a href="dashboard.html" data-i18n="dashboard">
                     Dashboard
                 </a>
 
-                <a href="medicines.html">
+                <a href="medicines.html" data-i18n="medicines">
                     My Medicines
                 </a>
 
-                <a href="reminders.html">
+                <a href="reminders.html" data-i18n="reminders">
                     Reminders
                 </a>
 
-                <a href="medicine-scanner.html" class="active" aria-current="page">
+                <a href="medicine-scanner.html"
+                   class="active"
+                   aria-current="page"
+                   data-i18n="scanner">
                     Scan Medicine
                 </a>
 
-                <a href="ask.html">
+                <a href="ask.html" data-i18n="askDawaz">
                     Ask DAWAZ
                 </a>
 
             </nav>
 
-
-            <!-- PROFILE -->
+            <!-- PROFILE AND LANGUAGE -->
             <div class="profile">
 
                 <div class="profile-icon">P</div>
+
+                <div class="language-selector-wrapper">
+
+                    <span class="language-icon">🌐</span>
+
+                    <select
+                        id="languageSelect"
+                        class="language-selector"
+                        aria-label="Select language">
+
+                        <option value="en">English</option>
+                        <option value="hi">हिन्दी</option>
+
+                    </select>
+
+                </div>
 
             </div>
 
@@ -71,23 +82,22 @@
     </header>
 
 
-    <!-- =====================================
-         MAIN CONTAINER
-    ====================================== -->
+    <!-- MAIN CONTAINER -->
 
     <main class="scanner-container">
-
 
         <!-- PAGE HEADING -->
         <section class="page-heading">
 
-            <p class="eyebrow">
+            <p class="eyebrow" data-i18n="scannerEyebrow">
                 SMART MEDICINE IDENTIFICATION
             </p>
 
-            <h1>Medicine Scanner</h1>
+            <h1 data-i18n="medicineScanner">
+                Medicine Scanner
+            </h1>
 
-            <p>
+            <p data-i18n="scannerDescription">
                 Scan your medicine packaging or prescription to identify
                 the information and compare it with your confirmed prescription.
             </p>
@@ -95,15 +105,15 @@
         </section>
 
 
-        <!-- =====================================
-             SMART SCAN GUIDANCE
-        ====================================== -->
+        <!-- SMART SCAN GUIDANCE -->
 
         <section class="guidance-card">
 
-            <h2>Smart Scan Guidance</h2>
+            <h2 data-i18n="scanGuidance">
+                Smart Scan Guidance
+            </h2>
 
-            <p>
+            <p data-i18n="scanGuidanceDescription">
                 Follow these steps for a clearer medicine image.
             </p>
 
@@ -113,9 +123,11 @@
 
                     <span>01</span>
 
-                    <h3>Good Lighting</h3>
+                    <h3 data-i18n="goodLighting">
+                        Good Lighting
+                    </h3>
 
-                    <p>
+                    <p data-i18n="goodLightingDescription">
                         Make sure the medicine name is clearly visible.
                     </p>
 
@@ -126,9 +138,11 @@
 
                     <span>02</span>
 
-                    <h3>Clear Focus</h3>
+                    <h3 data-i18n="clearFocus">
+                        Clear Focus
+                    </h3>
 
-                    <p>
+                    <p data-i18n="clearFocusDescription">
                         Keep the camera steady and avoid blurry images.
                     </p>
 
@@ -139,9 +153,11 @@
 
                     <span>03</span>
 
-                    <h3>Show Packaging</h3>
+                    <h3 data-i18n="showPackaging">
+                        Show Packaging
+                    </h3>
 
-                    <p>
+                    <p data-i18n="showPackagingDescription">
                         Include the medicine name and strength if visible.
                     </p>
 
@@ -152,9 +168,7 @@
         </section>
 
 
-        <!-- =====================================
-             SCANNER CARD
-        ====================================== -->
+        <!-- SCANNER CARD -->
 
         <section class="scanner-card">
 
@@ -162,9 +176,11 @@
 
                 <div>
 
-                    <h2>Scan Medicine or Prescription</h2>
+                    <h2 data-i18n="scanMedicineOrPrescription">
+                        Scan Medicine or Prescription
+                    </h2>
 
-                    <p>
+                    <p data-i18n="scannerHeaderDescription">
                         Position your medicine packaging or prescription
                         clearly inside the camera frame.
                     </p>
@@ -184,9 +200,11 @@
 
                     <div class="camera-symbol">📷</div>
 
-                    <h3>Camera Preview</h3>
+                    <h3 data-i18n="cameraPreview">
+                        Camera Preview
+                    </h3>
 
-                    <p>
+                    <p data-i18n="cameraPreviewDescription">
                         Your camera preview will appear here
                         after you allow camera access.
                     </p>
@@ -224,7 +242,8 @@
                 <button
                     type="button"
                     id="startCameraBtn"
-                    class="primary-btn">
+                    class="primary-btn"
+                    data-i18n="startCamera">
 
                     Start Camera
 
@@ -235,7 +254,8 @@
                     type="button"
                     id="captureBtn"
                     class="secondary-btn"
-                    disabled>
+                    disabled
+                    data-i18n="captureImage">
 
                     Capture Image
 
@@ -248,7 +268,7 @@
 
             <div class="or-divider">
 
-                <span>OR</span>
+                <span data-i18n="or">OR</span>
 
             </div>
 
@@ -263,9 +283,11 @@
 
                     <span class="upload-icon">📁</span>
 
-                    <strong>Upload Image</strong>
+                    <strong data-i18n="uploadImage">
+                        Upload Image
+                    </strong>
 
-                    <span>
+                    <span data-i18n="uploadImageDescription">
                         Choose a clear photo of your medicine or prescription
                     </span>
 
@@ -291,18 +313,22 @@
                 id="imagePreviewContainer"
                 hidden>
 
-                <h3>Selected Image</h3>
+                <h3 data-i18n="selectedImage">
+                    Selected Image
+                </h3>
 
 
                 <img
                     id="imagePreview"
-                    alt="Selected medicine or prescription image">
+                    alt="Selected medicine or prescription image"
+                    data-i18n-alt="selectedImageAlt">
 
 
                 <button
                     type="button"
                     id="removeImageBtn"
-                    class="remove-image-btn">
+                    class="remove-image-btn"
+                    data-i18n="removeImage">
 
                     Remove Image
 
@@ -317,7 +343,8 @@
                 type="button"
                 id="scanMedicineBtn"
                 class="scan-btn"
-                disabled>
+                disabled
+                data-i18n="identifyMedicine">
 
                 Identify Medicine
 
@@ -334,25 +361,23 @@
         </section>
 
 
-        <!-- =====================================
-             IDENTIFICATION RESULT
-        ====================================== -->
+        <!-- IDENTIFICATION RESULT -->
 
         <section
             class="result-card"
             id="resultCard"
             hidden>
 
-            <h2>Medicine Identification Result</h2>
+            <h2 data-i18n="identificationResult">
+                Medicine Identification Result
+            </h2>
 
             <div id="resultContent"></div>
 
         </section>
 
 
-        <!-- =====================================
-             SMART IDENTIFICATION ASSISTANCE
-        ====================================== -->
+        <!-- SMART IDENTIFICATION ASSISTANCE -->
 
         <section
             class="clarification-card"
@@ -365,13 +390,15 @@
 
                 <div>
 
-                    <p class="eyebrow">
+                    <p class="eyebrow" data-i18n="identificationAssistance">
                         SMART IDENTIFICATION ASSISTANCE
                     </p>
 
-                    <h2>Let's identify your medicine</h2>
+                    <h2 data-i18n="identifyYourMedicine">
+                        Let's identify your medicine
+                    </h2>
 
-                    <p>
+                    <p data-i18n="identificationHelpDescription">
                         We couldn't identify the medicine confidently
                         from the image. A few additional details may help.
                     </p>
@@ -393,8 +420,12 @@
 
             <div class="clarification-extra">
 
-                <label for="additionalMedicineInfo">
+                <label
+                    for="additionalMedicineInfo"
+                    data-i18n="additionalInformation">
+
                     Additional information (optional)
+
                 </label>
 
 
@@ -402,7 +433,8 @@
                     id="additionalMedicineInfo"
                     rows="3"
                     maxlength="500"
-                    placeholder="Type any other visible information about the medicine...">
+                    placeholder="Type any other visible information about the medicine..."
+                    data-i18n-placeholder="additionalInformationPlaceholder">
                 </textarea>
 
             </div>
@@ -413,7 +445,8 @@
             <button
                 type="button"
                 id="submitClarificationBtn"
-                class="clarification-submit-btn">
+                class="clarification-submit-btn"
+                data-i18n="submitAnswers">
 
                 Submit Answers
 
@@ -433,14 +466,15 @@
             <button
                 type="button"
                 id="retakeScanBtn"
-                class="retake-scan-btn">
+                class="retake-scan-btn"
+                data-i18n="retakeImage">
 
                 Retake / Upload Another Image
 
             </button>
 
 
-            <p class="clarification-safety">
+            <p class="clarification-safety" data-i18n="clarificationSafety">
 
                 If the medicine still cannot be identified confidently,
                 do not use an assumed identity. Ask a pharmacist or doctor.
@@ -450,9 +484,7 @@
         </section>
 
 
-        <!-- =====================================
-             DAWAZ CONVERSATION
-        ====================================== -->
+        <!-- DAWAZ CONVERSATION -->
 
         <section
             class="medicine-chat-card"
@@ -465,13 +497,15 @@
 
                 <div>
 
-                    <p class="eyebrow">
+                    <p class="eyebrow" data-i18n="medicineAssistant">
                         DAWAZ MEDICINE ASSISTANT
                     </p>
 
-                    <h2>Let's talk about your medicine</h2>
+                    <h2 data-i18n="talkAboutMedicine">
+                        Let's talk about your medicine
+                    </h2>
 
-                    <p>
+                    <p data-i18n="medicineChatDescription">
                         Ask questions about the scanned medicine
                         or prescription.
                     </p>
@@ -487,7 +521,8 @@
                 class="chat-status"
                 id="chatStatus"
                 role="status"
-                aria-live="polite">
+                aria-live="polite"
+                data-i18n="chatInitialStatus">
 
                 DAWAZ will ask relevant follow-up questions after the scan.
 
@@ -501,7 +536,8 @@
                 id="chatMessages"
                 role="log"
                 aria-live="polite"
-                aria-label="Conversation with DAWAZ">
+                aria-label="Conversation with DAWAZ"
+                data-i18n-aria-label="conversationLabel">
 
                 <!-- Messages will be added by scanner.js -->
 
@@ -521,7 +557,9 @@
                         rows="1"
                         maxlength="1000"
                         placeholder="Ask something about your scanned medicine..."
-                        aria-label="Type your medicine question">
+                        aria-label="Type your medicine question"
+                        data-i18n-placeholder="medicineQuestionPlaceholder"
+                        data-i18n-aria-label="medicineQuestionLabel">
                     </textarea>
 
 
@@ -530,7 +568,9 @@
                         id="chatMicBtn"
                         class="chat-mic-btn"
                         aria-label="Start voice input"
-                        title="Speak your question">
+                        title="Speak your question"
+                        data-i18n-aria-label="startVoiceInput"
+                        data-i18n-title="speakQuestion">
 
                         🎤
 
@@ -542,7 +582,8 @@
                 <button
                     type="submit"
                     id="sendChatBtn"
-                    class="chat-send-btn">
+                    class="chat-send-btn"
+                    data-i18n="send">
 
                     Send
 
@@ -563,7 +604,7 @@
 
             <!-- SAFETY INFORMATION -->
 
-            <p class="chat-safety-note">
+            <p class="chat-safety-note" data-i18n="chatSafety">
 
                 DAWAZ provides information based on the scanned content.
                 It does not replace a doctor or pharmacist. Do not change
@@ -574,15 +615,15 @@
         </section>
 
 
-        <!-- =====================================
-             SAFETY NOTE
-        ====================================== -->
+        <!-- SAFETY NOTE -->
 
         <section class="safety-note">
 
-            <strong>Important Safety Information</strong>
+            <strong data-i18n="importantSafety">
+                Important Safety Information
+            </strong>
 
-            <p>
+            <p data-i18n="scannerSafetyDescription">
                 Image recognition does not establish whether a medicine
                 is appropriate for you. Always compare the result with
                 your confirmed prescription. If the medicine cannot be
@@ -594,10 +635,9 @@
     </main>
 
 
-    <!-- =====================================
-         JAVASCRIPT
-    ====================================== -->
+    <!-- JAVASCRIPT -->
 
+    <script src="../js/language.js"></script>
     <script src="../js/scanner.js"></script>
 
 </body>

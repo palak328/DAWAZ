@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -23,16 +22,16 @@
         </div>
 
         <nav class="nav-links">
-            <a href="dashboard.html">Dashboard</a>
-            <a href="medicines.html">My Medicines</a>
-            <a href="reminders.html">Reminders</a>
-            <a href="medicine-scanner.html">Scan Medicine</a>
-            <a href="ask.html" class="active">Ask DAWAZ</a>
+            <a href="dashboard.html" data-i18n="dashboard">Dashboard</a>
+            <a href="medicines.html" data-i18n="medicines">My Medicines</a>
+            <a href="reminders.html" data-i18n="reminders">Reminders</a>
+            <a href="medicine-scanner.html" data-i18n="scanner">Scan Medicine</a>
+            <a href="ask.html" class="active" data-i18n="askDawaz">Ask DAWAZ</a>
         </nav>
 
         <div class="profile">
             <span class="profile-icon">P</span>
-            <span>Patient</span>
+            <span data-i18n="patient">Patient</span>
         </div>
 
     </header>
@@ -45,18 +44,21 @@
         <section class="ask-heading">
 
             <div>
-                <p class="ask-label">YOUR MEDICINE ASSISTANT</p>
+                <p class="ask-label" data-i18n="medicineAssistantLabel">
+                    YOUR MEDICINE ASSISTANT
+                </p>
 
-                <h1>Ask DAWAZ</h1>
+                <h1 data-i18n="askDawaz">Ask DAWAZ</h1>
 
-                <p>
+                <p data-i18n="askDescription">
                     Have a question about your medicines?
                     DAWAZ can help you understand your saved medicine
                     information and prescription records.
                 </p>
             </div>
 
-            <a href="dashboard.html" class="back-dashboard">
+            <a href="dashboard.html" class="back-dashboard"
+               data-i18n="backDashboard">
                 ← Back to Dashboard
             </a>
 
@@ -76,15 +78,22 @@
                     </div>
 
                     <div class="assistant-details">
-                        <h2>DAWAZ Assistant</h2>
-                        <p>Medicine Information Support</p>
+                        <h2 data-i18n="dawazAssistant">
+                            DAWAZ Assistant
+                        </h2>
+
+                        <p data-i18n="medicineInformationSupport">
+                            Medicine Information Support
+                        </p>
                     </div>
 
                 </div>
 
                 <div class="assistant-status">
                     <span class="status-dot"></span>
-                    <span id="chatStatus">Ready to help</span>
+                    <span id="chatStatus" data-i18n="readyToHelp">
+                        Ready to help
+                    </span>
                 </div>
 
             </div>
@@ -96,7 +105,7 @@
                 id="chatMessages"
                 role="log"
                 aria-live="polite"
-                aria-label="Conversation with DAWAZ">
+                data-i18n-aria-label="conversationWithDawaz">
 
                 <!-- WELCOME MESSAGE -->
                 <div class="message assistant-message">
@@ -107,18 +116,24 @@
 
                         <div class="message-bubble">
 
-                            <p>Hello! I'm your DAWAZ medicine assistant.</p>
+                            <p data-i18n="welcomeAsk">
+                                Hello! I'm your DAWAZ medicine assistant.
+                            </p>
 
-                            <p>
+                            <p data-i18n="welcomeAskDescription">
                                 I can help you understand information
                                 from your saved medicine records.
                             </p>
 
-                            <p>What would you like to know?</p>
+                            <p data-i18n="whatWouldYouLikeToKnow">
+                                What would you like to know?
+                            </p>
 
                         </div>
 
-                        <span class="message-time">DAWAZ Assistant</span>
+                        <span class="message-time" data-i18n="dawazAssistant">
+                            DAWAZ Assistant
+                        </span>
 
                     </div>
 
@@ -130,7 +145,9 @@
             <!-- SUGGESTED QUESTIONS -->
             <div class="suggested-questions" id="suggestedQuestions">
 
-                <p class="suggestion-heading">You can ask me about</p>
+                <p class="suggestion-heading" data-i18n="youCanAskAbout">
+                    You can ask me about
+                </p>
 
                 <div class="suggestion-buttons">
 
@@ -138,24 +155,36 @@
                         type="button"
                         class="suggestion-btn"
                         data-question="Show me my saved medicines.">
+
                         <span>💊</span>
-                        My medicines
+                        <span data-i18n="myMedicines">My medicines</span>
+
                     </button>
+
 
                     <button
                         type="button"
                         class="suggestion-btn"
                         data-question="Where can I find my prescription instructions?">
+
                         <span>📄</span>
-                        Prescription instructions
+                        <span data-i18n="prescriptionInstructions">
+                            Prescription instructions
+                        </span>
+
                     </button>
+
 
                     <button
                         type="button"
                         class="suggestion-btn"
                         data-question="How can I check my medicine stock?">
+
                         <span>📦</span>
-                        Medicine stock
+                        <span data-i18n="medicineStock">
+                            Medicine stock
+                        </span>
+
                     </button>
 
                 </div>
@@ -168,40 +197,57 @@
 
                 <div class="chat-input-wrapper">
 
-                    <label for="chatInput" class="visually-hidden">
+                    <label
+                        for="chatInput"
+                        class="visually-hidden"
+                        data-i18n="typeMedicineQuestion">
+
                         Type your medicine-related question
+
                     </label>
+
 
                     <textarea
                         id="chatInput"
                         name="question"
+                        data-i18n-placeholder="askDawazPlaceholder"
                         placeholder="Ask DAWAZ something about your medicines..."
                         rows="1"
                         maxlength="1000"
                         required>
                     </textarea>
 
+
                     <!-- MICROPHONE -->
                     <button
                         type="button"
                         id="chatMicBtn"
                         class="chat-mic-btn"
+                        data-i18n-aria-label="speakQuestion"
+                        data-i18n-title="speakQuestion"
                         aria-label="Speak your question"
                         title="Speak your question">
+
                         🎙️
+
                     </button>
+
 
                     <!-- SEND -->
                     <button
                         type="submit"
                         id="sendMessageBtn"
                         class="send-message-btn"
+                        data-i18n-aria-label="sendMessage"
                         aria-label="Send message">
-                        <span>Send</span>
+
+                        <span data-i18n="send">Send</span>
                         <span class="send-icon">➤</span>
+
                     </button>
 
                 </div>
+
 
                 <p
                     class="voice-status"
@@ -209,7 +255,8 @@
                     aria-live="polite">
                 </p>
 
-                <p class="input-hint">
+
+                <p class="input-hint" data-i18n="chatInputHint">
                     Press Enter to send · Shift + Enter for a new line
                 </p>
 
@@ -224,15 +271,19 @@
             <div class="safety-icon">ⓘ</div>
 
             <div>
-                <h3>Medicine Safety</h3>
 
-                <p>
+                <h3 data-i18n="medicineSafety">
+                    Medicine Safety
+                </h3>
+
+                <p data-i18n="medicineSafetyDescription">
                     DAWAZ helps you understand medicine information.
                     It does not replace professional medical advice.
                     Always follow your confirmed prescription.
                     Contact your doctor or pharmacist if medicine
                     instructions are unclear.
                 </p>
+
             </div>
 
         </section>
@@ -240,6 +291,11 @@
     </main>
 
 
+    <!-- LANGUAGE SYSTEM -->
+    <script src="../js/language.js"></script>
+    <script src="../js/v%20service.js"></script>
+
+    <!-- ASK DAWAZ FUNCTIONALITY -->
     <script src="../js/ask.js"></script>
 
 </body>

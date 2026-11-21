@@ -3,6 +3,115 @@ document.addEventListener("DOMContentLoaded", () => {
     const STORAGE_KEY = "dawazReminders";
     const MAX_CUSTOM_TIMES = 5;
 
+    // ---------- LANGUAGE ----------
+
+    function getLanguage() {
+        return window.DAWAZ_LANGUAGE?.getLanguage?.() ||
+            localStorage.getItem("dawazLanguage") ||
+            "en";
+    }
+
+    const translations = {
+        en: {
+            editReminder: "Edit Reminder",
+            addReminder: "Add Reminder",
+            doseTime: "Dose {number} time",
+            addAnotherTime: "+ Add another time",
+            maximumTimesReached: "Maximum times reached",
+            maxDoseTimes: "You can add up to {count} dose times.",
+            enterMedicineFrequencyTime:
+                "Please enter the medicine, frequency and dose time.",
+            enterRequiredTimes:
+                "Please enter {count} dose time(s) for this frequency.",
+            deleteConfirmation: "Delete this reminder?",
+            noInstructions: "No instructions added",
+            patientReportedTaken: "Patient reported taken",
+            skipped: "Skipped",
+            pending: "Pending",
+            taken: "Taken",
+            undo: "Undo",
+            edit: "Edit",
+            delete: "Delete",
+            noReminders: "No reminders added yet.",
+            noHistory: "No reminder history yet.",
+            enableNotifications: "Enable Browser Notifications",
+            notificationsEnabled: "Notifications Enabled",
+            unsupportedNotifications:
+                "This browser does not support notifications.",
+            notificationTitle: "DAWAZ Medicine Reminder",
+            notificationBody: "Reminder time for {medicine}.",
+            onceDaily: "Once daily",
+            twiceDaily: "Twice daily",
+            threeTimesDaily: "Three times daily",
+            custom: "Custom"
+        },
+        hi: {
+            editReminder: "रिमाइंडर संपादित करें",
+            addReminder: "रिमाइंडर जोड़ें",
+            doseTime: "खुराक {number} का समय",
+            addAnotherTime: "+ एक और समय जोड़ें",
+            maximumTimesReached: "अधिकतम समय सीमा पूरी हुई",
+            maxDoseTimes: "आप अधिकतम {count} खुराक के समय जोड़ सकते हैं।",
+            enterMedicineFrequencyTime:
+                "कृपया दवा, आवृत्ति और खुराक का समय भरें।",
+            enterRequiredTimes:
+                "इस आवृत्ति के लिए कृपया {count} खुराक का समय भरें।",
+            deleteConfirmation: "क्या आप यह रिमाइंडर हटाना चाहते हैं?",
+            noInstructions: "कोई निर्देश नहीं जोड़े गए",
+            patientReportedTaken: "मरीज़ ने दवा लेने की पुष्टि की",
+            skipped: "छोड़ा गया",
+            pending: "बाकी है",
+            taken: "ली गई",
+            undo: "वापस करें",
+            edit: "संपादित करें",
+            delete: "हटाएँ",
+            noReminders: "अभी तक कोई रिमाइंडर नहीं जोड़ा गया है।",
+            noHistory: "अभी तक कोई रिमाइंडर इतिहास नहीं है।",
+            enableNotifications: "ब्राउज़र नोटिफिकेशन चालू करें",
+            notificationsEnabled: "नोटिफिकेशन चालू हैं",
+            unsupportedNotifications:
+                "यह ब्राउज़र नोटिफिकेशन का समर्थन नहीं करता।",
+            notificationTitle: "DAWAZ दवा रिमाइंडर",
+            notificationBody: "{medicine} लेने का निर्धारित समय है।",
+            onceDaily: "दिन में एक बार",
+            twiceDaily: "दिन में दो बार",
+            threeTimesDaily: "दिन में तीन बार",
+            custom: "कस्टम"
+        }
+    };
+
+    function t(key, values = {}) {
+        const language = getLanguage();
+
+        // Use the shared language dictionary when the key exists.
+        const sharedTranslation =
+            window.DAWAZ_LANGUAGE?.translate?.(key);
+
+        let message =
+            sharedTranslation && sharedTranslation !== key
+                ? sharedTranslation
+                : translations[language]?.[key] ||
+                  translations.en[key] ||
+                  key;
+
+        Object.entries(values).forEach(([name, value]) => {
+            message = message.replaceAll(`{${name}}`, value);
+        });
+
+        return message;
+    }
+
+    function translateFrequency(frequency) {
+        const frequencyKeys = {
+            "Once daily": "onceDaily",
+            "Twice daily": "twiceDaily",
+            "Three times daily": "threeTimesDaily",
+            "Custom": "custom"
+        };
+
+        return t(frequencyKeys[frequency] || "") || frequency;
+    }
+
     // ---------- HTML ELEMENTS ----------
 
     const form = document.getElementById("reminderForm");
@@ -101,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         stopReminderSound();
-
         activeReminderKey = reminderKey;
 
         playReminderTone();
@@ -161,11 +269,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         date.setHours(Number(hours), Number(minutes), 0, 0);
 
-        return date.toLocaleTimeString("en-IN", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: true
-        });
+        return date.toLocaleTimeString(
+            getLanguage() === "hi" ? "hi-IN" : "en-IN",
+            {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true
+            }
+        );
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return "";
+
+        const date = new Date(`${dateString}T00:00:00`);
+
+        return date.toLocaleDateString(
+            getLanguage() === "hi" ? "hi-IN" : "en-IN",
+            {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            }
+        );
     }
 
     function getTimes(reminder) {
@@ -244,7 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
         wrapper.className = "additional-time-field";
 
         const label = document.createElement("label");
-        label.textContent = `Dose ${index + 1} time`;
+        label.textContent = t("doseTime", { number: index + 1 });
 
         const input = document.createElement("input");
         input.type = "time";
@@ -279,15 +405,19 @@ document.addEventListener("DOMContentLoaded", () => {
             const addTimeButton = document.createElement("button");
 
             addTimeButton.type = "button";
-            addTimeButton.textContent = "+ Add another time";
+            addTimeButton.textContent = t("addAnotherTime");
             addTimeButton.className = "add-time-btn";
 
             addTimeButton.addEventListener("click", () => {
                 const currentCount =
-                    timeFieldsContainer.querySelectorAll(".extra-reminder-time").length + 1;
+                    timeFieldsContainer.querySelectorAll(
+                        ".extra-reminder-time"
+                    ).length + 1;
 
                 if (currentCount >= MAX_CUSTOM_TIMES) {
-                    alert(`You can add up to ${MAX_CUSTOM_TIMES} dose times.`);
+                    alert(t("maxDoseTimes", {
+                        count: MAX_CUSTOM_TIMES
+                    }));
                     return;
                 }
 
@@ -298,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (currentCount + 1 >= MAX_CUSTOM_TIMES) {
                     addTimeButton.disabled = true;
-                    addTimeButton.textContent = "Maximum times reached";
+                    addTimeButton.textContent = t("maximumTimesReached");
                 }
             });
 
@@ -346,14 +476,14 @@ document.addEventListener("DOMContentLoaded", () => {
             instructionsInput.value = reminder.instructions || "";
 
             if (modalTitle) {
-                modalTitle.textContent = "Edit Reminder";
+                modalTitle.textContent = t("editReminder");
             }
         } else {
             frequencyInput.value = "Once daily";
             updateTimeFields();
 
             if (modalTitle) {
-                modalTitle.textContent = "Add Reminder";
+                modalTitle.textContent = t("addReminder");
             }
         }
 
@@ -372,7 +502,6 @@ document.addEventListener("DOMContentLoaded", () => {
         editingId = null;
     }
 
-    // Existing Add Reminder button also unlocks browser audio.
     addButton?.addEventListener("click", () => {
         enableReminderSound();
         openModal();
@@ -407,19 +536,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const instructions = instructionsInput.value.trim();
 
         if (!medicine || !frequency || !times.length) {
-            alert("Please enter the medicine, frequency and dose time.");
+            alert(t("enterMedicineFrequencyTime"));
             return;
         }
 
         const requiredCount = getRequiredTimeCount(frequency);
 
         if (requiredCount && times.length !== requiredCount) {
-            alert(`Please enter ${requiredCount} dose time(s) for this frequency.`);
+            alert(t("enterRequiredTimes", {
+                count: requiredCount
+            }));
             return;
         }
 
         if (times.length > MAX_CUSTOM_TIMES) {
-            alert(`You can add up to ${MAX_CUSTOM_TIMES} dose times.`);
+            alert(t("maxDoseTimes", {
+                count: MAX_CUSTOM_TIMES
+            }));
             return;
         }
 
@@ -432,7 +565,9 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         if (editingId) {
-            const index = reminders.findIndex(item => item.id === editingId);
+            const index = reminders.findIndex(
+                item => item.id === editingId
+            );
 
             if (index !== -1) {
                 reminders[index] = {
@@ -457,7 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ---------- REMINDER ACTIONS ----------
 
     function deleteReminder(id) {
-        const confirmed = confirm("Delete this reminder?");
+        const confirmed = confirm(t("deleteConfirmation"));
 
         if (!confirmed) return;
 
@@ -501,48 +636,50 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const frequency = document.createElement("span");
         frequency.className = "reminder-info";
-        frequency.textContent = reminder.frequency || "Once daily";
+        frequency.textContent = translateFrequency(
+            reminder.frequency || "Once daily"
+        );
 
         const instructions = document.createElement("span");
         instructions.className = "reminder-info reminder-instructions";
         instructions.textContent =
-            reminder.instructions || "No instructions added";
+            reminder.instructions || t("noInstructions");
 
         const statusElement = document.createElement("span");
         statusElement.className = `reminder-status ${status}`;
 
         statusElement.textContent =
-            status === "taken" ? "Patient reported taken" :
-            status === "skipped" ? "Skipped" :
-            "Pending";
+            status === "taken" ? t("patientReportedTaken") :
+            status === "skipped" ? t("skipped") :
+            t("pending");
 
         const actions = document.createElement("div");
         actions.className = "reminder-actions";
 
         if (status === "pending") {
             actions.append(
-                createActionButton("Taken", "taken-btn", () => {
+                createActionButton(t("taken"), "taken-btn", () => {
                     setDoseStatus(reminder, date, time, "taken");
                 }),
 
-                createActionButton("Skipped", "skipped-btn", () => {
+                createActionButton(t("skipped"), "skipped-btn", () => {
                     setDoseStatus(reminder, date, time, "skipped");
                 })
             );
         } else {
             actions.appendChild(
-                createActionButton("Undo", "undo-btn", () => {
+                createActionButton(t("undo"), "undo-btn", () => {
                     setDoseStatus(reminder, date, time, "pending");
                 })
             );
         }
 
         actions.append(
-            createActionButton("Edit", "edit-btn", () => {
+            createActionButton(t("edit"), "edit-btn", () => {
                 openModal(reminder);
             }),
 
-            createActionButton("Delete", "delete-btn", () => {
+            createActionButton(t("delete"), "delete-btn", () => {
                 deleteReminder(reminder.id);
             })
         );
@@ -584,7 +721,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (schedule.length === 0) {
             const empty = document.createElement("p");
             empty.className = "empty-reminders";
-            empty.textContent = "No reminders added yet.";
+            empty.textContent = t("noReminders");
 
             reminderList.appendChild(empty);
         }
@@ -622,7 +759,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (records.length === 0) {
             const empty = document.createElement("p");
             empty.className = "empty-history";
-            empty.textContent = "No reminder history yet.";
+            empty.textContent = t("noHistory");
 
             historyList.appendChild(empty);
             return;
@@ -638,10 +775,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const details = document.createElement("p");
 
             details.textContent =
-                `${record.date} • ${formatTime(record.time)} • ` +
+                `${formatDate(record.date)} • ${formatTime(record.time)} • ` +
                 (record.status === "taken"
-                    ? "Patient reported taken"
-                    : "Skipped");
+                    ? t("patientReportedTaken")
+                    : t("skipped"));
 
             item.append(medicine, details);
             historyList.appendChild(item);
@@ -678,6 +815,13 @@ document.addEventListener("DOMContentLoaded", () => {
         if (upcomingElement) upcomingElement.textContent = upcoming;
     }
 
+    // Refresh all reminder sections together.
+    function renderAll() {
+        renderSchedule();
+        renderHistory();
+        renderSummary();
+    }
+
     // ---------- BROWSER NOTIFICATIONS ----------
 
     let notificationButton =
@@ -688,26 +832,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
         notificationButton.id = "notificationPermissionBtn";
         notificationButton.type = "button";
-        notificationButton.textContent = "Enable Browser Notifications";
         notificationButton.className = "notification-btn";
 
         document.querySelector(".reminders-heading")
             ?.appendChild(notificationButton);
     }
 
+    function updateNotificationButton() {
+        if (!notificationButton) return;
+
+        notificationButton.textContent =
+            "Notification" in window &&
+            Notification.permission === "granted"
+                ? t("notificationsEnabled")
+                : t("enableNotifications");
+    }
+
     notificationButton?.addEventListener("click", async () => {
         if (!("Notification" in window)) {
-            alert("This browser does not support notifications.");
+            alert(t("unsupportedNotifications"));
             return;
         }
 
         try {
-            const permission = await Notification.requestPermission();
-
-            notificationButton.textContent =
-                permission === "granted"
-                    ? "Notifications Enabled"
-                    : "Enable Browser Notifications";
+            await Notification.requestPermission();
+            updateNotificationButton();
         } catch (error) {
             console.error("Notification permission error:", error);
         }
@@ -751,8 +900,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Notification" in window &&
                     Notification.permission === "granted"
                 ) {
-                    new Notification("DAWAZ Medicine Reminder", {
-                        body: `Reminder time for ${reminder.medicine}.`,
+                    new Notification(t("notificationTitle"), {
+                        body: t("notificationBody", {
+                            medicine: reminder.medicine
+                        }),
                         tag: notificationKey
                     });
                 }
@@ -763,7 +914,38 @@ document.addEventListener("DOMContentLoaded", () => {
     // Check every 10 seconds while this page is open.
     setInterval(checkNotifications, 10000);
 
+    // ---------- LANGUAGE CHANGE ----------
+
+    window.addEventListener("dawazLanguageChanged", () => {
+        renderAll();
+        updateNotificationButton();
+
+        if (modal && !modal.hidden) {
+            if (modalTitle) {
+                modalTitle.textContent = editingId
+                    ? t("editReminder")
+                    : t("addReminder");
+            }
+
+            const currentTimes = collectTimes();
+            updateTimeFields(currentTimes);
+        }
+    });
+
     // ---------- INITIAL LOAD ----------
 
+    if (dateElement) {
+        dateElement.textContent = new Date().toLocaleDateString(
+            getLanguage() === "hi" ? "hi-IN" : "en-IN",
+            {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }
+        );
+    }
+
+    updateNotificationButton();
     renderAll();
 });
