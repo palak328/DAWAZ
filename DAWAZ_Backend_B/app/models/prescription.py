@@ -72,6 +72,16 @@ class PrescriptionItem(Base):
 
     identity_confirmed = Column(Boolean, nullable=False, default=False)
     needs_review = Column(Boolean, nullable=False, default=True)
+    reviewed_by_patient = Column(
+        Boolean,
+        nullable=False,
+        default=False
+    )
+
+    reviewed_at = Column(
+        DateTime(timezone=True),
+        nullable=True
+    )
 
     strengths_found = Column(JSON, nullable=True)
     unresolved_fields = Column(JSON, nullable=True)
