@@ -1,283 +1,58 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const draft = JSON.parse(
+        sessionStorage.getItem("dawazPrescriptionDraft") || "null"
+    );
 
-// ==========================================
-// DAWAZ - MEDICINE REVIEW
-// ==========================================
+    const container = document.querySelector(
+        "#reviewContainer, #medicineReview, main"
+    );
 
+    if (!container) return;
 
-// 1. CHECK PRESCRIPTION WORKFLOW
-
-const prescriptionWorkflow = JSON.parse(
-    sessionStorage.getItem("prescriptionWorkflow") || "null"
-);
-
-if (!prescriptionWorkflow) {
-    alert("Please upload a prescription first.");
-    window.location.href = "prescription.html";
-}
-
-
-// 2. GET HTML ELEMENTS
-
-const medicineList = document.getElementById("medicineList");
-const addMedicineBtn = document.getElementById("addMedicineBtn");
-const confirmDetails = document.getElementById("confirmDetails");
-const confirmBtn = document.getElementById("confirmBtn");
-const reviewMessage = document.getElementById("reviewMessage");
-
-
-// 3. CREATE MEDICINE CARD
-
-function createMedicineCard(number) {
-
-    const card = document.createElement("article");
-
-    card.className = "medicine-form-card";
-
-    card.innerHTML = `
-        <div class="medicine-card-heading">
-            <h3>Medicine ${number}</h3>
-
-            <button type="button" class="remove-btn">
-                Remove
-            </button>
-        </div>
-
-        <div class="form-grid">
-
-            <div class="form-group">
-                <label>Medicine Name</label>
-                <input
-                    type="text"
-                    name="medicineName"
-                    placeholder="Enter medicine name"
-                    required
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Strength</label>
-                <input
-                    type="text"
-                    name="strength"
-                    placeholder="As written on prescription"
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Dosage</label>
-                <input
-                    type="text"
-                    name="dosage"
-                    placeholder="As prescribed"
-                >
-            </div>
-
-            <div class="form-group">
-                <label>Frequency</label>
-                <input
-                    type="text"
-                    name="frequency"
-                    placeholder="As prescribed"
-                >
-            </div>
-
-            <div class="form-group full-width">
-                <label>Instructions</label>
-                <textarea
-                    name="instructions"
-                    placeholder="Enter instructions from prescription"
-                ></textarea>
-            </div>
-
-        </div>
-    `;
-
-    return card;
-}
-
-
-// 4. ADD MEDICINE
-
-addMedicineBtn.addEventListener("click", function () {
-
-    const number =
-        medicineList.querySelectorAll(".medicine-form-card").length + 1;
-
-    const newCard = createMedicineCard(number);
-
-    medicineList.appendChild(newCard);
-
-    updateMedicineNumbers();
-    resetConfirmation();
-
-});
-
-
-// 5. REMOVE MEDICINE
-
-medicineList.addEventListener("click", function (event) {
-
-    if (event.target.classList.contains("remove-btn")) {
-
-        const cards =
-            medicineList.querySelectorAll(".medicine-form-card");
-
-        if (cards.length === 1) {
-
-            reviewMessage.textContent =
-                "At least one medicine entry is required.";
-
-            reviewMessage.style.color = "#C34E42";
-
-            return;
-        }
-
-        event.target.closest(".medicine-form-card").remove();
-
-        updateMedicineNumbers();
-        resetConfirmation();
-
+    if (!draft) {
+        container.textContent = "No prescription draft found. Upload a prescription first.";
+        return;
     }
 
-});
+    const heading = document.createElement("h2");
+    heading.textContent = "Prescription draft review";
+    container.prepend(heading);
 
+    const notice = document.createElement("p");
+    notice.textContent =
+        "This is an unconfirmed draft. Check every medicine and instruction with the original prescription and a qualified healthcare professional.";
+    container.appendChild(notice);
 
-// 6. UPDATE MEDICINE NUMBERS
+    const data = draft.extraction_result || draft.extracted_data ||
+        draft.data || draft;
 
-function updateMedicineNumbers() {
+    const medicines = data.medicines || data.items || [];
 
-    const cards =
-        medicineList.querySelectorAll(".medicine-form-card");
+    if (!medicines.length) {
+        const message = document.createElement("p");
+        message.textContent =
+            "No medicine entries were extracted. Review the original prescription manually.";
+        container.appendChild(message);
+        return;
+    }
 
-    cards.forEach(function (card, index) {
+    medicines.forEach((medicine, index) => {
+        const card = document.createElement("section");
+        card.className = "review-medicine-card";
 
-        card.querySelector("h3").textContent =
-            `Medicine ${index + 1}`;
+        const title = document.createElement("h3");
+        title.textContent = medicine.medicine_name ||
+            medicine.name || `Medicine ${index + 1}`;
 
+        const details = document.createElement("pre");
+        details.textContent = JSON.stringify(medicine, null, 2);
+
+        card.append(title, details);
+        container.appendChild(card);
     });
 
-}
-
-
-// 7. RESET CONFIRMATION
-
-function resetConfirmation() {
-
-    confirmDetails.checked = false;
-    confirmBtn.disabled = true;
-
-    reviewMessage.textContent = "";
-
-}
-
-
-// 8. CONFIRMATION CHECKBOX
-
-confirmDetails.addEventListener("change", function () {
-
-    confirmBtn.disabled = !confirmDetails.checked;
-
-    reviewMessage.textContent = "";
-
-});
-
-
-// 9. RESET WHEN MEDICINE DETAILS CHANGE
-
-medicineList.addEventListener("input", function () {
-
-    resetConfirmation();
-
-});
-
-
-// 10. VALIDATE MEDICINE DETAILS
-
-function validateMedicines() {
-
-    const cards =
-        medicineList.querySelectorAll(".medicine-form-card");
-
-    const medicines = [];
-
-    for (const card of cards) {
-
-        const medicine = {
-
-            name: card.querySelector(
-                '[name="medicineName"]'
-            ).value.trim(),
-
-            strength: card.querySelector(
-                '[name="strength"]'
-            ).value.trim(),
-
-            dosage: card.querySelector(
-                '[name="dosage"]'
-            ).value.trim(),
-
-            frequency: card.querySelector(
-                '[name="frequency"]'
-            ).value.trim(),
-
-            instructions: card.querySelector(
-                '[name="instructions"]'
-            ).value.trim()
-
-        };
-
-        if (!medicine.name) {
-            return null;
-        }
-
-        medicines.push(medicine);
-
-    }
-
-    return medicines;
-
-}
-
-
-// 11. CONFIRM MEDICINES
-
-confirmBtn.addEventListener("click", async function () {
-
-    const medicines = validateMedicines();
-
-    if (!medicines) {
-
-        reviewMessage.textContent =
-            "Please enter a medicine name for every medicine.";
-
-        reviewMessage.style.color = "#C34E42";
-
-        confirmDetails.checked = false;
-        confirmBtn.disabled = true;
-
-        return;
-    }
-
-    if (!confirmDetails.checked) {
-
-        reviewMessage.textContent =
-            "Please confirm that you have reviewed the details.";
-
-        reviewMessage.style.color = "#C34E42";
-
-        return;
-    }
-
-    // Backend API integration will be added here.
-    // These details are validated but not permanently saved.
-
-    console.log("Prescription workflow:", prescriptionWorkflow);
-
-    console.log("Confirmed medicine details:", medicines);
-
-    reviewMessage.textContent =
-        "Details validated successfully. Secure saving will be available after backend integration.";
-
-    reviewMessage.style.color = "#0B6E6E";
-
+    const status = document.createElement("p");
+    status.textContent =
+        "Draft only — reminders have not been activated.";
+    container.appendChild(status);
 });
